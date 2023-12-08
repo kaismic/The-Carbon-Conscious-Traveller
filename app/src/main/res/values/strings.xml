@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">The Carbon-Conscious Traveller</string>
-    <string name="title_activity_maps">MapsActivity</string>
+    <string name="title_activity_maps">The Carbon-Conscious Traveller</string>
+    <string name="input_origin_hint">Choose a start location</string>
+    <string name="input_dest_hint">Choose destination</string>
 </resources>

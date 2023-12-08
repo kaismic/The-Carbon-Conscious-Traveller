@@ -11,30 +11,20 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MapsActivity" />
+        tools:context=".MainActivity" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="@color/design_default_color_background">
-        <com.google.android.material.textfield.TextInputLayout
+        <androidx.fragment.app.FragmentContainerView android:id="@+id/input_origin"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/input_origin"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Choose start location"/>
-        </com.google.android.material.textfield.TextInputLayout>
-        <com.google.android.material.textfield.TextInputLayout
+            android:layout_height="wrap_content"
+            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment" />
+        <androidx.fragment.app.FragmentContainerView android:id="@+id/input_dest"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/input_destination"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Choose destination"/>
-        </com.google.android.material.textfield.TextInputLayout>
+            android:layout_height="wrap_content"
+            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment" />
     </LinearLayout>
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
@@ -52,14 +42,6 @@
             <com.google.android.material.bottomsheet.BottomSheetDragHandleView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/calculate_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/Widget.Material3.Button"
-                android:layout_gravity="center_horizontal"
-                android:enabled="false"
-                android:text="Calculate"/>
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/result_display"
                 android:layout_width="wrap_content"

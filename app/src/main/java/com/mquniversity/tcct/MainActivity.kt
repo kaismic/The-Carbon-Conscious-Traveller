@@ -58,6 +58,9 @@ private const val DEFAULT_ZOOM = 15f
 /**
  * Request code for location permission request.
  *
+ * https://github.com/googlemaps-samples/android-samples/blob/8caba9ce7b04ff9385422074e8e21ed1a9174de7/ApiDemos/kotlin/app/src/gms/java/com/example/kotlindemos/MyLocationDemoActivity.kt#L184C63-L184C63
+ * https://developers.google.com/maps/documentation/android-sdk/location
+ *
  * @see .onRequestPermissionsResult
  */
 private const val LOCATION_PERMISSION_REQUEST_CODE = 1

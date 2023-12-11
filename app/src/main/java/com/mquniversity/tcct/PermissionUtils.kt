@@ -15,7 +15,6 @@
 // Source: https://github.com/googlemaps-samples/android-samples/blob/8caba9ce7b04ff9385422074e8e21ed1a9174de7/ApiDemos/kotlin/app/src/gms/java/com/example/kotlindemos/PermissionUtils.kt
 package com.mquniversity.tcct
 
-import android.Manifest
 import android.Manifest.permission
 import android.app.AlertDialog
 import android.app.Dialog

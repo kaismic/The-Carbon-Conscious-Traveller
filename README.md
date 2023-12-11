@@ -8,4 +8,4 @@
    ```
    MAPS_API_KEY={YOUR_API_KEY}
    ```
-   where `{YOUR_API_KEY}` is your generated API key from google maps.
+   where `{YOUR_API_KEY}` is your generated API key.

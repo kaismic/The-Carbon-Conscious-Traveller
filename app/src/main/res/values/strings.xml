@@ -3,4 +3,7 @@
     <string name="title_activity_maps">The Carbon-Conscious Traveller</string>
     <string name="input_origin_hint">Choose a start location</string>
     <string name="input_dest_hint">Choose destination</string>
+    <string name="permission_rationale_location">Access to the location service is required to show your current location on the map.</string>
+    <string name="location_permission_denied">This app requires location permission to use current location as the start or end location.</string>
+    <string name="permission_required_toast">Location permission is required for this app.</string>
 </resources>

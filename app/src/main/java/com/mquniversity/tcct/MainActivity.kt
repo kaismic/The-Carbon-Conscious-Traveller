@@ -7,6 +7,8 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
+import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -96,10 +98,17 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // add TransportSelectionLayout to the transport_mode_selection view (HorizontalScrollView)
+        val transportSelectionView: HorizontalScrollView = findViewById(R.id.transport_mode_selection)
+        transportSelectionView.addView(TransportSelectionLayout(transportSelectionView.context))
+
+        val test1: Button = findViewById(R.id.test1)
+
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager

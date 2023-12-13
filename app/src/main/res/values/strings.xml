@@ -6,4 +6,9 @@
     <string name="permission_rationale_location">Access to the location service is required to show your current location on the map.</string>
     <string name="location_permission_denied">This app requires location permission to use current location as the start or end location.</string>
     <string name="permission_required_toast">Location permission is required for this app.</string>
+    
+    <string-array name="private_vehicle_type">
+        <item>Car</item>
+        <item>Motorcycle</item>
+    </string-array>
 </resources>

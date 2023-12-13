@@ -163,9 +163,9 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
     }
 
     fun calculate() {
-//        if (origin == null || destination == null) {
-//            return
-//        }
+        if (origin == null || destination == null) {
+            return
+        }
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         showVehicleDetailQuery()
 //        resultDisplay.text = "Calculating..."

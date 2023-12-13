@@ -4,19 +4,16 @@ import android.Manifest
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.core.content.ContextCompat
-import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.CurrentLocationRequest
@@ -31,31 +28,33 @@ import com.google.android.gms.location.SettingsClient
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener
-import com.google.android.gms.maps.GoogleMap.OnMyLocationClickListener
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
 import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.CircularBounds
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.textview.MaterialTextView
-import com.google.maps.DirectionsApi
 import com.google.maps.DirectionsApiRequest
 import com.google.maps.GeoApiContext
 import com.mquniversity.tcct.PermissionUtils.isPermissionGranted
 import com.mquniversity.tcct.databinding.ActivityMapsBinding
-import java.io.IOException
 
 /**
  * location bias radius for search result suggestion. Value range: [0 - 50000] in meters
  */
 private const val BIAS_RADIUS: Double = 5000.0
 private const val DEFAULT_ZOOM = 15f
+private val NO_VEHICLE_SELECTION_MODES = arrayOf(
+    TransportModes.PUBLIC_TRANSPORT.ordinal,
+    TransportModes.BIKE.ordinal,
+    TransportModes.WALK.ordinal,
+    TransportModes.PUBLIC_TRANSPORT.ordinal,
+    TransportModes.AIRPLANE
+)
 
 /**
  * Request code for location permission request.
@@ -76,7 +75,7 @@ private const val REQUEST_CHECK_SETTINGS = 1
 
 
 class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
-    OnMyLocationClickListener, OnMapReadyCallback, OnRequestPermissionsResultCallback {
+    OnMapReadyCallback, OnRequestPermissionsResultCallback {
     private var permissionDenied = false
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
@@ -95,6 +94,8 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
     private lateinit var resultDisplay: TextView
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
 
+    private lateinit var transportSelection: TransportSelection
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -103,10 +104,8 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
 
         // add TransportSelectionLayout to the transport_mode_selection view (HorizontalScrollView)
         val transportSelectionView: HorizontalScrollView = findViewById(R.id.transport_mode_selection)
-        transportSelectionView.addView(TransportSelectionLayout(transportSelectionView.context))
-
-        val test1: Button = findViewById(R.id.test1)
-
+        transportSelection = TransportSelection(this)
+        transportSelectionView.addView(transportSelection)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -159,32 +158,44 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
             }
         })
 
-        resultDisplay = findViewById<MaterialTextView>(R.id.result_display)
         bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
+        bottomSheetBehavior.peekHeight = resources.displayMetrics.heightPixels / 4
     }
 
     fun calculate() {
-        if (origin == null || destination == null) {
-            return
-        }
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
-        resultDisplay.text = "Calculating..."
-        directionsApiRequest = DirectionsApi.getDirections(geoApiContext, origin?.address, destination?.address)
-        try {
-            val response = directionsApiRequest.await()
-            val leg = response.routes[0].legs[0]
-            val totalEmission = leg.distance.inMeters * 0.17 / 1000 // kg
-            val totalDist = leg.distance.inMeters / 1000f // km
-            resultDisplay.text = "This trip would produce " + "%.2f".format(totalEmission) + "kg of CO2 over " + totalDist + "km"
-        } catch (e: ApiException) {
-            resultDisplay.text = "An error has occurred. Please try again few seconds later."
-            Log.e("Calculation", "${e.statusCode}: ${e.status}: ${e.message}")
-        } catch (e: InterruptedException) {
-            resultDisplay.text = "An error has occurred. Please try again few seconds later."
-            Log.e("Calculation", "${e.message}")
-        } catch (e: IOException) {
-            resultDisplay.text = "An error has occurred. Please try again few seconds later."
-            Log.e("Calculation", "${e.message}")
+//        if (origin == null || destination == null) {
+//            return
+//        }
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        showVehicleDetailQuery()
+//        resultDisplay.text = "Calculating..."
+//        directionsApiRequest = DirectionsApi.getDirections(geoApiContext, origin?.address, destination?.address)
+//        try {
+//            val response = directionsApiRequest.await()
+//            val leg = response.routes[0].legs[0]
+//            val totalEmission = leg.distance.inMeters * 0.17 / 1000 // kg
+//            val totalDist = leg.distance.inMeters / 1000f // km
+//            resultDisplay.text = "This trip would produce " + "%.2f".format(totalEmission) + "kg of CO2 over " + totalDist + "km"
+//        } catch (e: ApiException) {
+//            resultDisplay.text = "An error has occurred. Please try again few seconds later."
+//            Log.e("Calculation", "${e.statusCode}: ${e.status}: ${e.message}")
+//        } catch (e: InterruptedException) {
+//            resultDisplay.text = "An error has occurred. Please try again few seconds later."
+//            Log.e("Calculation", "${e.message}")
+//        } catch (e: IOException) {
+//            resultDisplay.text = "An error has occurred. Please try again few seconds later."
+//            Log.e("Calculation", "${e.message}")
+//        }
+    }
+
+    private fun showVehicleDetailQuery() {
+        when (transportSelection.currMode) {
+            TransportModes.PRIVATE_VEHICLE.ordinal -> {
+                val vehicleDetailQuery = VehicleDetailQuery(this, "What type of vehicle?")
+                vehicleDetailQuery.addQuery("Vehicle Type", R.array.private_vehicle_type)
+                val bottomSheet: LinearLayout = findViewById(R.id.bottom_sheet)
+                bottomSheet.addView(vehicleDetailQuery)
+            }
         }
     }
 
@@ -204,7 +215,6 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
         googleMap.uiSettings.isTiltGesturesEnabled = false
 
         googleMap.setOnMyLocationButtonClickListener(this)
-        googleMap.setOnMyLocationClickListener(this)
         enableMyLocation()
     }
 
@@ -315,12 +325,6 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
         // (the camera animates to the user's current position).
         return false
     }
-
-    override fun onMyLocationClick(location: Location) {
-        Toast.makeText(this, "Current location:\n$location", Toast.LENGTH_LONG)
-            .show()
-    }
-
 
     override fun onRequestPermissionsResult(
         requestCode: Int,

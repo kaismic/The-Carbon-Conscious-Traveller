@@ -1,22 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
-    <androidx.fragment.app.FragmentContainerView android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".MainActivity" />
+    android:orientation="vertical"
+    android:background="@color/design_default_color_background">
     <LinearLayout android:id="@+id/input_container"
-        android:layout_alignParentTop="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@color/design_default_color_background">
+        android:orientation="vertical">
         <androidx.fragment.app.FragmentContainerView android:id="@+id/input_origin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -25,43 +19,34 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment" />
-        <Button
-            android:id="@+id/test1"
-            style="@style/Widget.Material3.Button.TextButton.Icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:icon="@drawable/outline_flight_24"/>
     </LinearLayout>
     <HorizontalScrollView android:id="@+id/transport_mode_selection"
-        android:layout_below="@+id/input_container"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_height="wrap_content">
+    </HorizontalScrollView>
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentBottom="true">
-        <LinearLayout android:id="@+id/bottom_sheet"
+        android:layout_height="wrap_content">
+        <androidx.fragment.app.FragmentContainerView android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            style="@style/Widget.Material3.BottomSheet"
-            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-            app:behavior_peekHeight="96dp"
-            app:behavior_hideable="false">
-            <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+            tools:context=".MainActivity" />
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <LinearLayout android:id="@+id/bottom_sheet"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-            <com.google.android.material.textview.MaterialTextView android:id="@+id/result_display"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="Calculation results are shown here"/>
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="Assuming 170g CO2 produced per km"/>
-        </LinearLayout>
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-</RelativeLayout>
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                style="@style/Widget.Material3.BottomSheet"
+                app:layout_behavior="@string/bottom_sheet_behavior"
+                app:behavior_hideable="false">
+                <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </RelativeLayout>
+</LinearLayout>
 

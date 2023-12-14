@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -38,6 +37,7 @@ import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.snackbar.Snackbar
 import com.google.maps.DirectionsApiRequest
 import com.google.maps.GeoApiContext
 import com.mquniversity.tcct.PermissionUtils.isPermissionGranted
@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
 
     private lateinit var directionsApiRequest: DirectionsApiRequest
 
-    private lateinit var resultDisplay: TextView
+    private lateinit var bottomSheet: LinearLayout
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
 
     private lateinit var transportSelection: TransportSelection
@@ -141,6 +141,12 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
         // Set up a PlaceSelectionListener to handle the response.
         inputOrigin.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
+                if (destination != null && place.address == destination?.address) {
+                    inputOrigin.setText("") // TODO figure out why this doesn't work
+                    val snack = Snackbar.make(binding.root, resources.getString(R.string.same_location_warning), Snackbar.LENGTH_SHORT)
+                    snack.show()
+                    return
+                }
                 origin = place
                 calculate()
             }
@@ -150,6 +156,12 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
         })
         inputDest.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
+                if (origin != null && place.address == origin?.address) {
+                    inputDest.setText("") // TODO figure out why this doesn't work
+                    val snack = Snackbar.make(binding.root, resources.getString(R.string.same_location_warning), Snackbar.LENGTH_SHORT)
+                    snack.show()
+                    return
+                }
                 destination = place
                 calculate()
             }
@@ -158,7 +170,8 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
             }
         })
 
-        bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
+        bottomSheet = findViewById(R.id.bottom_sheet)
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
         bottomSheetBehavior.peekHeight = resources.displayMetrics.heightPixels / 4
     }
 
@@ -167,6 +180,7 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
             return
         }
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        clearBottomSheet()
         showVehicleDetailQuery()
 //        resultDisplay.text = "Calculating..."
 //        directionsApiRequest = DirectionsApi.getDirections(geoApiContext, origin?.address, destination?.address)
@@ -193,10 +207,13 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
             TransportModes.PRIVATE_VEHICLE.ordinal -> {
                 val vehicleDetailQuery = VehicleDetailQuery(this, "What type of vehicle?")
                 vehicleDetailQuery.addQuery("Vehicle Type", R.array.private_vehicle_type)
-                val bottomSheet: LinearLayout = findViewById(R.id.bottom_sheet)
                 bottomSheet.addView(vehicleDetailQuery)
             }
         }
+    }
+
+    private fun clearBottomSheet() {
+        bottomSheet.removeViews(1, bottomSheet.childCount - 1)
     }
 
     /**

@@ -48,13 +48,6 @@ import com.mquniversity.tcct.databinding.ActivityMapsBinding
  */
 private const val BIAS_RADIUS: Double = 5000.0
 private const val DEFAULT_ZOOM = 15f
-private val NO_VEHICLE_SELECTION_MODES = arrayOf(
-    TransportModes.PUBLIC_TRANSPORT.ordinal,
-    TransportModes.BIKE.ordinal,
-    TransportModes.WALK.ordinal,
-    TransportModes.PUBLIC_TRANSPORT.ordinal,
-    TransportModes.AIRPLANE
-)
 
 /**
  * Request code for location permission request.
@@ -173,14 +166,16 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
         bottomSheet = findViewById(R.id.bottom_sheet)
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
         bottomSheetBehavior.peekHeight = resources.displayMetrics.heightPixels / 4
+
+        calculate()
     }
 
     fun calculate() {
-        if (origin == null || destination == null) {
-            return
-        }
+//        if (origin == null || destination == null) {
+//            return
+//        }
+
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        clearBottomSheet()
         showVehicleDetailQuery()
 //        resultDisplay.text = "Calculating..."
 //        directionsApiRequest = DirectionsApi.getDirections(geoApiContext, origin?.address, destination?.address)
@@ -205,15 +200,27 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
     private fun showVehicleDetailQuery() {
         when (transportSelection.currMode) {
             TransportModes.PRIVATE_VEHICLE.ordinal -> {
-                val vehicleDetailQuery = VehicleDetailQuery(this, "What type of vehicle?")
-                vehicleDetailQuery.addQuery("Vehicle Type", R.array.private_vehicle_type)
-                bottomSheet.addView(vehicleDetailQuery)
+                val tag = resources.getString(R.string.fragment_tag_car_info)
+                var carDetailQueryFragment = supportFragmentManager.findFragmentByTag(tag)
+                if (carDetailQueryFragment == null) {
+                    carDetailQueryFragment = QueryFragment()
+                    val bundle = Bundle()
+                    bundle.putString("header", "Car Information")
+                    bundle.putStringArray("labels", arrayOf("Size", "Fuel type"))
+                    bundle.putIntArray("options", intArrayOf(R.array.car_sizes, R.array.car_fuel_types))
+                    carDetailQueryFragment.arguments = bundle
+                    supportFragmentManager
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, carDetailQueryFragment, tag)
+                        .commit()
+                } else {
+                    supportFragmentManager
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, carDetailQueryFragment, tag)
+                        .commit()
+                }
             }
         }
-    }
-
-    private fun clearBottomSheet() {
-        bottomSheet.removeViews(1, bottomSheet.childCount - 1)
     }
 
     /**

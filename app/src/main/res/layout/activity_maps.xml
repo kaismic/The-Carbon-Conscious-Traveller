@@ -45,6 +45,11 @@
                 <com.google.android.material.bottomsheet.BottomSheetDragHandleView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/fragment_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                </androidx.fragment.app.FragmentContainerView>
             </LinearLayout>
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
     </RelativeLayout>

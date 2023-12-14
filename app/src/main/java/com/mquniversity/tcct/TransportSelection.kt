@@ -20,9 +20,8 @@ class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityC
     }
     private val icons: IntArray = intArrayOf(
         R.drawable.outline_directions_car_24,
+        R.drawable.outline_sports_motorsports_24,
         R.drawable.outline_directions_subway_24,
-        R.drawable.outline_directions_walk_24,
-        R.drawable.outline_directions_bike_24,
         R.drawable.outline_directions_boat_24,
         R.drawable.outline_flight_24
     )

@@ -2,9 +2,8 @@ package com.mquniversity.tcct
 
 enum class TransportModes {
     PRIVATE_VEHICLE,
+    MOTORCYCLE,
     PUBLIC_TRANSPORT,
-    WALK,
-    BIKE,
     FERRY,
     AIRPLANE
 }

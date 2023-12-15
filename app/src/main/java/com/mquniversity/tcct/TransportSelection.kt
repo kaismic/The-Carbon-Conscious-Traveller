@@ -12,7 +12,7 @@ import androidx.core.content.res.ResourcesCompat
 class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityContext) {
     var currMode: Int = 0
 
-    private val btns: Array<RadioButton> = Array(TransportModes.entries.size) {
+    private val btns: Array<RadioButton> = Array(TravelModes.entries.size) {
         RadioButton(ContextThemeWrapper(
             context,
             com.google.android.material.R.style.Widget_Material3_Button_TextButton_Icon
@@ -22,7 +22,6 @@ class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityC
         R.drawable.outline_directions_car_24,
         R.drawable.outline_sports_motorsports_24,
         R.drawable.outline_directions_subway_24,
-        R.drawable.outline_directions_boat_24,
         R.drawable.outline_flight_24
     )
     init {
@@ -37,7 +36,7 @@ class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityC
         this.dividerDrawable = shapeDivider
         this.showDividers = SHOW_DIVIDER_MIDDLE
 
-        for (i in TransportModes.entries.indices) {
+        for (i in TravelModes.entries.indices) {
             this.addView(btns[i])
             val btnLayoutParams = LayoutParams(
                 LayoutParams.WRAP_CONTENT,
@@ -61,8 +60,5 @@ class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityC
             btns[i].text = "32 min"
         }
         btns[currMode].isChecked = true
-
-        // TODO delete after testing
-        btns[2].isEnabled = false
     }
 }

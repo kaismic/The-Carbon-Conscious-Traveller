@@ -9,6 +9,7 @@ import android.util.Log
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
@@ -42,6 +43,8 @@ import com.google.maps.DirectionsApiRequest
 import com.google.maps.GeoApiContext
 import com.mquniversity.tcct.PermissionUtils.isPermissionGranted
 import com.mquniversity.tcct.databinding.ActivityMapsBinding
+import java.util.Timer
+import kotlin.concurrent.schedule
 
 /**
  * location bias radius for search result suggestion. Value range: [0 - 50000] in meters
@@ -77,8 +80,8 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
-    private lateinit var inputOrigin: AutocompleteSupportFragment
-    private lateinit var inputDest: AutocompleteSupportFragment
+    private lateinit var originInput: AutocompleteSupportFragment
+    private lateinit var destInput: AutocompleteSupportFragment
     private var origin: Place? = null
     private var destination: Place? = null
 
@@ -88,6 +91,9 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
 
     private lateinit var transportSelection: TransportSelection
+    private lateinit var backPressedHandler: OnBackPressedCallback
+
+    private lateinit var calculationValues: CalculationValues
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,10 +101,40 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        calculationValues = CalculationValues(this)
+
         // add TransportSelectionLayout to the transport_mode_selection view (HorizontalScrollView)
         val transportSelectionView: HorizontalScrollView = findViewById(R.id.transport_mode_selection)
         transportSelection = TransportSelection(this)
+        transportSelection.setOnCheckedChangeListener { _, _ ->
+            calculate()
+        }
         transportSelectionView.addView(transportSelection)
+
+        backPressedHandler = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                val visibleFrag = supportFragmentManager.findFragmentById(R.id.fragment_container)
+                if (visibleFrag != null) {
+                    when (visibleFrag) {
+                        is CarQueryFragment, is MotorcycleQueryFragment -> {
+                            finish()
+                            return
+                        }
+                    }
+                } else {
+                    isEnabled = false
+                }
+                supportFragmentManager.popBackStack()
+                if (supportFragmentManager.backStackEntryCount <= 1) {
+                    isEnabled = false
+                }
+            }
+        }
+
+        onBackPressedDispatcher.addCallback(
+            this,
+            backPressedHandler
+        )
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -122,20 +158,26 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
             Places.initialize(applicationContext, apiKey.toString(), resources.configuration.locales[0])
         }
 
-        inputOrigin = supportFragmentManager.findFragmentById(R.id.input_origin) as AutocompleteSupportFragment
-        inputOrigin.setHint(resources.getString(R.string.input_origin_hint))
-        inputDest = supportFragmentManager.findFragmentById(R.id.input_dest) as AutocompleteSupportFragment
-        inputDest.setHint(resources.getString(R.string.input_dest_hint))
+        originInput = supportFragmentManager.findFragmentById(R.id.input_origin) as AutocompleteSupportFragment
+        originInput.setHint(resources.getString(R.string.input_origin_hint))
+        destInput = supportFragmentManager.findFragmentById(R.id.input_dest) as AutocompleteSupportFragment
+        destInput.setHint(resources.getString(R.string.input_dest_hint))
 
         // Specify the types of place data to return.
-        inputOrigin.setPlaceFields(listOf(Place.Field.ADDRESS, Place.Field.NAME))
-        inputDest.setPlaceFields(listOf(Place.Field.ADDRESS, Place.Field.NAME))
+        originInput.setPlaceFields(listOf(Place.Field.ADDRESS, Place.Field.NAME))
+        destInput.setPlaceFields(listOf(Place.Field.ADDRESS, Place.Field.NAME))
 
         // Set up a PlaceSelectionListener to handle the response.
-        inputOrigin.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+        originInput.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
                 if (destination != null && place.address == destination?.address) {
-                    inputOrigin.setText("") // TODO figure out why this doesn't work
+                    // delay is needed probably because after fetching the Place
+                    // with the API, the AutocompleteSupportFragment sets the text to the place name.
+                    // and since this API request is asynchronous and takes time,
+                    // originInput.setText(null) is overwritten after the Place is fetched.
+                    Timer().schedule(100) {
+                        originInput.setText(null)
+                    }
                     val snack = Snackbar.make(binding.root, resources.getString(R.string.same_location_warning), Snackbar.LENGTH_SHORT)
                     snack.show()
                     return
@@ -147,10 +189,12 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
                 Log.i("Origin Input", "$status")
             }
         })
-        inputDest.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+        destInput.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
                 if (origin != null && place.address == origin?.address) {
-                    inputDest.setText("") // TODO figure out why this doesn't work
+                    Timer().schedule(100) {
+                        destInput.setText(null)
+                    }
                     val snack = Snackbar.make(binding.root, resources.getString(R.string.same_location_warning), Snackbar.LENGTH_SHORT)
                     snack.show()
                     return
@@ -166,14 +210,12 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
         bottomSheet = findViewById(R.id.bottom_sheet)
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
         bottomSheetBehavior.peekHeight = resources.displayMetrics.heightPixels / 4
-
-        calculate()
     }
 
     fun calculate() {
-//        if (origin == null || destination == null) {
-//            return
-//        }
+        if (origin == null || destination == null) {
+            return
+        }
 
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         showVehicleDetailQuery()
@@ -198,30 +240,44 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
     }
 
     private fun showVehicleDetailQuery() {
-        when (transportSelection.currMode) {
-            TransportModes.PRIVATE_VEHICLE.ordinal -> {
-                val tag = resources.getString(R.string.fragment_tag_car_info)
-                var carDetailQueryFragment = supportFragmentManager.findFragmentByTag(tag)
-                if (carDetailQueryFragment == null) {
-                    carDetailQueryFragment = QueryFragment()
-                    val bundle = Bundle()
-                    bundle.putString("header", "Car Information")
-                    bundle.putStringArray("labels", arrayOf("Size", "Fuel type"))
-                    bundle.putIntArray("options", intArrayOf(R.array.car_sizes, R.array.car_fuel_types))
-                    carDetailQueryFragment.arguments = bundle
-                    supportFragmentManager
-                        .beginTransaction()
-                        .replace(R.id.fragment_container, carDetailQueryFragment, tag)
-                        .commit()
-                } else {
-                    supportFragmentManager
-                        .beginTransaction()
-                        .replace(R.id.fragment_container, carDetailQueryFragment, tag)
-                        .commit()
-                }
+        val tag = when (transportSelection.currMode) {
+            TravelModes.CAR.ordinal -> resources.getString(R.string.fragment_tag_car_info)
+            TravelModes.MOTORCYCLE.ordinal -> resources.getString(R.string.fragment_tag_motorcycle_info)
+            else -> return
+        }
+        var frag = supportFragmentManager.findFragmentByTag(tag)
+        val transaction = supportFragmentManager.beginTransaction()
+        if (frag == null) {
+            frag = when (transportSelection.currMode) {
+                TravelModes.CAR.ordinal -> CarQueryFragment()
+                TravelModes.MOTORCYCLE.ordinal -> MotorcycleQueryFragment()
+                else -> return
             }
+            val bundle = Bundle()
+            when (transportSelection.currMode) {
+                TravelModes.CAR.ordinal -> {
+                    bundle.putStringArray("carSizes", calculationValues.carTypes.toTypedArray())
+                    bundle.putStringArray("carFuelTypes", calculationValues.carFuelTypes)
+                    bundle.putSerializable("carValues", calculationValues.carValuesMatrix.toTypedArray())
+                }
+                TravelModes.MOTORCYCLE.ordinal -> {
+                    bundle.putStringArray("motorcycleSizes", calculationValues.simpleTransportTypes[MOTORCYCLE]?.toTypedArray())
+                }
+                else -> return
+            }
+            frag.arguments = bundle
+            transaction
+                .replace(R.id.fragment_container, frag, tag)
+                .addToBackStack(tag)
+                .commit()
+            backPressedHandler.isEnabled = true
+        } else {
+            transaction
+                .replace(R.id.fragment_container, frag, tag)
+                .commit()
         }
     }
+
 
     /**
      * Manipulates the map once available.
@@ -281,7 +337,7 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
                             )
                             // set location bias for search results
                             // TODO figure out why this throws this error: java.lang.AssertionError: Unknown LocationBias type.
-                            // but it seems like I'm the first one who encountered this error... no matching search result on google
+                            // but it seems like I'm the first one who encountered this error... no similar search results on google
 //                            val bound = CircularBounds.newInstance(ll, BIAS_RADIUS)
 //                            inputOrigin.setLocationBias(bound)
 //                            inputDest.setLocationBias(bound)

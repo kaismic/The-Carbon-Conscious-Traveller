@@ -9,35 +9,5 @@
     <string name="same_location_warning">Cannot use same start location and destination</string>
 
     <string name="fragment_tag_car_info">CAR_INFO_QUERY</string>
-    
-    <string-array name="private_vehicle_type">
-        <item>Car</item>
-        <item>Motorcycle</item>
-    </string-array>
-
-    <string-array name="car_sizes">
-        <item>Unknown</item>
-        <item>Small</item>
-        <item>Medium</item>
-        <item>Large</item>
-        <item>Mini</item>
-        <item>Supermini</item>
-        <item>Lower medium</item>
-        <item>Upper medium</item>
-        <item>Executive</item>
-        <item>Luxury</item>
-        <item>Sports</item>
-        <item>Dual purpose 4X4</item>
-        <item>MPV</item>
-    </string-array>
-
-    <string-array name="car_fuel_types">
-        <item>Unknown</item>
-        <item>Diesel</item>
-        <item>Petrol</item>
-        <item>PHEV</item>
-        <item>BEV</item>
-        <item>CNG</item>
-        <item>LPG</item>
-    </string-array>
+    <string name="fragment_tag_motorcycle_info">MOTORCYCLE_INFO_QUERY</string>
 </resources>

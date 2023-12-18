@@ -10,10 +10,14 @@ import com.google.android.material.textfield.TextInputLayout
 
 class CarQueryFragment: QueryFragment() {
     private lateinit var sizeInput: TextInputLayout
-    private lateinit var fuelTypeInput: TextInputLayout
-
     private lateinit var sizeInputDropdown: MaterialAutoCompleteTextView
+    private lateinit var sizeOptions: Array<String>
+    private var currSizeIdx = -1
+
+    private lateinit var fuelTypeInput: TextInputLayout
     private lateinit var fuelTypeInputDropdown: MaterialAutoCompleteTextView
+    private lateinit var fuelTypeOptions: Array<String>
+    private var currFuelTypeIdx = -1
 
     private lateinit var fuelTypes: Array<String>
     private lateinit var carValues: Array<FloatArray>
@@ -34,19 +38,35 @@ class CarQueryFragment: QueryFragment() {
             carValues = args.getSerializable("carValues", Array<FloatArray>::class.java) as Array<FloatArray>
 
             sizeInput = TextInputLayout(ContextThemeWrapper(context, com.google.android.material.R.style.Widget_Material3_TextInputLayout_OutlinedBox_ExposedDropdownMenu))
-            initQuery(sizeInput, "Size", args.getStringArray("carSizes")!!)
+            sizeOptions = args.getStringArray("carSizes")!!
+            insertQuery(sizeInput, "Size", sizeOptions)
             sizeInputDropdown = sizeInput.editText as MaterialAutoCompleteTextView
 
             fuelTypeInput = TextInputLayout(ContextThemeWrapper(context, com.google.android.material.R.style.Widget_Material3_TextInputLayout_OutlinedBox_ExposedDropdownMenu))
-            initQuery(fuelTypeInput, "Fuel Type", emptyArray())
+            insertQuery(fuelTypeInput, "Fuel Type", emptyArray())
             fuelTypeInputDropdown = fuelTypeInput.editText as MaterialAutoCompleteTextView
 
             fuelTypeInput.isEnabled = false
 
-            (sizeInput.editText as MaterialAutoCompleteTextView).setOnItemClickListener { _, _, idx, _ ->
+            sizeInputDropdown.setOnItemClickListener { _, _, idx, _ ->
                 fuelTypeInput.isEnabled = false
-                setFuelTypeItems(idx)
+                if (currSizeIdx != idx) {
+                    setFuelTypeItems(idx)
+                }
                 fuelTypeInput.isEnabled = true
+            }
+            fuelTypeInputDropdown.setOnItemClickListener { _, _, idx, _ ->
+                currFuelTypeIdx = idx
+                calBtn.isEnabled = true
+            }
+
+            calBtn.setOnClickListener {
+                calBtn.isEnabled = false
+                val carResultFragment = CarResultFragment(sizeOptions[currSizeIdx], fuelTypeOptions[currFuelTypeIdx])
+                parentFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, carResultFragment, getString(R.string.fragment_tag_car_result))
+                    .commit()
             }
         }
 
@@ -54,6 +74,8 @@ class CarQueryFragment: QueryFragment() {
     }
 
     private fun setFuelTypeItems(selectedSizeIdx: Int) {
+        currSizeIdx = selectedSizeIdx
+        calBtn.isEnabled = false
         val options = mutableListOf<String>()
         fuelTypeInputDropdown.text = null
         for (i in carValues[selectedSizeIdx].indices) {
@@ -61,6 +83,7 @@ class CarQueryFragment: QueryFragment() {
                 options.add(fuelTypes[i])
             }
         }
-        fuelTypeInputDropdown.setSimpleItems(options.toTypedArray())
+        fuelTypeOptions = options.toTypedArray()
+        fuelTypeInputDropdown.setSimpleItems(fuelTypeOptions)
     }
 }

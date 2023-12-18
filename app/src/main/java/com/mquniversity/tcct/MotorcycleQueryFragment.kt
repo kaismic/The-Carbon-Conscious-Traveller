@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.R
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 
 class MotorcycleQueryFragment: QueryFragment() {
@@ -30,7 +31,10 @@ class MotorcycleQueryFragment: QueryFragment() {
                     R.style.Widget_Material3_TextInputLayout_OutlinedBox_ExposedDropdownMenu
                 )
             )
-            initQuery(sizeInput, "Size", args.getStringArray("motorcycleSizes")!!)
+            insertQuery(sizeInput, "Size", args.getStringArray("motorcycleSizes")!!)
+            (sizeInput.editText as MaterialAutoCompleteTextView).setOnItemClickListener { _, _, _, _ ->
+                calBtn.isEnabled = true
+            }
         }
 
         return mainLayout

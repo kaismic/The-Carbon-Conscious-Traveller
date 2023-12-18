@@ -31,6 +31,8 @@ import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
 import com.google.android.libraries.places.api.Places
@@ -39,10 +41,9 @@ import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
-import com.google.maps.DirectionsApiRequest
 import com.google.maps.GeoApiContext
 import com.mquniversity.tcct.PermissionUtils.isPermissionGranted
-import com.mquniversity.tcct.databinding.ActivityMapsBinding
+import com.mquniversity.tcct.databinding.MainActivityViewBinding
 import java.util.Timer
 import kotlin.concurrent.schedule
 
@@ -73,19 +74,17 @@ private const val REQUEST_CHECK_SETTINGS = 1
 class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
     OnMapReadyCallback, OnRequestPermissionsResultCallback {
     private var permissionDenied = false
-    private lateinit var mMap: GoogleMap
-    private lateinit var binding: ActivityMapsBinding
+    private lateinit var googleMap: GoogleMap
+    private lateinit var binding: MainActivityViewBinding
 
-    private lateinit var geoApiContext: GeoApiContext
+    lateinit var geoApiContext: GeoApiContext
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private lateinit var originInput: AutocompleteSupportFragment
     private lateinit var destInput: AutocompleteSupportFragment
-    private var origin: Place? = null
-    private var destination: Place? = null
-
-    private lateinit var directionsApiRequest: DirectionsApiRequest
+    var origin: Place? = null
+    var destination: Place? = null
 
     private lateinit var bottomSheet: LinearLayout
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
@@ -93,12 +92,12 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
     private lateinit var transportSelection: TransportSelection
     private lateinit var backPressedHandler: OnBackPressedCallback
 
-    private lateinit var calculationValues: CalculationValues
+    lateinit var calculationValues: CalculationValues
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityMapsBinding.inflate(layoutInflater)
+        binding = MainActivityViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         calculationValues = CalculationValues(this)
@@ -106,9 +105,6 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
         // add TransportSelectionLayout to the transport_mode_selection view (HorizontalScrollView)
         val transportSelectionView: HorizontalScrollView = findViewById(R.id.transport_mode_selection)
         transportSelection = TransportSelection(this)
-        transportSelection.setOnCheckedChangeListener { _, _ ->
-            calculate()
-        }
         transportSelectionView.addView(transportSelection)
 
         backPressedHandler = object : OnBackPressedCallback(false) {
@@ -159,13 +155,14 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
         }
 
         originInput = supportFragmentManager.findFragmentById(R.id.input_origin) as AutocompleteSupportFragment
-        originInput.setHint(resources.getString(R.string.input_origin_hint))
+        originInput.setHint(getString(R.string.input_origin_hint))
         destInput = supportFragmentManager.findFragmentById(R.id.input_dest) as AutocompleteSupportFragment
-        destInput.setHint(resources.getString(R.string.input_dest_hint))
+        destInput.setHint(getString(R.string.input_dest_hint))
 
         // Specify the types of place data to return.
-        originInput.setPlaceFields(listOf(Place.Field.ADDRESS, Place.Field.NAME))
-        destInput.setPlaceFields(listOf(Place.Field.ADDRESS, Place.Field.NAME))
+        val fields = listOf(Place.Field.ADDRESS, Place.Field.NAME, Place.Field.LAT_LNG)
+        originInput.setPlaceFields(fields)
+        destInput.setPlaceFields(fields)
 
         // Set up a PlaceSelectionListener to handle the response.
         originInput.setOnPlaceSelectedListener(object : PlaceSelectionListener {
@@ -178,7 +175,7 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
                     Timer().schedule(100) {
                         originInput.setText(null)
                     }
-                    val snack = Snackbar.make(binding.root, resources.getString(R.string.same_location_warning), Snackbar.LENGTH_SHORT)
+                    val snack = Snackbar.make(binding.root, getString(R.string.same_location_warning), Snackbar.LENGTH_SHORT)
                     snack.show()
                     return
                 }
@@ -195,7 +192,7 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
                     Timer().schedule(100) {
                         destInput.setText(null)
                     }
-                    val snack = Snackbar.make(binding.root, resources.getString(R.string.same_location_warning), Snackbar.LENGTH_SHORT)
+                    val snack = Snackbar.make(binding.root, getString(R.string.same_location_warning), Snackbar.LENGTH_SHORT)
                     snack.show()
                     return
                 }
@@ -239,10 +236,17 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
 //        }
     }
 
+    fun addMarker(pos: LatLng): Marker? {
+        return googleMap.addMarker(
+            MarkerOptions()
+                .position(pos)
+        )
+    }
+
     private fun showVehicleDetailQuery() {
         val tag = when (transportSelection.currMode) {
-            TravelModes.CAR.ordinal -> resources.getString(R.string.fragment_tag_car_info)
-            TravelModes.MOTORCYCLE.ordinal -> resources.getString(R.string.fragment_tag_motorcycle_info)
+            TravelModes.CAR.ordinal -> getString(R.string.fragment_tag_car_query)
+            TravelModes.MOTORCYCLE.ordinal -> getString(R.string.fragment_tag_motorcycle_query)
             else -> return
         }
         var frag = supportFragmentManager.findFragmentByTag(tag)
@@ -256,7 +260,7 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
             val bundle = Bundle()
             when (transportSelection.currMode) {
                 TravelModes.CAR.ordinal -> {
-                    bundle.putStringArray("carSizes", calculationValues.carTypes.toTypedArray())
+                    bundle.putStringArray("carSizes", calculationValues.carSizes.toTypedArray())
                     bundle.putStringArray("carFuelTypes", calculationValues.carFuelTypes)
                     bundle.putSerializable("carValues", calculationValues.carValuesMatrix.toTypedArray())
                 }
@@ -289,7 +293,7 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
      * installed Google Play services and returned to the app.
      */
     override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
+        this.googleMap = googleMap
 
         // disable map tilt
         googleMap.uiSettings.isTiltGesturesEnabled = false
@@ -342,7 +346,7 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
 //                            inputOrigin.setLocationBias(bound)
 //                            inputDest.setLocationBias(bound)
                             // move camera center to the current location
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, DEFAULT_ZOOM))
+                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, DEFAULT_ZOOM))
                         }
                     }
                     locTask.addOnFailureListener {
@@ -367,7 +371,7 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
                     }
                 }
             }
-            mMap.isMyLocationEnabled = true
+            googleMap.isMyLocationEnabled = true
             return
         }
 

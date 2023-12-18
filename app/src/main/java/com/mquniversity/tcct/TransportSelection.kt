@@ -60,5 +60,9 @@ class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityC
             btns[i].text = "32 min"
         }
         btns[currMode].isChecked = true
+
+        this.setOnCheckedChangeListener { _, _ ->
+            (mainActivityContext as MainActivity).calculate()
+        }
     }
 }

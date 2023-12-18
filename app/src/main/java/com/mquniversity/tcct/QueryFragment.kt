@@ -15,7 +15,7 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.textview.MaterialTextView
 
-abstract class QueryFragment: Fragment(R.layout.query_view) {
+abstract class QueryFragment: Fragment() {
     protected var isInitialized = false
 
     protected lateinit var mainLayout: LinearLayout

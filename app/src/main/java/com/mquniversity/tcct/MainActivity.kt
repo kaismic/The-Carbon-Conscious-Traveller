@@ -213,27 +213,8 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
         if (origin == null || destination == null) {
             return
         }
-
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         showVehicleDetailQuery()
-//        resultDisplay.text = "Calculating..."
-//        directionsApiRequest = DirectionsApi.getDirections(geoApiContext, origin?.address, destination?.address)
-//        try {
-//            val response = directionsApiRequest.await()
-//            val leg = response.routes[0].legs[0]
-//            val totalEmission = leg.distance.inMeters * 0.17 / 1000 // kg
-//            val totalDist = leg.distance.inMeters / 1000f // km
-//            resultDisplay.text = "This trip would produce " + "%.2f".format(totalEmission) + "kg of CO2 over " + totalDist + "km"
-//        } catch (e: ApiException) {
-//            resultDisplay.text = "An error has occurred. Please try again few seconds later."
-//            Log.e("Calculation", "${e.statusCode}: ${e.status}: ${e.message}")
-//        } catch (e: InterruptedException) {
-//            resultDisplay.text = "An error has occurred. Please try again few seconds later."
-//            Log.e("Calculation", "${e.message}")
-//        } catch (e: IOException) {
-//            resultDisplay.text = "An error has occurred. Please try again few seconds later."
-//            Log.e("Calculation", "${e.message}")
-//        }
     }
 
     fun addMarker(pos: LatLng): Marker? {

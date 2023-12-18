@@ -11,7 +11,7 @@ const val FERRY = "ferry"
 class CalculationValues(context: Context) {
     private val simpleTransportModes = arrayOf(MOTORCYCLE, BUS, RAIL, FERRY)
 
-    val carTypes = mutableListOf<String>()
+    val carSizes = mutableListOf<String>()
     val carFuelTypes: Array<String>
     val carValuesMatrix = mutableListOf<FloatArray>()
 
@@ -28,7 +28,7 @@ class CalculationValues(context: Context) {
             if (nextLine == null) {
                 break
             }
-            carTypes.add(nextLine[0])
+            carSizes.add(nextLine[0])
             val strValues = nextLine.sliceArray(1..<nextLine.size)
             val floatValues = strValues.map { if (it.isEmpty()) 0f else it.toFloat() }.toFloatArray()
             carValuesMatrix.add(floatValues)
@@ -47,5 +47,16 @@ class CalculationValues(context: Context) {
                 simpleTransportValues[mode]?.add(nextLine[1].toFloat())
             }
         }
+    }
+
+    /**
+     * @return formatted text of CO2e emission in kilogram or gram
+     */
+    fun calculateByDistance(distInMeter: Long, factor: Float): String {
+        val emission: Float = distInMeter * factor
+        if (emission > 1000) {
+            return String.format("%.2f", emission / 1000) + " kg CO2e"
+        }
+        return String.format("%.2f", emission) + " g CO2e"
     }
 }

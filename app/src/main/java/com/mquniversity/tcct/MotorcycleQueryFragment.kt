@@ -5,12 +5,14 @@ import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.material.R
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 
 class MotorcycleQueryFragment: QueryFragment() {
     private lateinit var sizeInput: TextInputLayout
+    private lateinit var sizeInputDropdown: MaterialAutoCompleteTextView
+    private lateinit var sizeOptions: Array<String>
+    private var currSizeIdx = -1
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -28,12 +30,31 @@ class MotorcycleQueryFragment: QueryFragment() {
             sizeInput = TextInputLayout(
                 ContextThemeWrapper(
                     context,
-                    R.style.Widget_Material3_TextInputLayout_OutlinedBox_ExposedDropdownMenu
+                    com.google.android.material
+                        .R.style.Widget_Material3_TextInputLayout_OutlinedBox_ExposedDropdownMenu
                 )
             )
-            insertQuery(sizeInput, "Size", args.getStringArray("motorcycleSizes")!!)
-            (sizeInput.editText as MaterialAutoCompleteTextView).setOnItemClickListener { _, _, _, _ ->
+            sizeOptions = args.getStringArray("motorcycleSizes")!!
+            insertQuery(sizeInput, "Size", sizeOptions)
+            sizeInputDropdown = (sizeInput.editText as MaterialAutoCompleteTextView)
+            sizeInputDropdown.setOnItemClickListener { _, _, idx, _ ->
+                currSizeIdx = idx
                 calBtn.isEnabled = true
+            }
+
+            calBtn.setOnClickListener {
+                calBtn.isEnabled = false
+                val motorcycleResultFragment = MotorcycleResultFragment(sizeOptions[currSizeIdx])
+                parentFragmentManager
+                    .beginTransaction()
+                    .replace(
+                        R.id.fragment_container,
+                        motorcycleResultFragment,
+                        getString(
+                            R.string.tag_motorcycle_result)
+                    )
+                    .addToBackStack(getString(R.string.tag_motorcycle_result))
+                    .commit()
             }
         }
 

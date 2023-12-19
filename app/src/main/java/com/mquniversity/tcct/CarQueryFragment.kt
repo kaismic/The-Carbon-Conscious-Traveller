@@ -66,6 +66,7 @@ class CarQueryFragment: QueryFragment() {
                 parentFragmentManager
                     .beginTransaction()
                     .replace(R.id.fragment_container, carResultFragment, getString(R.string.fragment_tag_car_result))
+                    .addToBackStack(getString(R.string.fragment_tag_car_result))
                     .commit()
             }
         }

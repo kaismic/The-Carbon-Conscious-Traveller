@@ -1,6 +1,5 @@
 package com.mquniversity.tcct
 
-import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.Gravity
@@ -9,66 +8,112 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.ScrollView
+import android.widget.ProgressBar
+import android.widget.TextView
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.res.ResourcesCompat
-import androidx.fragment.app.Fragment
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
 import com.google.maps.DirectionsApi
-import com.google.maps.GeoApiContext
+import com.google.maps.errors.OverDailyLimitException
+import com.google.maps.errors.OverQueryLimitException
+import com.google.maps.errors.ZeroResultsException
 import com.google.maps.model.DirectionsRoute
 import com.google.maps.model.TravelMode
 
 class CarResultFragment(
-    private var carSize: String,
-    private var carFuelType: String
-): Fragment(R.layout.result_view) {
-    private var isInitialized = false
-
-    private lateinit var rootScrollView: ScrollView
-    private lateinit var mainLayout: LinearLayout
-
-    private lateinit var mainActivity: MainActivity
-    private lateinit var geoApiContext: GeoApiContext
-    private lateinit var calculationValues: CalculationValues
-    private var factor = 0f
+    private val carSize: String,
+    private val carFuelType: String
+): ResultFragment() {
+    private val emissionTexts: MutableList<TextView> = mutableListOf()
+    private val distTexts: MutableList<TextView> = mutableListOf()
+    private val durationTexts: MutableList<TextView> = mutableListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        super.onCreateView(inflater, container, savedInstanceState)
         if (!isInitialized) {
             isInitialized = true
-            rootScrollView = inflater.inflate(R.layout.result_view, container, false) as ScrollView
-            mainLayout = LinearLayout(context)
-            mainLayout.orientation = LinearLayout.VERTICAL
-            mainLayout.layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-            val shapeDivider = GradientDrawable()
-            shapeDivider.setSize(0, 32)
-            mainLayout.dividerDrawable = shapeDivider
-            mainLayout.showDividers = LinearLayout.SHOW_DIVIDER_MIDDLE
-            rootScrollView.addView(mainLayout)
-
-            mainActivity = requireActivity() as MainActivity
-            calculationValues = mainActivity.calculationValues
-            geoApiContext = mainActivity.geoApiContext
             factor = calculationValues.carValuesMatrix[calculationValues.carSizes.indexOf(carSize)][calculationValues.carFuelTypes.indexOf(carFuelType)]
-
-            val request = DirectionsApi.getDirections(geoApiContext, mainActivity.origin?.address, mainActivity.destination?.address)
-                .mode(TravelMode.DRIVING)
-                .alternatives(true)
-            val response = request.await()
-            for (i in response.routes.indices) {
-                insertRouteResult(response.routes[i])
-            }
+            updateRouteResults()
         }
         return rootScrollView
     }
 
-    private fun insertRouteResult(route: DirectionsRoute) {
+    override fun updateRouteResults() {
+        mainLayout.removeAllViews()
+        emissionTexts.clear()
+        distTexts.clear()
+        durationTexts.clear()
+
+        val progressBar = ProgressBar(context)
+        mainLayout.addView(progressBar)
+
+        val errorText = MaterialTextView(requireContext())
+        errorText.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            gravity = Gravity.CENTER
+        }
+        val retryBtn = MaterialButton(ContextThemeWrapper(context, com.google.android.material.R.style.Widget_Material3_Button))
+        retryBtn.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            gravity = Gravity.CENTER
+        }
+        retryBtn.text = "Try again"
+        retryBtn.setOnClickListener {
+            updateRouteResults()
+        }
+        try {
+            val request = DirectionsApi.getDirections(geoApiContext, mainActivity.origin?.address, mainActivity.destination?.address)
+                .mode(TravelMode.DRIVING)
+                .alternatives(true)
+            val response = request.await()
+
+            mainLayout.removeAllViews()
+
+            currRoutes = response.routes
+            for (i in currRoutes.indices) {
+                insertRouteResult(response.routes[i], i)
+            }
+        } catch (e: ZeroResultsException) {
+            mainLayout.removeAllViews()
+            errorText.text = "Routes were not found with the current travel mode.\nPlease try again with different travel mode."
+            mainLayout.addView(errorText)
+        } catch (e: OverDailyLimitException) {
+            mainLayout.removeAllViews()
+            errorText.text = "The requesting account has exceeded its daily quota.\nPlease try again tomorrow."
+            mainLayout.addView(errorText)
+            mainLayout.addView(retryBtn)
+        } catch (e: OverQueryLimitException) {
+            mainLayout.removeAllViews()
+            errorText.text = "The requesting account has exceeded its short-term quota.\nPlease try again a few minutes later."
+            mainLayout.addView(errorText)
+            mainLayout.addView(retryBtn)
+        } catch (e: Exception) {
+            mainLayout.removeAllViews()
+            errorText.text = "An error has occurred.\nPlease try again a few minutes later."
+            mainLayout.addView(errorText)
+            mainLayout.addView(retryBtn)
+        }
+    }
+
+    fun updateFactor(carSize: String, carFuelType: String) {
+        factor = calculationValues.carValuesMatrix[calculationValues.carSizes.indexOf(carSize)][calculationValues.carFuelTypes.indexOf(carFuelType)]
+        for (i in currRoutes.indices) {
+            emissionTexts[i].text = CalculationUtils.calculateByDistance(currRoutes[i].legs[0].distance.inMeters, factor)
+            distTexts[i].text = currRoutes[i].legs[0].distance.humanReadable
+            durationTexts[i].text = currRoutes[i].legs[0].duration.humanReadable
+        }
+    }
+
+    override fun insertRouteResult(route: DirectionsRoute, i: Int) {
         val resultLayout = LinearLayout(context)
         resultLayout.orientation = LinearLayout.HORIZONTAL
         resultLayout.layoutParams = LinearLayout.LayoutParams(
@@ -126,10 +171,10 @@ class CarResultFragment(
         valuesLayout.layoutParams = LinearLayout.LayoutParams(
             0,
             LinearLayout.LayoutParams.MATCH_PARENT,
-            1f
+            2f
         )
         val emissionText = MaterialTextView(requireContext())
-        emissionText.text = calculationValues.calculateByDistance(route.legs[0].distance.inMeters, factor)
+        emissionText.text = CalculationUtils.calculateByDistance(route.legs[0].distance.inMeters, factor)
         emissionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18f)
         val distText = MaterialTextView(requireContext())
         distText.text = route.legs[0].distance.humanReadable
@@ -137,6 +182,9 @@ class CarResultFragment(
         val durationText = MaterialTextView(requireContext())
         durationText.text = route.legs[0].duration.humanReadable
         durationText.alpha = 0.5f
+        emissionTexts.add(emissionText)
+        distTexts.add(distText)
+        durationTexts.add(durationText)
         valuesLayout.addView(emissionText)
         valuesLayout.addView(distText)
         valuesLayout.addView(durationText)

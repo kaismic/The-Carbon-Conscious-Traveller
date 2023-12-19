@@ -8,12 +8,12 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.CurrentLocationRequest
@@ -27,7 +27,6 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.location.SettingsClient
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
@@ -71,8 +70,7 @@ private const val LOCATION_PERMISSION_REQUEST_CODE = 1
 private const val REQUEST_CHECK_SETTINGS = 1
 
 
-class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
-    OnMapReadyCallback, OnRequestPermissionsResultCallback {
+class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissionsResultCallback {
     private var permissionDenied = false
     private lateinit var googleMap: GoogleMap
     private lateinit var binding: MainActivityViewBinding
@@ -107,23 +105,9 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
         transportSelection = TransportSelection(this)
         transportSelectionView.addView(transportSelection)
 
-        backPressedHandler = object : OnBackPressedCallback(false) {
+        backPressedHandler = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                val visibleFrag = supportFragmentManager.findFragmentById(R.id.fragment_container)
-                if (visibleFrag != null) {
-                    when (visibleFrag) {
-                        is CarQueryFragment, is MotorcycleQueryFragment -> {
-                            finish()
-                            return
-                        }
-                    }
-                } else {
-                    isEnabled = false
-                }
-                supportFragmentManager.popBackStack()
-                if (supportFragmentManager.backStackEntryCount <= 1) {
-                    isEnabled = false
-                }
+                finish()
             }
         }
 
@@ -175,8 +159,9 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
                     Timer().schedule(100) {
                         originInput.setText(null)
                     }
-                    val snack = Snackbar.make(binding.root, getString(R.string.same_location_warning), Snackbar.LENGTH_SHORT)
-                    snack.show()
+                    Snackbar
+                        .make(binding.root, getString(R.string.same_location_warning), Snackbar.LENGTH_SHORT)
+                        .show()
                     return
                 }
                 origin = place
@@ -192,8 +177,9 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
                     Timer().schedule(100) {
                         destInput.setText(null)
                     }
-                    val snack = Snackbar.make(binding.root, getString(R.string.same_location_warning), Snackbar.LENGTH_SHORT)
-                    snack.show()
+                    Snackbar
+                        .make(binding.root, getString(R.string.same_location_warning), Snackbar.LENGTH_SHORT)
+                        .show()
                     return
                 }
                 destination = place
@@ -214,7 +200,45 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
             return
         }
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        showVehicleDetailQuery()
+        var frag: Fragment?
+        when (transportSelection.currMode) {
+            TravelModes.CAR.ordinal -> {
+                frag = supportFragmentManager.findFragmentByTag(getString(R.string.fragment_tag_car_result))
+                if (frag == null) {
+                    frag = supportFragmentManager.findFragmentByTag(getString(R.string.fragment_tag_car_query))
+                } else {
+                    (frag as CarResultFragment).updateRouteResults()
+                }
+                if (frag == null) {
+                    createQueryFragment()
+                    return
+                }
+                supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, frag, frag.tag)
+                    .commit()
+            }
+            TravelModes.MOTORCYCLE.ordinal -> {
+                frag = supportFragmentManager.findFragmentByTag(getString(R.string.fragment_tag_motorcycle_result))
+                if (frag == null) {
+                    frag = supportFragmentManager.findFragmentByTag(getString(R.string.fragment_tag_motorcycle_query))
+                }
+                if (frag == null) {
+                    createQueryFragment()
+                    return
+                }
+                supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, frag, frag.tag)
+                    .commit()
+            }
+            TravelModes.PUBLIC_TRANSPORT.ordinal -> {
+
+            }
+            TravelModes.AIRPLANE.ordinal -> {
+
+            }
+        }
     }
 
     fun addMarker(pos: LatLng): Marker? {
@@ -224,43 +248,35 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
         )
     }
 
-    private fun showVehicleDetailQuery() {
+    private fun createQueryFragment() {
         val tag = when (transportSelection.currMode) {
             TravelModes.CAR.ordinal -> getString(R.string.fragment_tag_car_query)
             TravelModes.MOTORCYCLE.ordinal -> getString(R.string.fragment_tag_motorcycle_query)
             else -> return
         }
-        var frag = supportFragmentManager.findFragmentByTag(tag)
-        val transaction = supportFragmentManager.beginTransaction()
-        if (frag == null) {
-            frag = when (transportSelection.currMode) {
-                TravelModes.CAR.ordinal -> CarQueryFragment()
-                TravelModes.MOTORCYCLE.ordinal -> MotorcycleQueryFragment()
-                else -> return
-            }
-            val bundle = Bundle()
-            when (transportSelection.currMode) {
-                TravelModes.CAR.ordinal -> {
-                    bundle.putStringArray("carSizes", calculationValues.carSizes.toTypedArray())
-                    bundle.putStringArray("carFuelTypes", calculationValues.carFuelTypes)
-                    bundle.putSerializable("carValues", calculationValues.carValuesMatrix.toTypedArray())
-                }
-                TravelModes.MOTORCYCLE.ordinal -> {
-                    bundle.putStringArray("motorcycleSizes", calculationValues.simpleTransportTypes[MOTORCYCLE]?.toTypedArray())
-                }
-                else -> return
-            }
-            frag.arguments = bundle
-            transaction
-                .replace(R.id.fragment_container, frag, tag)
-                .addToBackStack(tag)
-                .commit()
-            backPressedHandler.isEnabled = true
-        } else {
-            transaction
-                .replace(R.id.fragment_container, frag, tag)
-                .commit()
+        val frag = when (transportSelection.currMode) {
+            TravelModes.CAR.ordinal -> CarQueryFragment()
+            TravelModes.MOTORCYCLE.ordinal -> MotorcycleQueryFragment()
+            else -> return
         }
+        val bundle = Bundle()
+        when (transportSelection.currMode) {
+            TravelModes.CAR.ordinal -> {
+                bundle.putStringArray("carSizes", calculationValues.carSizes.toTypedArray())
+                bundle.putStringArray("carFuelTypes", calculationValues.carFuelTypes)
+                bundle.putSerializable("carValues", calculationValues.carValuesMatrix.toTypedArray())
+            }
+            TravelModes.MOTORCYCLE.ordinal -> {
+                bundle.putStringArray("motorcycleSizes", calculationValues.motorcycleSizes.toTypedArray())
+            }
+            else -> return
+        }
+        frag.arguments = bundle
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, frag, tag)
+            .addToBackStack(tag)
+            .commit()
     }
 
 
@@ -279,7 +295,6 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
         // disable map tilt
         googleMap.uiSettings.isTiltGesturesEnabled = false
 
-        googleMap.setOnMyLocationButtonClickListener(this)
         enableMyLocation()
     }
 
@@ -331,11 +346,13 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
                         }
                     }
                     locTask.addOnFailureListener {
-                        Toast.makeText(this, "Could not retrieve current location. Please try again later.", Toast.LENGTH_SHORT)
+                        Snackbar
+                            .make(binding.root, "Could not retrieve current location. Please try again later.", Snackbar.LENGTH_SHORT)
                             .show()
                     }
                 } else {
-                    Toast.makeText(this, "Location is not enabled", Toast.LENGTH_SHORT)
+                    Snackbar
+                        .make(binding.root, "Location is not enabled", Snackbar.LENGTH_SHORT)
                         .show()
                 }
             }
@@ -347,7 +364,8 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
                         // If the resultCode is Activity.RESULT_OK, the application should try to connect again.
                         e.startResolutionForResult(this@MainActivity, REQUEST_CHECK_SETTINGS)
                     } catch (sendEx: IntentSender.SendIntentException) {
-                        Toast.makeText(this, "Location is not enabled", Toast.LENGTH_SHORT)
+                        Snackbar
+                            .make(binding.root, "Location is not enabled", Snackbar.LENGTH_SHORT)
                             .show()
                     }
                 }
@@ -381,14 +399,6 @@ class MainActivity : AppCompatActivity(), OnMyLocationButtonClickListener,
             ),
             LOCATION_PERMISSION_REQUEST_CODE
         )
-    }
-
-    override fun onMyLocationButtonClick(): Boolean {
-        Toast.makeText(this, "MyLocation button clicked", Toast.LENGTH_SHORT)
-            .show()
-        // Return false so that we don't consume the event and the default behavior still occurs
-        // (the camera animates to the user's current position).
-        return false
     }
 
     override fun onRequestPermissionsResult(

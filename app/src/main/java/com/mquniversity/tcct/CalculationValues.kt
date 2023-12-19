@@ -3,30 +3,42 @@ package com.mquniversity.tcct
 import android.content.Context
 import com.opencsv.CSVReader
 
+const val CAR = "car"
 const val MOTORCYCLE = "motorcycle"
 const val BUS = "bus"
 const val RAIL = "rail"
 const val FERRY = "ferry"
 
 class CalculationValues(context: Context) {
-    private val simpleTransportModes = arrayOf(MOTORCYCLE, BUS, RAIL, FERRY)
-
     val carSizes = mutableListOf<String>()
     val carFuelTypes: Array<String>
     val carValuesMatrix = mutableListOf<FloatArray>()
 
-    val simpleTransportTypes = HashMap<String, MutableList<String>>()
-    val simpleTransportValues = HashMap<String, MutableList<Float>>()
+    val motorcycleSizes: MutableList<String> = mutableListOf<String>()
+    val motorcycleValueMap: HashMap<String, Float> = HashMap()
+
+    val busTypes: MutableList<String> = mutableListOf<String>()
+    val busValueMap: HashMap<String, Float> = HashMap()
+
+    val railTypes: MutableList<String> = mutableListOf<String>()
+    val railValueMap: HashMap<String, Float> = HashMap()
+
+    val ferryTypes: MutableList<String> = mutableListOf<String>()
+    val ferryValueMap: HashMap<String, Float> = HashMap()
 
     init {
+        var nextLine: Array<String>?
         // read car calculation values
-        val carReader = CSVReader(context.assets.open("car.csv").reader())
-        var nextLine = carReader.readNext()
+        val carReader = CSVReader(context.assets.open("${CAR}.csv").reader())
+        nextLine = carReader.readNext()
         carFuelTypes = nextLine.sliceArray(1..<nextLine.size)
         while (true) {
             nextLine = carReader.readNext()
             if (nextLine == null) {
                 break
+            }
+            if (nextLine.isEmpty()) {
+                continue
             }
             carSizes.add(nextLine[0])
             val strValues = nextLine.sliceArray(1..<nextLine.size)
@@ -34,29 +46,60 @@ class CalculationValues(context: Context) {
             carValuesMatrix.add(floatValues)
         }
 
-        for (mode in simpleTransportModes) {
-            simpleTransportTypes[mode] = mutableListOf()
-            val reader = CSVReader(context.assets.open("${mode}.csv").reader())
-            reader.skip(1)
-            while (true) {
-                nextLine = reader.readNext()
-                if (nextLine == null) {
-                    break
-                }
-                simpleTransportTypes[mode]?.add(nextLine[0])
-                simpleTransportValues[mode]?.add(nextLine[1].toFloat())
+        val motorcycleReader = CSVReader(context.assets.open("${MOTORCYCLE}.csv").reader())
+        motorcycleReader.skip(1)
+        while (true) {
+            nextLine = motorcycleReader.readNext()
+            if (nextLine == null) {
+                break
             }
+            if (nextLine.isEmpty()) {
+                continue
+            }
+            motorcycleSizes.add(nextLine[0])
+            motorcycleValueMap[nextLine[0]] = nextLine[1].toFloat()
         }
-    }
 
-    /**
-     * @return formatted text of CO2e emission in kilogram or gram
-     */
-    fun calculateByDistance(distInMeter: Long, factor: Float): String {
-        val emission: Float = distInMeter * factor
-        if (emission > 1000) {
-            return String.format("%.2f", emission / 1000) + " kg CO2e"
+        val busReader = CSVReader(context.assets.open("${BUS}.csv").reader())
+        busReader.skip(1)
+        while (true) {
+            nextLine = busReader.readNext()
+            if (nextLine == null) {
+                break
+            }
+            if (nextLine.isEmpty()) {
+                continue
+            }
+            busTypes.add(nextLine[0])
+            busValueMap[nextLine[0]] = nextLine[1].toFloat()
         }
-        return String.format("%.2f", emission) + " g CO2e"
+
+        val railReader = CSVReader(context.assets.open("${RAIL}.csv").reader())
+        railReader.skip(1)
+        while (true) {
+            nextLine = railReader.readNext()
+            if (nextLine == null) {
+                break
+            }
+            if (nextLine.isEmpty()) {
+                continue
+            }
+            railTypes.add(nextLine[0])
+            railValueMap[nextLine[0]] = nextLine[1].toFloat()
+        }
+
+        val ferryReader = CSVReader(context.assets.open("${FERRY}.csv").reader())
+        ferryReader.skip(1)
+        while (true) {
+            nextLine = ferryReader.readNext()
+            if (nextLine == null) {
+                break
+            }
+            if (nextLine.isEmpty()) {
+                continue
+            }
+            ferryTypes.add(nextLine[0])
+            ferryValueMap[nextLine[0]] = nextLine[1].toFloat()
+        }
     }
 }

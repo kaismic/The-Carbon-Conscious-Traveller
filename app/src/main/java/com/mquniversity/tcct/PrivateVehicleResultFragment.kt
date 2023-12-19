@@ -18,6 +18,8 @@ import com.google.maps.model.DirectionsRoute
 import com.google.maps.model.TravelMode
 
 open class PrivateVehicleResultFragment: ResultFragment() {
+    protected var factor = 0f
+
     private val emissionTexts: MutableList<TextView> = mutableListOf()
     private val distTexts: MutableList<TextView> = mutableListOf()
     private val durationTexts: MutableList<TextView> = mutableListOf()

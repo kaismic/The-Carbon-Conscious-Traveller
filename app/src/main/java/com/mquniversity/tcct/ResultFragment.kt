@@ -27,7 +27,6 @@ abstract class ResultFragment: Fragment() {
     protected var currDest: Place? = null
 
     protected lateinit var currRoutes: Array<DirectionsRoute>
-    protected var factor = 0f
 
     override fun onCreateView(
         inflater: LayoutInflater,

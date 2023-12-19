@@ -65,8 +65,8 @@ class CarQueryFragment: QueryFragment() {
                 val carResultFragment = CarResultFragment(sizeOptions[currSizeIdx], fuelTypeOptions[currFuelTypeIdx])
                 parentFragmentManager
                     .beginTransaction()
-                    .replace(R.id.fragment_container, carResultFragment, getString(R.string.fragment_tag_car_result))
-                    .addToBackStack(getString(R.string.fragment_tag_car_result))
+                    .replace(R.id.fragment_container, carResultFragment, getString(R.string.tag_car_result))
+                    .addToBackStack(getString(R.string.tag_car_result))
                     .commit()
             }
         }

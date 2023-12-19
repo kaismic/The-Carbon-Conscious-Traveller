@@ -139,9 +139,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         }
 
         originInput = supportFragmentManager.findFragmentById(R.id.input_origin) as AutocompleteSupportFragment
-        originInput.setHint(getString(R.string.input_origin_hint))
+        originInput.setHint(getString(R.string.hint_input_origin))
         destInput = supportFragmentManager.findFragmentById(R.id.input_dest) as AutocompleteSupportFragment
-        destInput.setHint(getString(R.string.input_dest_hint))
+        destInput.setHint(getString(R.string.hint_input_dest))
 
         // Specify the types of place data to return.
         val fields = listOf(Place.Field.ADDRESS, Place.Field.NAME, Place.Field.LAT_LNG)
@@ -160,7 +160,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                         originInput.setText(null)
                     }
                     Snackbar
-                        .make(binding.root, getString(R.string.same_location_warning), Snackbar.LENGTH_SHORT)
+                        .make(binding.root, getString(R.string.warning_same_location), Snackbar.LENGTH_SHORT)
                         .show()
                     return
                 }
@@ -178,7 +178,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                         destInput.setText(null)
                     }
                     Snackbar
-                        .make(binding.root, getString(R.string.same_location_warning), Snackbar.LENGTH_SHORT)
+                        .make(binding.root, getString(R.string.warning_same_location), Snackbar.LENGTH_SHORT)
                         .show()
                     return
                 }
@@ -203,9 +203,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         var frag: Fragment?
         when (transportSelection.currMode) {
             TravelModes.CAR.ordinal -> {
-                frag = supportFragmentManager.findFragmentByTag(getString(R.string.fragment_tag_car_result))
+                frag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_car_result))
                 if (frag == null) {
-                    frag = supportFragmentManager.findFragmentByTag(getString(R.string.fragment_tag_car_query))
+                    frag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_car_query))
                 } else {
                     (frag as CarResultFragment).updateRouteResults()
                 }
@@ -219,9 +219,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                     .commit()
             }
             TravelModes.MOTORCYCLE.ordinal -> {
-                frag = supportFragmentManager.findFragmentByTag(getString(R.string.fragment_tag_motorcycle_result))
+                frag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_result))
                 if (frag == null) {
-                    frag = supportFragmentManager.findFragmentByTag(getString(R.string.fragment_tag_motorcycle_query))
+                    frag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_query))
+                } else {
+                    (frag as MotorcycleResultFragment).updateRouteResults()
                 }
                 if (frag == null) {
                     createQueryFragment()
@@ -250,8 +252,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
 
     private fun createQueryFragment() {
         val tag = when (transportSelection.currMode) {
-            TravelModes.CAR.ordinal -> getString(R.string.fragment_tag_car_query)
-            TravelModes.MOTORCYCLE.ordinal -> getString(R.string.fragment_tag_motorcycle_query)
+            TravelModes.CAR.ordinal -> getString(R.string.tag_car_query)
+            TravelModes.MOTORCYCLE.ordinal -> getString(R.string.tag_motorcycle_query)
             else -> return
         }
         val frag = when (transportSelection.currMode) {

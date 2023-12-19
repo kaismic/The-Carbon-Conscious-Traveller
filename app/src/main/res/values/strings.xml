@@ -1,15 +1,26 @@
 <resources>
     <string name="app_name">The Carbon-Conscious Traveller</string>
     <string name="title_activity_maps">The Carbon-Conscious Traveller</string>
-    <string name="input_origin_hint">Choose a start location</string>
-    <string name="input_dest_hint">Choose destination</string>
+
+    <string name="hint_input_origin">Choose a start location</string>
+    <string name="hint_input_dest">Choose destination</string>
+
     <string name="permission_rationale_location">Access to the location service is required to show your current location on the map.</string>
     <string name="location_permission_denied">This app requires location permission to use current location as the start or end location.</string>
     <string name="permission_required_toast">Location permission is required for this app.</string>
-    <string name="same_location_warning">Cannot use same start location and destination</string>
 
-    <string name="fragment_tag_car_query">CAR_QUERY</string>
-    <string name="fragment_tag_car_result">CAR_RESULT</string>
-    <string name="fragment_tag_motorcycle_query">MOTORCYCLE_QUERY</string>
-    <string name="fragment_tag_motorcycle_result">MOTORCYCLE_RESULT</string>
+    <string name="warning_same_location">Cannot use same start location and destination</string>
+
+    <string name="tag_car_query">CAR_QUERY</string>
+    <string name="tag_car_result">CAR_RESULT</string>
+    <string name="tag_motorcycle_query">MOTORCYCLE_QUERY</string>
+    <string name="tag_motorcycle_result">MOTORCYCLE_RESULT</string>
+
+    <string name="error_zero_results">"Routes were not found with the current travel mode.\nPlease try again with different locations"</string>
+    <string name="error_daily_limit_exceeded">T"he requesting account has exceeded its daily quota.\nPlease try again tomorrow."</string>
+    <string name="error_query_limit_exceeded">"The requesting account has exceeded its short-term quota.\nPlease try again a few minutes later."</string>
+    <string name="error_general">"An error has occurred.\nPlease try again a few minutes later."</string>
+
+    <string name="try_again">Try again</string>
+    <string name="tap_for_more_details">"Tap for more details"</string>
 </resources>

@@ -15,6 +15,10 @@
     <string name="tag_car_result">CAR_RESULT</string>
     <string name="tag_motorcycle_query">MOTORCYCLE_QUERY</string>
     <string name="tag_motorcycle_result">MOTORCYCLE_RESULT</string>
+    <string name="tag_public_transport_query">PUBLIC_TRANSPORT_QUERY</string>
+    <string name="tag_public_transport_result">PUBLIC_TRANSPORT_RESULT</string>
+    <string name="tag_airplane_query">AIRPLANE_QUERY</string>
+    <string name="tag_airplane_result">AIRPLANE_RESULT</string>
 
     <string name="error_zero_results">"Routes were not found with the current travel mode.\nPlease try again with different locations"</string>
     <string name="error_daily_limit_exceeded">T"he requesting account has exceeded its daily quota.\nPlease try again tomorrow."</string>

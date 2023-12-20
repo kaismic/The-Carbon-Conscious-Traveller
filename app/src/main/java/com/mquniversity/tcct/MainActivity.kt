@@ -215,14 +215,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             }
             TravelModes.PUBLIC_TRANSPORT.ordinal -> {
                 // TODO
-                resultFrag = supportFragmentManager.findFragmentByTag("TODO") as ResultFragment?
+                resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_public_transport_result)) as ResultFragment?
                 if (resultFrag == null) {
                     // TODO create PublicTransportResultFragment
                     return
                 }
             }
             TravelModes.AIRPLANE.ordinal -> {
-
+                // TODO
+                resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_airplane_result)) as ResultFragment?
+                if (resultFrag == null) {
+                    // TODO create AirplaneResultFragment
+                    return
+                }
             }
             else -> throw IllegalStateException("TransportSelection.currMode is invalid")
         }

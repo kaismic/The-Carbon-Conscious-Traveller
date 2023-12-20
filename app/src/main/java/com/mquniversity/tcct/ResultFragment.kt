@@ -13,6 +13,7 @@ import android.widget.TextView
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.fragment.app.Fragment
 import com.google.android.libraries.places.api.model.Place
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
 import com.google.maps.DirectionsApi
@@ -48,7 +49,11 @@ abstract class ResultFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View {
         if (!isInitialized) {
-            rootScrollView = inflater.inflate(R.layout.result_view, container, false) as ScrollView
+            rootScrollView = ScrollView(context)
+            rootScrollView.layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+            )
             mainLayout = LinearLayout(context)
             mainLayout.orientation = LinearLayout.VERTICAL
             mainLayout.layoutParams = ViewGroup.LayoutParams(
@@ -65,6 +70,7 @@ abstract class ResultFragment: Fragment() {
             rootScrollView.addView(mainLayout)
 
             mainActivity = requireActivity() as MainActivity
+            mainActivity.bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             calculationValues = mainActivity.calculationValues
             geoApiContext = mainActivity.geoApiContext
         }

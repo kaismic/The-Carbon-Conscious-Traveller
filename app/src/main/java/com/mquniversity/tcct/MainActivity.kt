@@ -349,8 +349,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                             // TODO figure out why this throws this error: java.lang.AssertionError: Unknown LocationBias type.
                             // but it seems like I'm the first one who encountered this error... no similar search results on google
 //                            val bound = CircularBounds.newInstance(ll, BIAS_RADIUS)
-//                            inputOrigin.setLocationBias(bound)
-//                            inputDest.setLocationBias(bound)
+//                            originInput.setLocationBias(bound)
+//                            destInput.setLocationBias(bound)
                             // move camera center to the current location
                             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, DEFAULT_ZOOM))
                         }

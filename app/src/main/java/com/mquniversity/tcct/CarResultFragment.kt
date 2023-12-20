@@ -4,16 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 
 class CarResultFragment(
     private val carSize: String,
     private val carFuelType: String
 ): PrivateVehicleResultFragment() {
-    private val emissionTexts: MutableList<TextView> = mutableListOf()
-    private val distTexts: MutableList<TextView> = mutableListOf()
-    private val durationTexts: MutableList<TextView> = mutableListOf()
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

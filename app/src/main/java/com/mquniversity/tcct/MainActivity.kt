@@ -41,7 +41,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import com.google.maps.GeoApiContext
 import com.mquniversity.tcct.PermissionUtils.isPermissionGranted
-import com.mquniversity.tcct.databinding.MainActivityBinding
+import com.mquniversity.tcct.databinding.ActivityMainBinding
 import java.util.Timer
 import kotlin.concurrent.schedule
 
@@ -72,7 +72,7 @@ private const val REQUEST_CHECK_SETTINGS = 1
 class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissionsResultCallback {
     private var permissionDenied = false
     private lateinit var googleMap: GoogleMap
-    private lateinit var binding: MainActivityBinding
+    private lateinit var binding: ActivityMainBinding
 
     lateinit var geoApiContext: GeoApiContext
 
@@ -94,7 +94,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = MainActivityBinding.inflate(layoutInflater)
+        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         calculationValues = CalculationValues(this)
@@ -198,7 +198,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         if (origin == null || destination == null) {
             return
         }
-        var resultFrag: ResultFragment? = null
+        val resultFrag: ResultFragment?
         var queryFrag: QueryFragment? = null
         when (transportSelection.currMode) {
             TravelModes.CAR.ordinal -> {

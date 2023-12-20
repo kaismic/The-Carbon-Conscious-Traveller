@@ -13,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.CurrentLocationRequest
@@ -85,7 +84,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     var destination: Place? = null
 
     private lateinit var bottomSheet: LinearLayout
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
+    lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
 
     private lateinit var transportSelection: TransportSelection
     private lateinit var backPressedHandler: OnBackPressedCallback
@@ -199,48 +198,52 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         if (origin == null || destination == null) {
             return
         }
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        var frag: Fragment?
+        var resultFrag: ResultFragment? = null
+        var queryFrag: QueryFragment? = null
         when (transportSelection.currMode) {
             TravelModes.CAR.ordinal -> {
-                frag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_car_result))
-                if (frag == null) {
-                    frag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_car_query))
-                } else {
-                    (frag as CarResultFragment).updateRouteResults()
+                resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_car_result)) as ResultFragment?
+                if (resultFrag == null) {
+                    queryFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_car_query)) as QueryFragment?
                 }
-                if (frag == null) {
-                    createQueryFragment()
-                    return
-                }
-                supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.fragment_container, frag, frag.tag)
-                    .commit()
             }
             TravelModes.MOTORCYCLE.ordinal -> {
-                frag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_result))
-                if (frag == null) {
-                    frag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_query))
-                } else {
-                    (frag as MotorcycleResultFragment).updateRouteResults()
+                resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_result)) as ResultFragment?
+                if (resultFrag == null) {
+                    queryFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_query)) as QueryFragment?
                 }
-                if (frag == null) {
-                    createQueryFragment()
-                    return
-                }
-                supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.fragment_container, frag, frag.tag)
-                    .commit()
             }
             TravelModes.PUBLIC_TRANSPORT.ordinal -> {
-
+                // TODO
+                resultFrag = supportFragmentManager.findFragmentByTag("TODO") as ResultFragment?
+                if (resultFrag == null) {
+                    // TODO create PublicTransportResultFragment
+                    return
+                }
             }
             TravelModes.AIRPLANE.ordinal -> {
 
             }
+            else -> throw IllegalStateException("TransportSelection.currMode is invalid")
         }
+        if (resultFrag != null) {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            resultFrag.updateRouteResults()
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container, resultFrag, resultFrag.tag)
+                .commit()
+            return
+        }
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        if (queryFrag == null) {
+            createQueryFragment()
+            return
+        }
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, queryFrag, queryFrag.tag)
+            .commit()
     }
 
     fun addMarker(pos: LatLng): Marker? {
@@ -461,7 +464,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         geoApiContext.shutdown()
+        super.onDestroy()
     }
 }

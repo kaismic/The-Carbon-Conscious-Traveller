@@ -57,7 +57,6 @@ class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityC
             btns[i].setTextColor(ContextCompat.getColorStateList(context, R.color.transport_foreground_color))
             btns[i].backgroundTintList = ContextCompat.getColorStateList(context, R.color.transport_background_color)?.withAlpha(97)
             btns[i].setBackgroundResource(R.drawable.transport_background_shape)
-            btns[i].text = "32 min"
         }
         btns[currMode].isChecked = true
 

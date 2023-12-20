@@ -28,7 +28,7 @@ abstract class QueryFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View {
         if (!isInitialized) {
-            mainLayout = inflater.inflate(R.layout.query_view, container, false) as LinearLayout
+            mainLayout = inflater.inflate(R.layout.query_container, container, false) as LinearLayout
             val shapeDivider = GradientDrawable()
             shapeDivider.setSize(0, 32)
             mainLayout.dividerDrawable = shapeDivider

@@ -12,7 +12,7 @@ import androidx.core.content.res.ResourcesCompat
 class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityContext) {
     var currMode: Int = 0
 
-    private val btns: Array<RadioButton> = Array(TravelModes.entries.size) {
+    private val btns: Array<RadioButton> = Array(TransportMode.entries.size) {
         RadioButton(ContextThemeWrapper(
             context,
             com.google.android.material.R.style.Widget_Material3_Button_TextButton_Icon
@@ -36,7 +36,7 @@ class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityC
         this.dividerDrawable = shapeDivider
         this.showDividers = SHOW_DIVIDER_MIDDLE
 
-        for (i in TravelModes.entries.indices) {
+        for (i in TransportMode.entries.indices) {
             this.addView(btns[i])
             val btnLayoutParams = LayoutParams(
                 LayoutParams.WRAP_CONTENT,

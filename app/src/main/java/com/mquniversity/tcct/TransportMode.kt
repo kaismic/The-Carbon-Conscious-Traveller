@@ -1,6 +1,6 @@
 package com.mquniversity.tcct
 
-enum class TravelModes {
+enum class TransportMode {
     CAR,
     MOTORCYCLE,
     PUBLIC_TRANSPORT,

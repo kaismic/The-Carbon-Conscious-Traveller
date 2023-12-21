@@ -26,6 +26,10 @@ class CalculationValues(context: Context) {
     val ferryTypes: MutableList<String> = mutableListOf<String>()
     val ferryValueMap: HashMap<String, Float> = HashMap()
 
+    // CO2e kg/km per passenger
+    val cableCarValue: Float = 0.0269f
+    val trolleybusValue: Float = 0.00699f
+
     init {
         var nextLine: Array<String>?
         // read car calculation values

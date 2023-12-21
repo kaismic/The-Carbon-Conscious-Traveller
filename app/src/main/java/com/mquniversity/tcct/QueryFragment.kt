@@ -10,12 +10,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.textview.MaterialTextView
 
-abstract class QueryFragment: Fragment() {
+abstract class QueryFragment(protected val bottomSheetBehavior: BottomSheetBehavior<LinearLayout>): Fragment() {
     protected var isInitialized = false
 
     protected lateinit var mainLayout: LinearLayout

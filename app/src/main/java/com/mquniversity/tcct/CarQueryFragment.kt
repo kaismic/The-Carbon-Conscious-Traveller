@@ -5,10 +5,12 @@ import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 
-class CarQueryFragment: QueryFragment() {
+class CarQueryFragment(bottomSheetBehavior: BottomSheetBehavior<LinearLayout>): QueryFragment(bottomSheetBehavior) {
     private lateinit var sizeInput: TextInputLayout
     private lateinit var sizeInputDropdown: MaterialAutoCompleteTextView
     private lateinit var sizeOptions: Array<String>
@@ -61,6 +63,7 @@ class CarQueryFragment: QueryFragment() {
             }
 
             calBtn.setOnClickListener {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                 calBtn.isEnabled = false
                 val carResultFragment = CarResultFragment(sizeOptions[currSizeIdx], fuelTypeOptions[currFuelTypeIdx])
                 parentFragmentManager

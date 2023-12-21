@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.HorizontalScrollView
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -49,6 +50,7 @@ import kotlin.concurrent.schedule
  * location bias radius for search result suggestion. Value range: [0 - 50000] in meters
  */
 private const val BIAS_RADIUS: Double = 5000.0
+private const val BIAS_DISTANCE: Double = 5000.0
 private const val DEFAULT_ZOOM = 15f
 
 /**
@@ -150,6 +152,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         // Set up a PlaceSelectionListener to handle the response.
         originInput.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
+                val clearBtn = originInput.view?.findViewById(com.google.android.libraries.places.R.id.places_autocomplete_clear_button) as ImageButton
+                clearBtn.setOnClickListener {
+                    originInput.setText(null)
+                    origin = null
+                }
                 if (destination != null && place.address == destination?.address) {
                     // delay is needed probably because after fetching the Place
                     // with the API, the AutocompleteSupportFragment sets the text to the place name.
@@ -172,6 +179,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         })
         destInput.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
+                val clearBtn = originInput.view?.findViewById(com.google.android.libraries.places.R.id.places_autocomplete_clear_button) as ImageButton
+                clearBtn.setOnClickListener {
+                    destInput.setText(null)
+                    destination = null
+                }
                 if (origin != null && place.address == origin?.address) {
                     Timer().schedule(100) {
                         destInput.setText(null)
@@ -188,6 +200,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                 Log.i("Destination Input", "$status")
             }
         })
+
 
         bottomSheet = findViewById(R.id.bottom_sheet)
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
@@ -346,8 +359,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                                 location.longitude
                             )
                             // set location bias for search results
-                            // TODO figure out why this throws this error: java.lang.AssertionError: Unknown LocationBias type.
-                            // but it seems like I'm the first one who encountered this error... no similar search results on google
 //                            val bound = CircularBounds.newInstance(ll, BIAS_RADIUS)
 //                            originInput.setLocationBias(bound)
 //                            destInput.setLocationBias(bound)

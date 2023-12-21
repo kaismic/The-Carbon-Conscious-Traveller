@@ -46,6 +46,7 @@ import com.mquniversity.tcct.PermissionUtils.isPermissionGranted
 import com.mquniversity.tcct.databinding.ActivityMainBinding
 import java.util.Timer
 import kotlin.concurrent.schedule
+import kotlin.math.abs
 
 /**
  * location bias radius for search result suggestion. Value range: [0 - 50000] in meters
@@ -302,8 +303,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             (origin?.latLng!!.longitude + dest?.latLng!!.longitude) / 2
         )
         // TODO calculate zoom based on difference
-//        val latDiff = abs(pos1.latitude + pos2.latitude)
-//        val lngDiff = abs(pos1.longitude + pos2.longitude)
+        val latDiff = abs(origin?.latLng!!.latitude - dest?.latLng!!.latitude)
+        val lngDiff = abs(origin?.latLng!!.longitude - dest?.latLng!!.longitude)
+//        val zoom =
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(middle, DEFAULT_ZOOM))
     }
 

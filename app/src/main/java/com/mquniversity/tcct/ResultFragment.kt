@@ -13,7 +13,6 @@ import android.widget.TextView
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.fragment.app.Fragment
 import com.google.android.libraries.places.api.model.Place
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
 import com.google.maps.DirectionsApi
@@ -73,7 +72,6 @@ abstract class ResultFragment: Fragment() {
             rootScrollView.addView(mainLayout)
 
             mainActivity = requireActivity() as MainActivity
-            mainActivity.bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             calculationValues = mainActivity.calculationValues
             geoApiContext = mainActivity.geoApiContext
         }
@@ -115,16 +113,18 @@ abstract class ResultFragment: Fragment() {
             updateRouteResults()
         }
         try {
-            val request = DirectionsApi.getDirections(geoApiContext, mainActivity.origin?.address, mainActivity.dest?.address)
-                .mode(travelMode)
-                .alternatives(true)
-            val response = request.await()
+            mainLayout.post {
+                val request = DirectionsApi.getDirections(geoApiContext, mainActivity.origin?.address, mainActivity.dest?.address)
+                    .mode(travelMode)
+                    .alternatives(true)
+                val response = request.await()
 
-            mainLayout.removeAllViews()
+                mainLayout.removeAllViews()
 
-            currRoutes = response.routes
-            for (i in currRoutes.indices) {
-                insertRouteResult(response.routes[i], i)
+                currRoutes = response.routes
+                for (i in currRoutes.indices) {
+                    insertRouteResult(response.routes[i], i)
+                }
             }
             currOrigin = mainActivity.origin!!
             currDest = mainActivity.dest!!

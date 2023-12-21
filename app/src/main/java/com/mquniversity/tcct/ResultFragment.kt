@@ -18,6 +18,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
 import com.google.maps.DirectionsApi
 import com.google.maps.GeoApiContext
+import com.google.maps.errors.ApiException
 import com.google.maps.errors.OverDailyLimitException
 import com.google.maps.errors.OverQueryLimitException
 import com.google.maps.errors.ZeroResultsException
@@ -25,6 +26,7 @@ import com.google.maps.model.DirectionsRoute
 import com.google.maps.model.TravelMode
 
 abstract class ResultFragment: Fragment() {
+
     protected var isInitialized = false
 
     protected lateinit var rootScrollView: ScrollView
@@ -139,7 +141,7 @@ abstract class ResultFragment: Fragment() {
             errorText.text = getString(R.string.error_query_limit_exceeded)
             mainLayout.addView(errorText)
             mainLayout.addView(retryBtn)
-        } catch (e: Exception) {
+        } catch (e: ApiException) {
             mainLayout.removeAllViews()
             errorText.text = getString(R.string.error_general)
             mainLayout.addView(errorText)

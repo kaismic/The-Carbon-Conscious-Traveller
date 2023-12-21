@@ -50,6 +50,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                 </androidx.fragment.app.FragmentContainerView>
+                <TextView
+                    android:id="@+id/helper_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Start by entering a start and end location"
+                    android:alpha="0.5"/>
             </LinearLayout>
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
     </RelativeLayout>

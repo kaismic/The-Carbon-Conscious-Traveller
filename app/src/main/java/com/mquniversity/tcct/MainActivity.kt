@@ -9,6 +9,7 @@ import android.util.Log
 import android.widget.HorizontalScrollView
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -83,7 +84,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     private lateinit var originInput: AutocompleteSupportFragment
     private lateinit var destInput: AutocompleteSupportFragment
     var origin: Place? = null
-    var destination: Place? = null
+    var dest: Place? = null
+    var originMarker: Marker? = null
+    var destMarker: Marker? = null
 
     private lateinit var bottomSheet: LinearLayout
     lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
@@ -157,7 +160,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                     originInput.setText(null)
                     origin = null
                 }
-                if (destination != null && place.address == destination?.address) {
+                if (dest != null && place.address == dest?.address) {
                     // delay is needed probably because after fetching the Place
                     // with the API, the AutocompleteSupportFragment sets the text to the place name.
                     // and since this API request is asynchronous and takes time,
@@ -182,7 +185,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                 val clearBtn = originInput.view?.findViewById(com.google.android.libraries.places.R.id.places_autocomplete_clear_button) as ImageButton
                 clearBtn.setOnClickListener {
                     destInput.setText(null)
-                    destination = null
+                    dest = null
                 }
                 if (origin != null && place.address == origin?.address) {
                     Timer().schedule(100) {
@@ -193,7 +196,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                         .show()
                     return
                 }
-                destination = place
+                dest = place
                 calculate()
             }
             override fun onError(status: Status) {
@@ -208,9 +211,18 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     }
 
     fun calculate() {
-        if (origin == null || destination == null) {
+        if (origin == null || dest == null) {
             return
         }
+        // remove help text at the first calculation
+        val helperText: TextView? = findViewById(R.id.helper_text)
+        if (helperText != null) {
+            bottomSheet.removeView(helperText)
+        }
+
+        moveMarkers()
+        moveCameraBetween()
+
         val resultFrag: ResultFragment?
         var queryFrag: QueryFragment? = null
         when (transportSelection.currMode) {
@@ -264,11 +276,35 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             .commit()
     }
 
-    fun addMarker(pos: LatLng): Marker? {
-        return googleMap.addMarker(
-            MarkerOptions()
-                .position(pos)
+    private fun moveMarkers() {
+        if (originMarker == null) {
+            originMarker = googleMap.addMarker(
+                MarkerOptions()
+                    .position(origin?.latLng!!)
+            )
+        } else {
+            originMarker!!.position = origin?.latLng!!
+        }
+        if (destMarker == null) {
+            destMarker = googleMap.addMarker(
+                MarkerOptions()
+                    .position(dest?.latLng!!)
+            )
+        } else {
+            destMarker!!.position = dest?.latLng!!
+        }
+
+    }
+
+    private fun moveCameraBetween() {
+        val middle = LatLng(
+            (origin?.latLng!!.latitude + dest?.latLng!!.latitude) / 2,
+            (origin?.latLng!!.longitude + dest?.latLng!!.longitude) / 2
         )
+        // TODO calculate zoom based on difference
+//        val latDiff = abs(pos1.latitude + pos2.latitude)
+//        val lngDiff = abs(pos1.longitude + pos2.longitude)
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(middle, DEFAULT_ZOOM))
     }
 
     private fun createQueryFragment() {

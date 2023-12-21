@@ -223,7 +223,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         moveMarkers()
         moveCameraBetween()
 
-        val resultFrag: ResultFragment?
+        var resultFrag: ResultFragment?
         var queryFrag: QueryFragment? = null
         when (transportSelection.currMode) {
             TransportMode.CAR.ordinal -> {
@@ -239,10 +239,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                 }
             }
             TransportMode.PUBLIC_TRANSPORT.ordinal -> {
-                // TODO
                 resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_public_transport_result)) as ResultFragment?
                 if (resultFrag == null) {
-                    // TODO create PublicTransportResultFragment
+                    resultFrag = PublicTransportResultFragment()
+                    supportFragmentManager
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, resultFrag, getString(R.string.tag_public_transport_result))
+                        .addToBackStack(getString(R.string.tag_public_transport_result))
+                        .commit()
                     return
                 }
             }
@@ -250,7 +254,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                 // TODO
                 resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_airplane_result)) as ResultFragment?
                 if (resultFrag == null) {
-                    // TODO create AirplaneResultFragment
                     return
                 }
             }

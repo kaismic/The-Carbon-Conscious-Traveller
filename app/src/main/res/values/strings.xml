@@ -26,4 +26,7 @@
 
     <string name="try_again">Try again</string>
     <string name="tap_for_more_details">"Tap for more details"</string>
+    <string name="calculate">Calculate</string>
+    <string name="car">Car</string>
+    <string name="motorcycle">Motorcycle</string>
 </resources>

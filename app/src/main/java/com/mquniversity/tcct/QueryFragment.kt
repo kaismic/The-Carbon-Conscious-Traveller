@@ -38,7 +38,7 @@ abstract class QueryFragment(protected val bottomSheetBehavior: BottomSheetBehav
             headerText = mainLayout.findViewById(R.id.header_text)
 
             calBtn = MaterialButton(ContextThemeWrapper(context, com.google.android.material.R.style.Widget_Material3_Button))
-            calBtn.text = "Calculate"
+            calBtn.text = getString(R.string.calculate)
             calBtn.isEnabled = false
             calBtn.layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,

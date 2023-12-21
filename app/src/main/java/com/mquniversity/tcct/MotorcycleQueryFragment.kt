@@ -25,7 +25,7 @@ class MotorcycleQueryFragment(bottomSheetBehavior: BottomSheetBehavior<LinearLay
         if (!isInitialized) {
             isInitialized = true
 
-            headerText.text = "Motorcycle"
+            headerText.text = getString(R.string.motorcycle)
 
             val args = requireArguments()
 

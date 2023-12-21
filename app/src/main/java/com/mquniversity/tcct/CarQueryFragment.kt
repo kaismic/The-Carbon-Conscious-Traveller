@@ -33,7 +33,7 @@ class CarQueryFragment(bottomSheetBehavior: BottomSheetBehavior<LinearLayout>): 
         if (!isInitialized) {
             isInitialized = true
 
-            headerText.text = "Car"
+            headerText.text = getString(R.string.motorcycle)
 
             val args = requireArguments()
             fuelTypes = args.getStringArray("carFuelTypes")!!

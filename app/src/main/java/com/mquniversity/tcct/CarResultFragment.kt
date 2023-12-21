@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.google.maps.model.TravelMode
 
 class CarResultFragment(
     private val carSize: String,
@@ -17,6 +18,7 @@ class CarResultFragment(
         super.onCreateView(inflater, container, savedInstanceState)
         if (!isInitialized) {
             isInitialized = true
+            travelMode = TravelMode.DRIVING
             iconResId = R.drawable.outline_directions_car_24
             factor = calculationValues.carValuesMatrix[calculationValues.carSizes.indexOf(carSize)][calculationValues.carFuelTypes.indexOf(carFuelType)]
             updateRouteResults()

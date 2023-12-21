@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.google.maps.model.TravelMode
 
 class MotorcycleResultFragment(private val motorcycleSize: String): PrivateVehicleResultFragment() {
     override fun onCreateView(
@@ -14,6 +15,7 @@ class MotorcycleResultFragment(private val motorcycleSize: String): PrivateVehic
         super.onCreateView(inflater, container, savedInstanceState)
         if (!isInitialized) {
             isInitialized = true
+            travelMode = TravelMode.DRIVING
             iconResId = R.drawable.outline_sports_motorsports_24
             factor = calculationValues.motorcycleValueMap[motorcycleSize]!!
             updateRouteResults()

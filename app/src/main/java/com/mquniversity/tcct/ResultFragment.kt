@@ -40,6 +40,7 @@ abstract class ResultFragment: Fragment() {
     private var currOrigin: Place? = null
     private var currDest: Place? = null
     protected lateinit var currRoutes: Array<DirectionsRoute>
+    protected var travelMode = TravelMode.DRIVING
 
     protected val emissionTexts: MutableList<TextView> = mutableListOf()
     protected val distTexts: MutableList<TextView> = mutableListOf()
@@ -115,7 +116,7 @@ abstract class ResultFragment: Fragment() {
         }
         try {
             val request = DirectionsApi.getDirections(geoApiContext, mainActivity.origin?.address, mainActivity.dest?.address)
-                .mode(TravelMode.DRIVING)
+                .mode(travelMode)
                 .alternatives(true)
             val response = request.await()
 

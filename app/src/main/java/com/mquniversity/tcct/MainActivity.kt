@@ -31,6 +31,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.tasks.CancellationTokenSource
@@ -46,7 +47,6 @@ import com.mquniversity.tcct.PermissionUtils.isPermissionGranted
 import com.mquniversity.tcct.databinding.ActivityMainBinding
 import java.util.Timer
 import kotlin.concurrent.schedule
-import kotlin.math.abs
 
 /**
  * location bias radius for search result suggestion. Value range: [0 - 50000] in meters
@@ -205,7 +205,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             }
         })
 
-
         bottomSheet = findViewById(R.id.bottom_sheet)
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
         bottomSheetBehavior.peekHeight = resources.displayMetrics.heightPixels / 4
@@ -298,15 +297,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     }
 
     private fun moveCameraBetween() {
-        val middle = LatLng(
-            (origin?.latLng!!.latitude + dest?.latLng!!.latitude) / 2,
-            (origin?.latLng!!.longitude + dest?.latLng!!.longitude) / 2
+        val bounds = LatLngBounds.Builder()
+            .include(origin?.latLng!!)
+            .include(dest?.latLng!!)
+            .build()
+        googleMap.animateCamera(
+            CameraUpdateFactory.newLatLngBounds(bounds, 256)
         )
-        // TODO calculate zoom based on difference
-        val latDiff = abs(origin?.latLng!!.latitude - dest?.latLng!!.latitude)
-        val lngDiff = abs(origin?.latLng!!.longitude - dest?.latLng!!.longitude)
-//        val zoom =
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(middle, DEFAULT_ZOOM))
     }
 
     private fun createQueryFragment() {
@@ -401,7 +398,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
 //                            originInput.setLocationBias(bound)
 //                            destInput.setLocationBias(bound)
                             // move camera center to the current location
-                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, DEFAULT_ZOOM))
+                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, DEFAULT_ZOOM))
                         }
                     }
                     locTask.addOnFailureListener {

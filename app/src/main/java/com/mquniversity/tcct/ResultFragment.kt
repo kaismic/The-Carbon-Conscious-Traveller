@@ -84,7 +84,7 @@ abstract class ResultFragment: Fragment() {
         // return if the current start and end location is same as before
         if (currOrigin != null && currDest != null
             && mainActivity.origin?.address == currOrigin?.address
-            && mainActivity.destination?.address == currDest?.address) {
+            && mainActivity.dest?.address == currDest?.address) {
             return
         }
         mainLayout.removeAllViews()
@@ -114,7 +114,7 @@ abstract class ResultFragment: Fragment() {
             updateRouteResults()
         }
         try {
-            val request = DirectionsApi.getDirections(geoApiContext, mainActivity.origin?.address, mainActivity.destination?.address)
+            val request = DirectionsApi.getDirections(geoApiContext, mainActivity.origin?.address, mainActivity.dest?.address)
                 .mode(TravelMode.DRIVING)
                 .alternatives(true)
             val response = request.await()
@@ -126,7 +126,7 @@ abstract class ResultFragment: Fragment() {
                 insertRouteResult(response.routes[i], i)
             }
             currOrigin = mainActivity.origin!!
-            currDest = mainActivity.destination!!
+            currDest = mainActivity.dest!!
         } catch (e: ZeroResultsException) {
             mainLayout.removeAllViews()
             errorText.text = getString(R.string.error_zero_results)

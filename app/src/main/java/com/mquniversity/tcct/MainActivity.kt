@@ -45,6 +45,9 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.maps.GeoApiContext
 import com.mquniversity.tcct.PermissionUtils.isPermissionGranted
 import com.mquniversity.tcct.databinding.ActivityMainBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.Timer
 import kotlin.concurrent.schedule
 
@@ -90,7 +93,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     private var destMarker: Marker? = null
 
     private lateinit var bottomSheet: LinearLayout
-    lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
 
     private lateinit var transportSelection: TransportSelection
     private lateinit var backPressedHandler: OnBackPressedCallback
@@ -316,8 +319,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             else -> return
         }
         val frag = when (transportSelection.currMode) {
-            TransportMode.CAR.ordinal -> CarQueryFragment()
-            TransportMode.MOTORCYCLE.ordinal -> MotorcycleQueryFragment()
+            TransportMode.CAR.ordinal -> CarQueryFragment(bottomSheetBehavior)
+            TransportMode.MOTORCYCLE.ordinal -> MotorcycleQueryFragment(bottomSheetBehavior)
             else -> return
         }
         val bundle = Bundle()
@@ -518,7 +521,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     }
 
     override fun onDestroy() {
-        geoApiContext.shutdown()
+        CoroutineScope(Dispatchers.IO).launch {
+            geoApiContext.shutdown()
+        }
         super.onDestroy()
     }
 }

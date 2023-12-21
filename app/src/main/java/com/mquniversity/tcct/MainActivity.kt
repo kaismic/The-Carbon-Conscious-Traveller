@@ -82,12 +82,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
-    private lateinit var originInput: AutocompleteSupportFragment
-    private lateinit var destInput: AutocompleteSupportFragment
     var origin: Place? = null
     var dest: Place? = null
-    var originMarker: Marker? = null
-    var destMarker: Marker? = null
+    private lateinit var originInput: AutocompleteSupportFragment
+    private lateinit var destInput: AutocompleteSupportFragment
+    private var originMarker: Marker? = null
+    private var destMarker: Marker? = null
 
     private lateinit var bottomSheet: LinearLayout
     lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
@@ -207,7 +207,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
 
         bottomSheet = findViewById(R.id.bottom_sheet)
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
-        bottomSheetBehavior.peekHeight = resources.displayMetrics.heightPixels / 4
+        bottomSheetBehavior.peekHeight = resources.displayMetrics.heightPixels / 8
     }
 
     fun calculate() {
@@ -226,19 +226,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         val resultFrag: ResultFragment?
         var queryFrag: QueryFragment? = null
         when (transportSelection.currMode) {
-            TravelModes.CAR.ordinal -> {
+            TransportMode.CAR.ordinal -> {
                 resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_car_result)) as ResultFragment?
                 if (resultFrag == null) {
                     queryFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_car_query)) as QueryFragment?
                 }
             }
-            TravelModes.MOTORCYCLE.ordinal -> {
+            TransportMode.MOTORCYCLE.ordinal -> {
                 resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_result)) as ResultFragment?
                 if (resultFrag == null) {
                     queryFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_query)) as QueryFragment?
                 }
             }
-            TravelModes.PUBLIC_TRANSPORT.ordinal -> {
+            TransportMode.PUBLIC_TRANSPORT.ordinal -> {
                 // TODO
                 resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_public_transport_result)) as ResultFragment?
                 if (resultFrag == null) {
@@ -246,7 +246,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                     return
                 }
             }
-            TravelModes.AIRPLANE.ordinal -> {
+            TransportMode.AIRPLANE.ordinal -> {
                 // TODO
                 resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_airplane_result)) as ResultFragment?
                 if (resultFrag == null) {
@@ -308,23 +308,23 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
 
     private fun createQueryFragment() {
         val tag = when (transportSelection.currMode) {
-            TravelModes.CAR.ordinal -> getString(R.string.tag_car_query)
-            TravelModes.MOTORCYCLE.ordinal -> getString(R.string.tag_motorcycle_query)
+            TransportMode.CAR.ordinal -> getString(R.string.tag_car_query)
+            TransportMode.MOTORCYCLE.ordinal -> getString(R.string.tag_motorcycle_query)
             else -> return
         }
         val frag = when (transportSelection.currMode) {
-            TravelModes.CAR.ordinal -> CarQueryFragment()
-            TravelModes.MOTORCYCLE.ordinal -> MotorcycleQueryFragment()
+            TransportMode.CAR.ordinal -> CarQueryFragment()
+            TransportMode.MOTORCYCLE.ordinal -> MotorcycleQueryFragment()
             else -> return
         }
         val bundle = Bundle()
         when (transportSelection.currMode) {
-            TravelModes.CAR.ordinal -> {
+            TransportMode.CAR.ordinal -> {
                 bundle.putStringArray("carSizes", calculationValues.carSizes.toTypedArray())
                 bundle.putStringArray("carFuelTypes", calculationValues.carFuelTypes)
                 bundle.putSerializable("carValues", calculationValues.carValuesMatrix.toTypedArray())
             }
-            TravelModes.MOTORCYCLE.ordinal -> {
+            TransportMode.MOTORCYCLE.ordinal -> {
                 bundle.putStringArray("motorcycleSizes", calculationValues.motorcycleSizes.toTypedArray())
             }
             else -> return

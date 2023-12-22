@@ -10,6 +10,7 @@
     <string name="permission_required_toast">Location permission is required for this app.</string>
 
     <string name="warning_same_location">Cannot use same start location and destination</string>
+    <string name="helper_text">Start by entering a start and end location</string>
 
     <string name="tag_car_query">CAR_QUERY</string>
     <string name="tag_car_result">CAR_RESULT</string>

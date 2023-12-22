@@ -57,7 +57,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Start by entering a start and end location"
+                    android:text="@string/helper_text"
                     android:alpha="0.5"/>
             </LinearLayout>
         </androidx.coordinatorlayout.widget.CoordinatorLayout>

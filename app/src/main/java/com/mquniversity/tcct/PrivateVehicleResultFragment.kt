@@ -15,7 +15,7 @@ open class PrivateVehicleResultFragment: ResultFragment() {
             mainLayout,
             false) as LinearLayout
 
-        val icon: ImageView = resultLayout.findViewById(R.id.transport_mode_icon)
+        val icon: ImageView = resultLayout.findViewById(R.id.private_vehicle_icon)
         icon.setImageDrawable(
             ResourcesCompat.getDrawable(
                 resources,

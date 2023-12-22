@@ -48,7 +48,9 @@
                 <androidx.fragment.app.FragmentContainerView
                     android:id="@+id/fragment_container"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp">
                 </androidx.fragment.app.FragmentContainerView>
                 <TextView
                     android:id="@+id/helper_text"

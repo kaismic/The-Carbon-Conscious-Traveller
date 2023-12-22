@@ -10,7 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 
 class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityContext) {
-    var currMode: Int = 0
+    var currMode: TransportMode = TransportMode.CAR
 
     private val btns: Array<RadioButton> = Array(TransportMode.entries.size) {
         RadioButton(ContextThemeWrapper(
@@ -51,14 +51,14 @@ class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityC
             )
             btns[i].setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    currMode = i
+                    currMode = TransportMode.entries[i]
                 }
             }
             btns[i].setTextColor(ContextCompat.getColorStateList(context, R.color.transport_foreground_color))
             btns[i].backgroundTintList = ContextCompat.getColorStateList(context, R.color.transport_background_color)?.withAlpha(97)
             btns[i].setBackgroundResource(R.drawable.transport_background_shape)
         }
-        btns[currMode].isChecked = true
+        btns[currMode.ordinal].isChecked = true
 
         this.setOnCheckedChangeListener { _, _ ->
             (mainActivityContext as MainActivity).calculate()

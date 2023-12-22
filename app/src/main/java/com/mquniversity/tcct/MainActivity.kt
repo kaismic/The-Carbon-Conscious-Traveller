@@ -228,19 +228,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         var resultFrag: ResultFragment?
         var queryFrag: QueryFragment? = null
         when (transportSelection.currMode) {
-            TransportMode.CAR.ordinal -> {
+            TransportMode.CAR -> {
                 resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_car_result)) as ResultFragment?
                 if (resultFrag == null) {
                     queryFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_car_query)) as QueryFragment?
                 }
             }
-            TransportMode.MOTORCYCLE.ordinal -> {
+            TransportMode.MOTORCYCLE -> {
                 resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_result)) as ResultFragment?
                 if (resultFrag == null) {
                     queryFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_query)) as QueryFragment?
                 }
             }
-            TransportMode.PUBLIC_TRANSPORT.ordinal -> {
+            TransportMode.PUBLIC_TRANSPORT -> {
                 resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_public_transport_result)) as ResultFragment?
                 if (resultFrag == null) {
                     bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -254,7 +254,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                     return
                 }
             }
-            TransportMode.AIRPLANE.ordinal -> {
+            TransportMode.AIRPLANE -> {
                 // TODO
                 resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_airplane_result)) as ResultFragment?
                 if (resultFrag == null) {
@@ -262,7 +262,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                     return
                 }
             }
-            else -> throw IllegalStateException("TransportSelection.currMode is invalid")
         }
         if (resultFrag != null) {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -316,23 +315,23 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
 
     private fun createQueryFragment() {
         val tag = when (transportSelection.currMode) {
-            TransportMode.CAR.ordinal -> getString(R.string.tag_car_query)
-            TransportMode.MOTORCYCLE.ordinal -> getString(R.string.tag_motorcycle_query)
+            TransportMode.CAR -> getString(R.string.tag_car_query)
+            TransportMode.MOTORCYCLE -> getString(R.string.tag_motorcycle_query)
             else -> return
         }
         val frag = when (transportSelection.currMode) {
-            TransportMode.CAR.ordinal -> CarQueryFragment(bottomSheetBehavior)
-            TransportMode.MOTORCYCLE.ordinal -> MotorcycleQueryFragment(bottomSheetBehavior)
+            TransportMode.CAR -> CarQueryFragment(bottomSheetBehavior)
+            TransportMode.MOTORCYCLE -> MotorcycleQueryFragment(bottomSheetBehavior)
             else -> return
         }
         val bundle = Bundle()
         when (transportSelection.currMode) {
-            TransportMode.CAR.ordinal -> {
+            TransportMode.CAR -> {
                 bundle.putStringArray("carSizes", calculationValues.carSizes.toTypedArray())
                 bundle.putStringArray("carFuelTypes", calculationValues.carFuelTypes)
                 bundle.putSerializable("carValues", calculationValues.carValuesMatrix.toTypedArray())
             }
-            TransportMode.MOTORCYCLE.ordinal -> {
+            TransportMode.MOTORCYCLE -> {
                 bundle.putStringArray("motorcycleSizes", calculationValues.motorcycleSizes.toTypedArray())
             }
             else -> return

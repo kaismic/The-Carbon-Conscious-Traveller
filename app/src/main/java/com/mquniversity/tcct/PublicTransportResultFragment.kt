@@ -49,7 +49,7 @@ class PublicTransportResultFragment: ResultFragment() {
         super.updateRouteResults()
     }
 
-    override fun insertRouteResult(route: DirectionsRoute, i: Int) {
+    override fun insertRouteResult(route: DirectionsRoute) {
         val resultLayout = layoutInflater.inflate(
             R.layout.public_transport_result_item,
             mainLayout,
@@ -67,7 +67,7 @@ class PublicTransportResultFragment: ResultFragment() {
         val pattern = "h:mm a"
         val departureTimeText = departureTime.format(DateTimeFormatter.ofPattern(pattern))
         val arrivalTimeText = arrivalTime.format(DateTimeFormatter.ofPattern(pattern))
-        timeTextView.text = "$departureTimeText - $arrivalTimeText"
+        timeTextView.text = getString(R.string.departure_arrival_time, departureTimeText, arrivalTimeText)
 
         val stepsIconContainer: FlexboxLayout = resultLayout.findViewById(R.id.steps_icon_container)
         val steps = route.legs[0].steps

@@ -27,7 +27,7 @@ open class PrivateVehicleResultFragment: ResultFragment() {
         super.updateRouteResults()
     }
 
-    override fun insertRouteResult(route: DirectionsRoute, i: Int) {
+    override fun insertRouteResult(route: DirectionsRoute) {
         val resultLayout = layoutInflater.inflate(
             R.layout.private_vehicle_result_item,
             mainLayout,
@@ -42,7 +42,7 @@ open class PrivateVehicleResultFragment: ResultFragment() {
             ))
 
         val summaryText: TextView = resultLayout.findViewById(R.id.summary_text)
-        summaryText.text = "via ${route.summary}"
+        summaryText.text = getString(R.string.summary_text, route.summary)
 
         val emissionText: TextView = resultLayout.findViewById(R.id.emission_text)
         emissionText.text = CalculationUtils.calculateByDistance(route.legs[0].distance.inMeters, factor)

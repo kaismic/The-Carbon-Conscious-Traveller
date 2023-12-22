@@ -75,7 +75,7 @@ abstract class ResultFragment: Fragment() {
         return rootScrollView
     }
 
-    protected abstract fun insertRouteResult(route: DirectionsRoute, i: Int)
+    protected abstract fun insertRouteResult(route: DirectionsRoute)
     open fun updateRouteResults() {
         mainLayout.removeAllViews()
 
@@ -113,8 +113,8 @@ abstract class ResultFragment: Fragment() {
                 currOrigin = mainActivity.origin!!
                 currDest = mainActivity.dest!!
                 mainLayout.post {
-                    for (i in currRoutes.indices) {
-                        insertRouteResult(response.routes[i], i)
+                    for (route in currRoutes) {
+                        insertRouteResult(route)
                     }
                 }
             }

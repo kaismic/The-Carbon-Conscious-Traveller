@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.flexbox.FlexboxLayout
 import com.google.maps.model.DirectionsRoute
@@ -21,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.net.URL
+import java.time.format.DateTimeFormatter
 
 class PublicTransportResultFragment: ResultFragment() {
     override fun onCreateView(
@@ -32,10 +34,19 @@ class PublicTransportResultFragment: ResultFragment() {
         if (!isInitialized) {
             isInitialized = true
             travelMode = TravelMode.TRANSIT
-            iconResId = R.drawable.outline_directions_subway_24
             updateRouteResults()
         }
         return rootScrollView
+    }
+
+    override fun updateRouteResults() {
+        // return if the current start and end location is same as before
+        if (currOrigin != null && currDest != null
+            && mainActivity.origin?.address == currOrigin?.address
+            && mainActivity.dest?.address == currDest?.address) {
+            return
+        }
+        super.updateRouteResults()
     }
 
     override fun insertRouteResult(route: DirectionsRoute, i: Int) {
@@ -44,18 +55,21 @@ class PublicTransportResultFragment: ResultFragment() {
             mainLayout,
             false) as LinearLayout
 
-        val stepsIconContainer: FlexboxLayout = resultLayout.findViewById(R.id.steps_icon_container)
-
         val emissionText: TextView = resultLayout.findViewById(R.id.emission_text)
         val distText: TextView = resultLayout.findViewById(R.id.distance_text)
         distText.text = route.legs[0].distance.humanReadable
         val durationText: TextView = resultLayout.findViewById(R.id.duration_text)
         durationText.text = route.legs[0].duration.humanReadable
 
-        emissionTexts.add(emissionText)
-        distTexts.add(distText)
-        durationTexts.add(durationText)
+        val timeTextView: TextView = resultLayout.findViewById(R.id.departure_arrival_time)
+        val departureTime = route.legs[0].departureTime
+        val arrivalTime = route.legs[0].arrivalTime
+        val pattern = "h:mm a"
+        val departureTimeText = departureTime.format(DateTimeFormatter.ofPattern(pattern))
+        val arrivalTimeText = arrivalTime.format(DateTimeFormatter.ofPattern(pattern))
+        timeTextView.text = "$departureTimeText - $arrivalTimeText"
 
+        val stepsIconContainer: FlexboxLayout = resultLayout.findViewById(R.id.steps_icon_container)
         val steps = route.legs[0].steps
         var totalEmissionInGram = 0f
         for (step in steps) {
@@ -83,14 +97,11 @@ class PublicTransportResultFragment: ResultFragment() {
                     }
                     totalEmissionInGram += step.distance.inMeters * factor
 
-                    val transitIconsContainer = LinearLayout(context).apply {
-                        orientation = LinearLayout.HORIZONTAL
-                        layoutParams = FlexboxLayout.LayoutParams(
-                            FlexboxLayout.LayoutParams.WRAP_CONTENT,
-                            FlexboxLayout.LayoutParams.WRAP_CONTENT
-                        )
-                    }
-                    // TODO use ConstraintLayout to make localIcon fit to shortName TextView
+                    val transitIconsContainer: ConstraintLayout = layoutInflater.inflate(
+                        R.layout.transit_icons_container,
+                        stepsIconContainer,
+                        false
+                    ) as ConstraintLayout
                     try {
                         var iconURL = step.transitDetails.line.vehicle.localIcon
                         if (iconURL.isNullOrEmpty()) {
@@ -98,7 +109,7 @@ class PublicTransportResultFragment: ResultFragment() {
                         }
                         if (!iconURL.isNullOrEmpty()) {
                             val completeURL = "https:$iconURL"
-                            val localIcon = ImageView(context)
+                            val icon: ImageView = transitIconsContainer.findViewById(R.id.transit_icon)
                             val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
                                 throwable.printStackTrace()
                             }
@@ -106,18 +117,18 @@ class PublicTransportResultFragment: ResultFragment() {
                                 val bitmap = BitmapFactory.decodeStream(
                                     URL(completeURL).openStream()
                                 )
-                                localIcon.post {
-                                    localIcon.setImageBitmap(bitmap)
+                                icon.post {
+                                    icon.setImageBitmap(bitmap)
                                 }
                             }
-                            transitIconsContainer.addView(localIcon)
                         }
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
                     val shortNameText = step.transitDetails.line.shortName
                     if (!shortNameText.isNullOrEmpty()) {
-                        val shortName = TextView(context).apply {
+                        val shortName: TextView = transitIconsContainer.findViewById(R.id.short_name)
+                        shortName.apply {
                             background = ResourcesCompat.getDrawable(
                                 resources,
                                 R.drawable.transport_short_name_shape,
@@ -128,7 +139,6 @@ class PublicTransportResultFragment: ResultFragment() {
                             setTextColor(Color.parseColor(step.transitDetails.line.textColor))
                             backgroundTintList = ColorStateList.valueOf(Color.parseColor(step.transitDetails.line.color))
                         }
-                        transitIconsContainer.addView(shortName)
                     }
                     stepsIconContainer.addView(transitIconsContainer)
                 }

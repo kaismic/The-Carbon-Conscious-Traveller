@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.ScrollView
-import android.widget.TextView
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.fragment.app.Fragment
 import com.google.android.libraries.places.api.model.Place
@@ -23,6 +22,9 @@ import com.google.maps.errors.OverQueryLimitException
 import com.google.maps.errors.ZeroResultsException
 import com.google.maps.model.DirectionsRoute
 import com.google.maps.model.TravelMode
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 abstract class ResultFragment: Fragment() {
 
@@ -30,20 +32,15 @@ abstract class ResultFragment: Fragment() {
 
     protected lateinit var rootScrollView: ScrollView
     protected lateinit var mainLayout: LinearLayout
-    protected var iconResId: Int? = null
 
-    private lateinit var mainActivity: MainActivity
+    protected lateinit var mainActivity: MainActivity
     private lateinit var geoApiContext: GeoApiContext
     protected lateinit var calculationValues: CalculationValues
 
-    private var currOrigin: Place? = null
-    private var currDest: Place? = null
+    protected var currOrigin: Place? = null
+    protected var currDest: Place? = null
     protected lateinit var currRoutes: Array<DirectionsRoute>
     protected var travelMode = TravelMode.DRIVING
-
-    protected val emissionTexts: MutableList<TextView> = mutableListOf()
-    protected val distTexts: MutableList<TextView> = mutableListOf()
-    protected val durationTexts: MutableList<TextView> = mutableListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -79,17 +76,8 @@ abstract class ResultFragment: Fragment() {
     }
 
     protected abstract fun insertRouteResult(route: DirectionsRoute, i: Int)
-    fun updateRouteResults() {
-        // return if the current start and end location is same as before
-        if (currOrigin != null && currDest != null
-            && mainActivity.origin?.address == currOrigin?.address
-            && mainActivity.dest?.address == currDest?.address) {
-            return
-        }
+    open fun updateRouteResults() {
         mainLayout.removeAllViews()
-        emissionTexts.clear()
-        distTexts.clear()
-        durationTexts.clear()
 
         val progressBar = ProgressBar(context)
         mainLayout.addView(progressBar)
@@ -113,21 +101,24 @@ abstract class ResultFragment: Fragment() {
             updateRouteResults()
         }
         try {
-            mainLayout.post {
-                val request = DirectionsApi.getDirections(geoApiContext, mainActivity.origin?.address, mainActivity.dest?.address)
-                    .mode(travelMode)
-                    .alternatives(true)
+            val request = DirectionsApi.getDirections(geoApiContext, mainActivity.origin?.address, mainActivity.dest?.address)
+                .mode(travelMode)
+                .alternatives(true)
+            CoroutineScope(Dispatchers.IO).launch {
                 val response = request.await()
-
-                mainLayout.removeAllViews()
-
+                mainLayout.post {
+                    mainLayout.removeAllViews()
+                }
                 currRoutes = response.routes
-                for (i in currRoutes.indices) {
-                    insertRouteResult(response.routes[i], i)
+                currOrigin = mainActivity.origin!!
+                currDest = mainActivity.dest!!
+                mainLayout.post {
+                    for (i in currRoutes.indices) {
+                        insertRouteResult(response.routes[i], i)
+                    }
                 }
             }
-            currOrigin = mainActivity.origin!!
-            currDest = mainActivity.dest!!
+
         } catch (e: ZeroResultsException) {
             mainLayout.removeAllViews()
             errorText.text = getString(R.string.error_zero_results)

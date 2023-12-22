@@ -55,7 +55,6 @@ import kotlin.concurrent.schedule
  * location bias radius for search result suggestion. Value range: [0 - 50000] in meters
  */
 private const val BIAS_RADIUS: Double = 5000.0
-private const val BIAS_DISTANCE: Double = 5000.0
 private const val DEFAULT_ZOOM = 15f
 
 /**

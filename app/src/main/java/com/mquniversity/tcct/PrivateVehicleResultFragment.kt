@@ -8,6 +8,24 @@ import com.google.maps.model.DirectionsRoute
 
 open class PrivateVehicleResultFragment: ResultFragment() {
     protected var factor = 0f
+    protected var iconResId: Int? = null
+
+    protected val emissionTexts: MutableList<TextView> = mutableListOf()
+    protected val distTexts: MutableList<TextView> = mutableListOf()
+    protected val durationTexts: MutableList<TextView> = mutableListOf()
+
+    override fun updateRouteResults() {
+        // return if the current start and end location is same as before
+        if (currOrigin != null && currDest != null
+            && mainActivity.origin?.address == currOrigin?.address
+            && mainActivity.dest?.address == currDest?.address) {
+            return
+        }
+        emissionTexts.clear()
+        distTexts.clear()
+        durationTexts.clear()
+        super.updateRouteResults()
+    }
 
     override fun insertRouteResult(route: DirectionsRoute, i: Int) {
         val resultLayout = layoutInflater.inflate(

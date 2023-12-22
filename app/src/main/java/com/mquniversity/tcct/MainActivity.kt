@@ -243,6 +243,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             TransportMode.PUBLIC_TRANSPORT.ordinal -> {
                 resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_public_transport_result)) as ResultFragment?
                 if (resultFrag == null) {
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+
                     resultFrag = PublicTransportResultFragment()
                     supportFragmentManager
                         .beginTransaction()
@@ -256,6 +258,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                 // TODO
                 resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_airplane_result)) as ResultFragment?
                 if (resultFrag == null) {
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     return
                 }
             }

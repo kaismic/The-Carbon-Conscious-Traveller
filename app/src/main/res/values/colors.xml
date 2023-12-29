@@ -9,4 +9,7 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="transport_checked_background">#612979FF</color>
+
+    <color name="polyline_unselected">#bccefb</color>
+    <color name="polyline_private_vehicle">#0F53FF</color>
 </resources>

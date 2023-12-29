@@ -22,7 +22,6 @@ import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.DialogFragment
 
@@ -30,42 +29,6 @@ import androidx.fragment.app.DialogFragment
  * Utility class for access to runtime permissions.
  */
 object PermissionUtils {
-
-    /**
-     * Requests the fine and coarse location permissions. If a rationale with an additional
-     * explanation should be shown to the user, displays a dialog that triggers the request.
-     */
-    fun requestLocationPermissions(
-        activity: AppCompatActivity,
-        requestId: Int,
-        finishActivity: Boolean
-    ) {
-        if (
-            ActivityCompat.shouldShowRequestPermissionRationale(
-                activity,
-                permission.ACCESS_FINE_LOCATION
-            ) ||
-            ActivityCompat.shouldShowRequestPermissionRationale(
-                activity,
-                permission.ACCESS_COARSE_LOCATION
-            )
-        ) {
-            // Display a dialog with rationale.
-            RationaleDialog.newInstance(requestId, finishActivity)
-                .show(activity.supportFragmentManager, "dialog")
-        } else {
-            // Location permission has not been granted yet, request it.
-            ActivityCompat.requestPermissions(
-                activity,
-                arrayOf(
-                    permission.ACCESS_FINE_LOCATION,
-                    permission.ACCESS_COARSE_LOCATION
-                ),
-                requestId
-            )
-        }
-    }
-
     /**
      * Checks if the result contains a [PackageManager.PERMISSION_GRANTED] result for a
      * permission from a runtime permissions request.
@@ -99,7 +62,7 @@ object PermissionUtils {
             super.onDismiss(dialog)
             if (finishActivity) {
                 Toast.makeText(
-                    activity, R.string.permission_required_toast,
+                    activity, R.string.location_permission_required,
                     Toast.LENGTH_SHORT
                 ).show()
                 activity?.finish()
@@ -125,7 +88,7 @@ object PermissionUtils {
                 arguments?.getBoolean(ARGUMENT_FINISH_ACTIVITY) ?: false
             return AlertDialog.Builder(activity)
                 .setMessage(R.string.permission_rationale_location)
-                .setPositiveButton(android.R.string.ok) { dialog, which -> // After click on Ok, request the permission.
+                .setPositiveButton(android.R.string.ok) { _, _ -> // After click on Ok, request the permission.
                     ActivityCompat.requestPermissions(
                         requireActivity(),
                         arrayOf(
@@ -146,7 +109,7 @@ object PermissionUtils {
             if (finishActivity) {
                 Toast.makeText(
                     activity,
-                    R.string.permission_required_toast,
+                    R.string.location_permission_required,
                     Toast.LENGTH_SHORT
                 ).show()
                 activity?.finish()

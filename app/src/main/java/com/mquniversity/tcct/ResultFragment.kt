@@ -1,5 +1,6 @@
 package com.mquniversity.tcct
 
+import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.Gravity
@@ -11,6 +12,9 @@ import android.widget.ProgressBar
 import android.widget.ScrollView
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.fragment.app.Fragment
+import com.google.android.gms.maps.model.Dot
+import com.google.android.gms.maps.model.Gap
+import com.google.android.gms.maps.model.Polyline
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
@@ -27,7 +31,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 abstract class ResultFragment: Fragment() {
-
     protected var isInitialized = false
 
     protected lateinit var rootScrollView: ScrollView
@@ -40,6 +43,9 @@ abstract class ResultFragment: Fragment() {
     protected var currOrigin: Place? = null
     protected var currDest: Place? = null
     protected lateinit var currRoutes: Array<DirectionsRoute>
+    private var currPolylines: Array<Array<Polyline?>?>? = null
+    private var lastClickedRoutePolylines: Array<Polyline?>? = null
+
     protected var travelMode = TravelMode.DRIVING
 
     override fun onCreateView(
@@ -75,7 +81,27 @@ abstract class ResultFragment: Fragment() {
         return rootScrollView
     }
 
-    protected abstract fun insertRouteResult(route: DirectionsRoute)
+    fun removePolylines() {
+        if (currPolylines != null) {
+            for (polylines in currPolylines!!) {
+                for (polyline in polylines!!) {
+                    polyline?.remove()
+                }
+            }
+        }
+    }
+
+    protected open fun insertRouteResult(route: DirectionsRoute, polylines: Array<Polyline?>) {
+        // initialise polylines with unselected style
+        for (i in polylines.indices) {
+            polylines[i] = mainActivity.insertPolyline(
+                route.legs[0].steps[i].polyline,
+                resources.getColor(R.color.polyline_unselected, context?.theme),
+                null
+            )
+        }
+    }
+
     open fun updateRouteResults() {
         mainLayout.removeAllViews()
 
@@ -110,34 +136,86 @@ abstract class ResultFragment: Fragment() {
                     mainLayout.removeAllViews()
                 }
                 currRoutes = response.routes
+                removePolylines()
+                currPolylines = arrayOfNulls(currRoutes.size)
+                for (i in currRoutes.indices) {
+                    currPolylines?.set(i, arrayOfNulls(currRoutes[i].legs[0].steps.size))
+                }
                 currOrigin = mainActivity.origin!!
                 currDest = mainActivity.dest!!
                 mainLayout.post {
-                    for (route in currRoutes) {
-                        insertRouteResult(route)
+                    for (i in currRoutes.indices) {
+                        insertRouteResult(currRoutes[i], currPolylines!![i]!!)
                     }
                 }
             }
 
-        } catch (e: ZeroResultsException) {
-            mainLayout.removeAllViews()
-            errorText.text = getString(R.string.error_zero_results)
-            mainLayout.addView(errorText)
-        } catch (e: OverDailyLimitException) {
-            mainLayout.removeAllViews()
-            errorText.text = getString(R.string.error_daily_limit_exceeded)
-            mainLayout.addView(errorText)
-            mainLayout.addView(retryBtn)
-        } catch (e: OverQueryLimitException) {
-            mainLayout.removeAllViews()
-            errorText.text = getString(R.string.error_query_limit_exceeded)
-            mainLayout.addView(errorText)
-            mainLayout.addView(retryBtn)
         } catch (e: ApiException) {
             mainLayout.removeAllViews()
-            errorText.text = getString(R.string.error_general)
             mainLayout.addView(errorText)
-            mainLayout.addView(retryBtn)
+            if (e !is ZeroResultsException) {
+                mainLayout.addView(retryBtn)
+            }
+            when (e) {
+                is ZeroResultsException -> errorText.text = getString(R.string.error_zero_results)
+                is OverDailyLimitException -> errorText.text = getString(R.string.error_daily_limit_exceeded)
+                is OverQueryLimitException -> errorText.text = getString(R.string.error_query_limit_exceeded)
+                else -> errorText.text = getString(R.string.error_general)
+            }
+        }
+    }
+
+    fun highlightRoute(selectedPolyline: Polyline) {
+        var selectedRoutePolylines: Array<Polyline?>? = null
+        for (routePolylines in currPolylines!!) {
+            if (routePolylines?.contains(selectedPolyline) == true) {
+                selectedRoutePolylines = routePolylines
+            }
+        }
+        if (lastClickedRoutePolylines === selectedRoutePolylines) {
+            return
+        }
+        if (lastClickedRoutePolylines != null) {
+            // reset style to unselected
+            for (polyline in lastClickedRoutePolylines!!) {
+                polyline?.zIndex = 0f
+                polyline?.color = resources.getColor(R.color.polyline_unselected, context?.theme)
+                polyline?.pattern = null
+            }
+        }
+        lastClickedRoutePolylines = selectedRoutePolylines
+
+        val idx = currPolylines?.indexOf(selectedRoutePolylines)!!
+        val steps = currRoutes[idx].legs[0].steps
+        for (i in steps.indices) {
+            selectedRoutePolylines!![i]?.zIndex = 1f
+            when (steps[i].travelMode) {
+                TravelMode.TRANSIT -> {
+                    selectedRoutePolylines[i]?.color = Color.parseColor(steps[i].transitDetails.line.color)
+                    selectedRoutePolylines[i]?.pattern = null
+                }
+                TravelMode.DRIVING -> {
+                    selectedRoutePolylines[i]?.color = resources.getColor(
+                        R.color.polyline_private_vehicle,
+                        context?.theme
+                    )
+                    selectedRoutePolylines[i]?.pattern = null
+                }
+                TravelMode.WALKING, TravelMode.BICYCLING -> {
+                    selectedRoutePolylines[i]?.color = resources.getColor(
+                        R.color.polyline_private_vehicle,
+                        context?.theme
+                    )
+                    selectedRoutePolylines[i]?.pattern = listOf(Dot(), Gap(10f))
+                }
+                else -> {
+                    selectedRoutePolylines[i]?.color = resources.getColor(
+                        R.color.polyline_unselected,
+                        context?.theme
+                    )
+                    selectedRoutePolylines[i]?.pattern = listOf(Dot(), Gap(10f))
+                }
+            }
         }
     }
 }

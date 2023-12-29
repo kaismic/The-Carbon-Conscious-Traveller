@@ -34,6 +34,9 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.PatternItem
+import com.google.android.gms.maps.model.Polyline
+import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
 import com.google.android.libraries.places.api.Places
@@ -43,6 +46,7 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import com.google.maps.GeoApiContext
+import com.google.maps.model.EncodedPolyline
 import com.mquniversity.tcct.PermissionUtils.isPermissionGranted
 import com.mquniversity.tcct.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineScope
@@ -114,6 +118,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
 
         backPressedHandler = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+                if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_COLLAPSED) {
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                    return
+                }
                 finish()
             }
         }
@@ -225,7 +233,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         moveMarkers()
         moveCameraBetween()
 
-        var resultFrag: ResultFragment?
+        val currFrag = supportFragmentManager.findFragmentById(R.id.fragment_container)
+        if (currFrag is ResultFragment) {
+            currFrag.removePolylines()
+        }
+
+        val resultFrag: ResultFragment?
         var queryFrag: QueryFragment? = null
         when (transportSelection.currMode) {
             TransportMode.CAR -> {
@@ -244,11 +257,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                 resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_public_transport_result)) as ResultFragment?
                 if (resultFrag == null) {
                     bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-
-                    resultFrag = PublicTransportResultFragment()
                     supportFragmentManager
                         .beginTransaction()
-                        .replace(R.id.fragment_container, resultFrag, getString(R.string.tag_public_transport_result))
+                        .replace(R.id.fragment_container, PublicTransportResultFragment(), getString(R.string.tag_public_transport_result))
                         .addToBackStack(getString(R.string.tag_public_transport_result))
                         .commit()
                     return
@@ -283,6 +294,22 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             .commit()
     }
 
+    fun insertPolyline(encodedPolyline: EncodedPolyline, color: Int, patterns: List<PatternItem>?): Polyline {
+        return googleMap.addPolyline(
+            PolylineOptions()
+                .clickable(true)
+                .geodesic(true)
+                .width(15f)
+                .color(color)
+                .pattern(patterns)
+                .addAll(
+                    encodedPolyline.decodePath().map {
+                        latLng -> LatLng(latLng.lat, latLng.lng)
+                    }
+                )
+        )
+    }
+
     private fun moveMarkers() {
         if (originMarker == null) {
             originMarker = googleMap.addMarker(
@@ -300,7 +327,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         } else {
             destMarker!!.position = dest?.latLng!!
         }
-
     }
 
     private fun moveCameraBetween() {
@@ -309,7 +335,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             .include(dest?.latLng!!)
             .build()
         googleMap.animateCamera(
-            CameraUpdateFactory.newLatLngBounds(bounds, 256)
+            CameraUpdateFactory.newLatLngBounds(bounds, 64)
         )
     }
 
@@ -359,6 +385,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
 
         // disable map tilt
         googleMap.uiSettings.isTiltGesturesEnabled = false
+        // highlight route on click
+        googleMap.setOnPolylineClickListener { polyline ->
+            val resultFrag = supportFragmentManager.findFragmentById(R.id.fragment_container) as ResultFragment
+            resultFrag.highlightRoute(polyline)
+        }
 
         enableMyLocation()
     }
@@ -426,11 +457,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                         // The activity's onActivityResult method will be invoked after the user is done.
                         // If the resultCode is Activity.RESULT_OK, the application should try to connect again.
                         e.startResolutionForResult(this@MainActivity, REQUEST_CHECK_SETTINGS)
-                    } catch (sendEx: IntentSender.SendIntentException) {
-                        Snackbar
-                            .make(binding.root, "Location is not enabled", Snackbar.LENGTH_SHORT)
-                            .show()
-                    }
+                    } catch (_: IntentSender.SendIntentException) {}
                 }
             }
             googleMap.isMyLocationEnabled = true
@@ -500,8 +527,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CHECK_SETTINGS && resultCode == RESULT_OK) {
-            enableMyLocation()
+        if (requestCode == REQUEST_CHECK_SETTINGS) {
+            if (resultCode == RESULT_OK) {
+                enableMyLocation()
+            } else {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.location_permission_required),
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 

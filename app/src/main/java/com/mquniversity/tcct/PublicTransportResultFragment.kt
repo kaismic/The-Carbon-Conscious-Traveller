@@ -13,6 +13,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.flexbox.FlexboxLayout
+import com.google.android.gms.maps.model.Polyline
 import com.google.maps.model.DirectionsRoute
 import com.google.maps.model.TravelMode
 import com.google.maps.model.VehicleType
@@ -25,6 +26,7 @@ import java.net.URL
 import java.time.format.DateTimeFormatter
 
 class PublicTransportResultFragment: ResultFragment() {
+    private val timePattern = "h:mm a"
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -49,7 +51,8 @@ class PublicTransportResultFragment: ResultFragment() {
         super.updateRouteResults()
     }
 
-    override fun insertRouteResult(route: DirectionsRoute) {
+    override fun insertRouteResult(route: DirectionsRoute, polylines: Array<Polyline?>) {
+        super.insertRouteResult(route, polylines)
         val resultLayout = layoutInflater.inflate(
             R.layout.public_transport_result_item,
             mainLayout,
@@ -64,9 +67,8 @@ class PublicTransportResultFragment: ResultFragment() {
         val timeTextView: TextView = resultLayout.findViewById(R.id.departure_arrival_time)
         val departureTime = route.legs[0].departureTime
         val arrivalTime = route.legs[0].arrivalTime
-        val pattern = "h:mm a"
-        val departureTimeText = departureTime.format(DateTimeFormatter.ofPattern(pattern))
-        val arrivalTimeText = arrivalTime.format(DateTimeFormatter.ofPattern(pattern))
+        val departureTimeText = departureTime.format(DateTimeFormatter.ofPattern(timePattern))
+        val arrivalTimeText = arrivalTime.format(DateTimeFormatter.ofPattern(timePattern))
         timeTextView.text = getString(R.string.departure_arrival_time, departureTimeText, arrivalTimeText)
 
         val stepsIconContainer: FlexboxLayout = resultLayout.findViewById(R.id.steps_icon_container)

@@ -21,7 +21,7 @@ class CarResultFragment(
             travelMode = TravelMode.DRIVING
             iconResId = R.drawable.outline_directions_car_24
             factor = calculationValues.carValuesMatrix[calculationValues.carSizes.indexOf(carSize)][calculationValues.carFuelTypes.indexOf(carFuelType)]
-            updateRouteResults()
+            update()
         }
         return rootScrollView
     }

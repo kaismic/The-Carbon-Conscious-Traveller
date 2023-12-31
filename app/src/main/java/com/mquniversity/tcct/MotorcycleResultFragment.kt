@@ -18,7 +18,7 @@ class MotorcycleResultFragment(private val motorcycleSize: String): PrivateVehic
             travelMode = TravelMode.DRIVING
             iconResId = R.drawable.outline_sports_motorsports_24
             factor = calculationValues.motorcycleValueMap[motorcycleSize]!!
-            updateRouteResults()
+            update()
         }
         return rootScrollView
     }

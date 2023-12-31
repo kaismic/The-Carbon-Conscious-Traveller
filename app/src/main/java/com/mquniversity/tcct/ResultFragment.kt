@@ -36,12 +36,12 @@ abstract class ResultFragment: Fragment() {
     protected lateinit var rootScrollView: ScrollView
     protected lateinit var mainLayout: LinearLayout
 
-    protected lateinit var mainActivity: MainActivity
+    private lateinit var mainActivity: MainActivity
     private lateinit var geoApiContext: GeoApiContext
     protected lateinit var calculationValues: CalculationValues
 
-    protected var currOrigin: Place? = null
-    protected var currDest: Place? = null
+    private var currOrigin: Place? = null
+    private var currDest: Place? = null
     protected lateinit var currRoutes: Array<DirectionsRoute>
     private var currPolylines: Array<Array<Polyline?>?>? = null
     private var lastClickedRoutePolylines: Array<Polyline?>? = null
@@ -81,11 +81,31 @@ abstract class ResultFragment: Fragment() {
         return rootScrollView
     }
 
-    fun removePolylines() {
+    private fun removePolylines() {
         if (currPolylines != null) {
             for (polylines in currPolylines!!) {
                 for (polyline in polylines!!) {
                     polyline?.remove()
+                }
+            }
+        }
+    }
+
+    fun showPolylines() {
+        if (currPolylines != null) {
+            for (polylines in currPolylines!!) {
+                for (polyline in polylines!!) {
+                    polyline?.isVisible = true
+                }
+            }
+        }
+    }
+
+    fun hidePolylines() {
+        if (currPolylines != null) {
+            for (polylines in currPolylines!!) {
+                for (polyline in polylines!!) {
+                    polyline?.isVisible = false
                 }
             }
         }
@@ -102,30 +122,18 @@ abstract class ResultFragment: Fragment() {
         }
     }
 
-    open fun updateRouteResults() {
+    protected fun areLocationsSameAsBefore(): Boolean {
+        return (currOrigin != null && currDest != null
+                && mainActivity.origin?.address == currOrigin?.address
+                && mainActivity.dest?.address == currDest?.address)
+    }
+
+    open fun update() {
         mainLayout.removeAllViews()
 
         val progressBar = ProgressBar(context)
         mainLayout.addView(progressBar)
 
-        val errorText = MaterialTextView(requireContext())
-        errorText.layoutParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.WRAP_CONTENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        ).apply {
-            gravity = Gravity.CENTER
-        }
-        val retryBtn = MaterialButton(ContextThemeWrapper(context, com.google.android.material.R.style.Widget_Material3_Button))
-        retryBtn.layoutParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.WRAP_CONTENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        ).apply {
-            gravity = Gravity.CENTER
-        }
-        retryBtn.text = getString(R.string.try_again)
-        retryBtn.setOnClickListener {
-            updateRouteResults()
-        }
         try {
             val request = DirectionsApi.getDirections(geoApiContext, mainActivity.origin?.address, mainActivity.dest?.address)
                 .mode(travelMode)
@@ -151,6 +159,24 @@ abstract class ResultFragment: Fragment() {
             }
 
         } catch (e: ApiException) {
+            val errorText = MaterialTextView(requireContext())
+            errorText.layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                gravity = Gravity.CENTER
+            }
+            val retryBtn = MaterialButton(ContextThemeWrapper(context, com.google.android.material.R.style.Widget_Material3_Button))
+            retryBtn.layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                gravity = Gravity.CENTER
+            }
+            retryBtn.text = getString(R.string.try_again)
+            retryBtn.setOnClickListener {
+                update()
+            }
             mainLayout.removeAllViews()
             mainLayout.addView(errorText)
             if (e !is ZeroResultsException) {

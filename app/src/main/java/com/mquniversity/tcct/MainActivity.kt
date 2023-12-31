@@ -30,6 +30,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Marker
@@ -37,6 +38,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PatternItem
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.RoundCap
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
 import com.google.android.libraries.places.api.Places
@@ -193,7 +195,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         })
         destInput.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
-                val clearBtn = originInput.view?.findViewById(com.google.android.libraries.places.R.id.places_autocomplete_clear_button) as ImageButton
+                val clearBtn = destInput.view?.findViewById(com.google.android.libraries.places.R.id.places_autocomplete_clear_button) as ImageButton
                 clearBtn.setOnClickListener {
                     destInput.setText(null)
                     dest = null
@@ -235,7 +237,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
 
         val currFrag = supportFragmentManager.findFragmentById(R.id.fragment_container)
         if (currFrag is ResultFragment) {
-            currFrag.removePolylines()
+            currFrag.hidePolylines()
         }
 
         val resultFrag: ResultFragment?
@@ -276,7 +278,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         }
         if (resultFrag != null) {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            resultFrag.updateRouteResults()
+            resultFrag.update()
             supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.fragment_container, resultFrag, resultFrag.tag)
@@ -302,6 +304,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                 .width(15f)
                 .color(color)
                 .pattern(patterns)
+                .jointType(JointType.ROUND)
+                .startCap(RoundCap())
+                .endCap(RoundCap())
                 .addAll(
                     encodedPolyline.decodePath().map {
                         latLng -> LatLng(latLng.lat, latLng.lng)
@@ -533,7 +538,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             } else {
                 Snackbar.make(
                     binding.root,
-                    getString(R.string.location_permission_required),
+                    getString(R.string.location_required),
                     Snackbar.LENGTH_SHORT
                 ).show()
             }

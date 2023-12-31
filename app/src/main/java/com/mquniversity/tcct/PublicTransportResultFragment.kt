@@ -36,19 +36,18 @@ class PublicTransportResultFragment: ResultFragment() {
         if (!isInitialized) {
             isInitialized = true
             travelMode = TravelMode.TRANSIT
-            updateRouteResults()
+            update()
         }
         return rootScrollView
     }
 
-    override fun updateRouteResults() {
+    override fun update() {
         // return if the current start and end location is same as before
-        if (currOrigin != null && currDest != null
-            && mainActivity.origin?.address == currOrigin?.address
-            && mainActivity.dest?.address == currDest?.address) {
+        if (areLocationsSameAsBefore()) {
+            showPolylines()
             return
         }
-        super.updateRouteResults()
+        super.update()
     }
 
     override fun insertRouteResult(route: DirectionsRoute, polylines: Array<Polyline?>) {

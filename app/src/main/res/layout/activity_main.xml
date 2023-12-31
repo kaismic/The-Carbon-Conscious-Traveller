@@ -7,24 +7,46 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/design_default_color_background">
-    <LinearLayout android:id="@+id/input_container"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <androidx.fragment.app.FragmentContainerView android:id="@+id/input_origin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment" />
-        <androidx.fragment.app.FragmentContainerView android:id="@+id/input_dest"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment" />
-    </LinearLayout>
-    <HorizontalScrollView android:id="@+id/transport_mode_selection"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content">
-    </HorizontalScrollView>
-    <RelativeLayout
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/input_origin"
+            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintWidth_percent="0.8"
+            app:layout_constraintBottom_toTopOf="@+id/input_dest"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/input_dest"
+            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintWidth_percent="0.8"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/input_origin" />
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/input_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="right"
+            app:constraint_referenced_ids="input_origin,input_dest" />
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/outline_swap_vert_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="@id/input_barrier"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <HorizontalScrollView android:id="@+id/transport_mode_selection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <RelativeLayout android:id="@+id/map_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <androidx.fragment.app.FragmentContainerView android:id="@+id/map"
@@ -58,6 +80,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/helper_text"
+                    android:textSize="18sp"
                     android:alpha="0.5"/>
             </LinearLayout>
         </androidx.coordinatorlayout.widget.CoordinatorLayout>

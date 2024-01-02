@@ -94,25 +94,31 @@ abstract class ResultFragment: Fragment() {
     }
 
     private fun removePolylines() {
-        for (polylines in currPolylines) {
-            for (polyline in polylines!!) {
-                polyline?.remove()
+        mainLayout.post {
+            for (polylines in currPolylines) {
+                for (polyline in polylines!!) {
+                    polyline?.remove()
+                }
             }
         }
     }
 
     fun showPolylines() {
-        for (polylines in currPolylines) {
-            for (polyline in polylines!!) {
-                polyline?.isVisible = true
+        mainLayout.post {
+            for (polylines in currPolylines) {
+                for (polyline in polylines!!) {
+                    polyline?.isVisible = true
+                }
             }
         }
     }
 
     fun hidePolylines() {
-        for (polylines in currPolylines) {
-            for (polyline in polylines!!) {
-                polyline?.isVisible = false
+        mainLayout.post {
+            for (polylines in currPolylines) {
+                for (polyline in polylines!!) {
+                    polyline?.isVisible = false
+                }
             }
         }
     }
@@ -197,11 +203,11 @@ abstract class ResultFragment: Fragment() {
         val progressBar = ProgressBar(context)
         mainLayout.addView(progressBar)
 
-        try {
-            val request = DirectionsApi.getDirections(geoApiContext, mainActivity.origin?.address, mainActivity.dest?.address)
-                .mode(travelMode)
-                .alternatives(true)
-            CoroutineScope(Dispatchers.IO).launch {
+        val request = DirectionsApi.getDirections(geoApiContext, mainActivity.origin?.address, mainActivity.dest?.address)
+            .mode(travelMode)
+            .alternatives(true)
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
                 val response = request.await()
                 mainLayout.post {
                     mainLayout.removeAllViews()
@@ -223,37 +229,38 @@ abstract class ResultFragment: Fragment() {
                     highlightRoute(0)
                     highlightResult(0)
                 }
-            }
-
-        } catch (e: ApiException) {
-            val errorText = MaterialTextView(requireContext())
-            errorText.layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                gravity = Gravity.CENTER
-            }
-            val retryBtn = MaterialButton(ContextThemeWrapper(context, com.google.android.material.R.style.Widget_Material3_Button))
-            retryBtn.layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                gravity = Gravity.CENTER
-            }
-            retryBtn.text = getString(R.string.try_again)
-            retryBtn.setOnClickListener {
-                update()
-            }
-            mainLayout.removeAllViews()
-            mainLayout.addView(errorText)
-            if (e !is ZeroResultsException) {
-                mainLayout.addView(retryBtn)
-            }
-            when (e) {
-                is ZeroResultsException -> errorText.text = getString(R.string.error_zero_results)
-                is OverDailyLimitException -> errorText.text = getString(R.string.error_daily_limit_exceeded)
-                is OverQueryLimitException -> errorText.text = getString(R.string.error_query_limit_exceeded)
-                else -> errorText.text = getString(R.string.error_general)
+            } catch (e: ApiException) {
+                val errorText = MaterialTextView(requireContext())
+                errorText.layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    gravity = Gravity.CENTER
+                }
+                val retryBtn = MaterialButton(ContextThemeWrapper(context, com.google.android.material.R.style.Widget_Material3_Button))
+                retryBtn.layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    gravity = Gravity.CENTER
+                }
+                retryBtn.text = getString(R.string.try_again)
+                retryBtn.setOnClickListener {
+                    update()
+                }
+                mainLayout.post {
+                    mainLayout.removeAllViews()
+                    mainLayout.addView(errorText)
+                    if (e !is ZeroResultsException) {
+                        mainLayout.addView(retryBtn)
+                    }
+                    when (e) {
+                        is ZeroResultsException -> errorText.text = getString(R.string.error_zero_results)
+                        is OverDailyLimitException -> errorText.text = getString(R.string.error_daily_limit_exceeded)
+                        is OverQueryLimitException -> errorText.text = getString(R.string.error_query_limit_exceeded)
+                        else -> errorText.text = getString(R.string.error_general)
+                    }
+                }
             }
         }
     }

@@ -46,6 +46,7 @@ import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.maps.GeoApiContext
 import com.google.maps.model.EncodedPolyline
@@ -216,6 +217,22 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                 Log.i("Destination Input", "$status")
             }
         })
+
+        val swapBtn = findViewById<MaterialButton>(R.id.location_swap_button)
+        swapBtn.setOnClickListener {
+            if (origin == null && dest == null) {
+                return@setOnClickListener
+            }
+            swapBtn.isEnabled = false
+            val prevOrigin = origin
+            val prevDest = dest
+            origin = prevDest
+            dest = prevOrigin
+            originInput.setText(prevDest?.name)
+            destInput.setText(prevOrigin?.name)
+            calculate()
+            swapBtn.isEnabled = true
+        }
 
         bottomSheet = findViewById(R.id.bottom_sheet)
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)

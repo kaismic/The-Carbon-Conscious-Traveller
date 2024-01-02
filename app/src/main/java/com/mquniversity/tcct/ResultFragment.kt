@@ -3,6 +3,7 @@ package com.mquniversity.tcct
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +17,7 @@ import com.google.android.gms.maps.model.Dot
 import com.google.android.gms.maps.model.Gap
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.libraries.places.api.model.Place
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
 import com.google.maps.DirectionsApi
@@ -39,12 +41,21 @@ abstract class ResultFragment: Fragment() {
     private lateinit var mainActivity: MainActivity
     private lateinit var geoApiContext: GeoApiContext
     protected lateinit var calculationValues: CalculationValues
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
 
     private var currOrigin: Place? = null
     private var currDest: Place? = null
+
     protected lateinit var currRoutes: Array<DirectionsRoute>
-    private var currPolylines: Array<Array<Polyline?>?>? = null
+
+    private var currPolylines: Array<Array<Polyline?>?> = arrayOf()
     private var lastClickedRoutePolylines: Array<Polyline?>? = null
+
+    protected var resultLayouts: Array<LinearLayout?> = arrayOf()
+    private var currSelectedResultLayout: LinearLayout? = null
+
+    private var selectionIndicators: Array<View?> = arrayOf()
+    private var currSelectedIndicator: View? = null
 
     protected var travelMode = TravelMode.DRIVING
 
@@ -77,49 +88,101 @@ abstract class ResultFragment: Fragment() {
             mainActivity = requireActivity() as MainActivity
             calculationValues = mainActivity.calculationValues
             geoApiContext = mainActivity.geoApiContext
+            bottomSheetBehavior = mainActivity.bottomSheetBehavior
         }
         return rootScrollView
     }
 
     private fun removePolylines() {
-        if (currPolylines != null) {
-            for (polylines in currPolylines!!) {
-                for (polyline in polylines!!) {
-                    polyline?.remove()
-                }
+        for (polylines in currPolylines) {
+            for (polyline in polylines!!) {
+                polyline?.remove()
             }
         }
     }
 
     fun showPolylines() {
-        if (currPolylines != null) {
-            for (polylines in currPolylines!!) {
-                for (polyline in polylines!!) {
-                    polyline?.isVisible = true
-                }
+        for (polylines in currPolylines) {
+            for (polyline in polylines!!) {
+                polyline?.isVisible = true
             }
         }
     }
 
     fun hidePolylines() {
-        if (currPolylines != null) {
-            for (polylines in currPolylines!!) {
-                for (polyline in polylines!!) {
-                    polyline?.isVisible = false
-                }
+        for (polylines in currPolylines) {
+            for (polyline in polylines!!) {
+                polyline?.isVisible = false
             }
         }
     }
 
-    protected open fun insertRouteResult(route: DirectionsRoute, polylines: Array<Polyline?>) {
+    fun findRouteIdxWithPolyline(selectedPolyline: Polyline): Int {
+        var idx: Int? = null
+        for (i in currPolylines.indices) {
+            if (currPolylines[i]?.contains(selectedPolyline) == true) {
+                idx = i
+            }
+        }
+        return idx!!
+    }
+
+    protected open fun insertRouteResult(idx: Int) {
         // initialise polylines with unselected style
-        for (i in polylines.indices) {
-            polylines[i] = mainActivity.insertPolyline(
-                route.legs[0].steps[i].polyline,
+        for (i in currPolylines[idx]!!.indices) {
+            currPolylines[idx]!![i] = mainActivity.insertPolyline(
+                currRoutes[idx].legs[0].steps[i].polyline,
                 resources.getColor(R.color.polyline_unselected, context?.theme),
                 null
             )
         }
+
+        mainLayout.addView(resultLayouts[idx])
+
+        resultLayouts[idx]?.isClickable = true
+        val typedValue = TypedValue()
+        context?.theme?.resolveAttribute(
+            android.R.attr.selectableItemBackground,
+            typedValue,
+            true
+        )
+        resultLayouts[idx]?.setBackgroundResource(typedValue.resourceId)
+
+        // insert selection indicator
+
+        val selectionIndicator = View(context)
+        selectionIndicators[idx] = selectionIndicator
+        selectionIndicator.layoutParams = LinearLayout.LayoutParams(
+            0,
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            0.0625f
+        ).apply {
+            setMargins(0, 0, 16, 0)
+        }
+        selectionIndicator.setBackgroundResource(
+            com.google.android.material.R.color.design_default_color_primary
+        )
+        selectionIndicator.visibility = View.INVISIBLE
+
+        resultLayouts[idx]?.addView(selectionIndicator, 0)
+
+        resultLayouts[idx]?.setOnClickListener {
+            if (currSelectedResultLayout === resultLayouts[idx]) {
+                return@setOnClickListener
+            }
+            currSelectedResultLayout = resultLayouts[idx]
+            highlightRoute(idx)
+            highlightResult(idx)
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+    }
+
+    fun highlightResult(idx: Int) {
+        if (currSelectedIndicator != null) {
+            currSelectedIndicator?.visibility = View.INVISIBLE
+        }
+        currSelectedIndicator = selectionIndicators[idx]
+        selectionIndicators[idx]?.visibility = View.VISIBLE
     }
 
     protected fun areLocationsSameAsBefore(): Boolean {
@@ -147,14 +210,18 @@ abstract class ResultFragment: Fragment() {
                 removePolylines()
                 currPolylines = arrayOfNulls(currRoutes.size)
                 for (i in currRoutes.indices) {
-                    currPolylines?.set(i, arrayOfNulls(currRoutes[i].legs[0].steps.size))
+                    currPolylines[i] = arrayOfNulls(currRoutes[i].legs[0].steps.size)
                 }
                 currOrigin = mainActivity.origin!!
                 currDest = mainActivity.dest!!
+                resultLayouts = arrayOfNulls(currRoutes.size)
+                selectionIndicators = arrayOfNulls(currRoutes.size)
                 mainLayout.post {
                     for (i in currRoutes.indices) {
-                        insertRouteResult(currRoutes[i], currPolylines!![i]!!)
+                        insertRouteResult(i)
                     }
+                    highlightRoute(0)
+                    highlightResult(0)
                 }
             }
 
@@ -191,14 +258,9 @@ abstract class ResultFragment: Fragment() {
         }
     }
 
-    fun highlightRoute(selectedPolyline: Polyline) {
-        var selectedRoutePolylines: Array<Polyline?>? = null
-        for (routePolylines in currPolylines!!) {
-            if (routePolylines?.contains(selectedPolyline) == true) {
-                selectedRoutePolylines = routePolylines
-            }
-        }
-        if (lastClickedRoutePolylines === selectedRoutePolylines) {
+    fun highlightRoute(idx: Int) {
+        val selectedPolylinePolylines = currPolylines[idx]!!
+        if (lastClickedRoutePolylines === selectedPolylinePolylines) {
             return
         }
         if (lastClickedRoutePolylines != null) {
@@ -209,37 +271,36 @@ abstract class ResultFragment: Fragment() {
                 polyline?.pattern = null
             }
         }
-        lastClickedRoutePolylines = selectedRoutePolylines
-
-        val idx = currPolylines?.indexOf(selectedRoutePolylines)!!
+        lastClickedRoutePolylines = selectedPolylinePolylines
+        
         val steps = currRoutes[idx].legs[0].steps
         for (i in steps.indices) {
-            selectedRoutePolylines!![i]?.zIndex = 1f
+            selectedPolylinePolylines[i]?.zIndex = 1f
             when (steps[i].travelMode) {
                 TravelMode.TRANSIT -> {
-                    selectedRoutePolylines[i]?.color = Color.parseColor(steps[i].transitDetails.line.color)
-                    selectedRoutePolylines[i]?.pattern = null
+                    selectedPolylinePolylines[i]?.color = Color.parseColor(steps[i].transitDetails.line.color)
+                    selectedPolylinePolylines[i]?.pattern = null
                 }
                 TravelMode.DRIVING -> {
-                    selectedRoutePolylines[i]?.color = resources.getColor(
+                    selectedPolylinePolylines[i]?.color = resources.getColor(
                         R.color.polyline_private_vehicle,
                         context?.theme
                     )
-                    selectedRoutePolylines[i]?.pattern = null
+                    selectedPolylinePolylines[i]?.pattern = null
                 }
                 TravelMode.WALKING, TravelMode.BICYCLING -> {
-                    selectedRoutePolylines[i]?.color = resources.getColor(
+                    selectedPolylinePolylines[i]?.color = resources.getColor(
                         R.color.polyline_private_vehicle,
                         context?.theme
                     )
-                    selectedRoutePolylines[i]?.pattern = listOf(Dot(), Gap(10f))
+                    selectedPolylinePolylines[i]?.pattern = listOf(Dot(), Gap(10f))
                 }
                 else -> {
-                    selectedRoutePolylines[i]?.color = resources.getColor(
+                    selectedPolylinePolylines[i]?.color = resources.getColor(
                         R.color.polyline_unselected,
                         context?.theme
                     )
-                    selectedRoutePolylines[i]?.pattern = listOf(Dot(), Gap(10f))
+                    selectedPolylinePolylines[i]?.pattern = listOf(Dot(), Gap(10f))
                 }
             }
         }

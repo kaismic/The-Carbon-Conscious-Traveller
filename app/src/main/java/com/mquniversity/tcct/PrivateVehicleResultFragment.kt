@@ -4,8 +4,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
-import com.google.android.gms.maps.model.Polyline
-import com.google.maps.model.DirectionsRoute
 
 open class PrivateVehicleResultFragment: ResultFragment() {
     protected var factor = 0f
@@ -26,12 +24,16 @@ open class PrivateVehicleResultFragment: ResultFragment() {
         super.update()
     }
 
-    override fun insertRouteResult(route: DirectionsRoute, polylines: Array<Polyline?>) {
-        super.insertRouteResult(route, polylines)
-        val resultLayout = layoutInflater.inflate(
+    override fun insertRouteResult(idx: Int) {
+        resultLayouts[idx] = layoutInflater.inflate(
             R.layout.private_vehicle_result_item,
             mainLayout,
             false) as LinearLayout
+
+        super.insertRouteResult(idx)
+
+        val resultLayout = resultLayouts[idx]!!
+        val route = currRoutes[idx]
 
         val icon: ImageView = resultLayout.findViewById(R.id.private_vehicle_icon)
         icon.setImageDrawable(
@@ -54,7 +56,5 @@ open class PrivateVehicleResultFragment: ResultFragment() {
         emissionTexts.add(emissionText)
         distTexts.add(distText)
         durationTexts.add(durationText)
-
-        mainLayout.addView(resultLayout)
     }
 }

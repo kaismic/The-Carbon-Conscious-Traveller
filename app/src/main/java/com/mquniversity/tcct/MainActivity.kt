@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     private var destMarker: Marker? = null
 
     private lateinit var bottomSheet: LinearLayout
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
+    lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
 
     private lateinit var transportSelection: TransportSelection
     private lateinit var backPressedHandler: OnBackPressedCallback
@@ -393,7 +393,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         // highlight route on click
         googleMap.setOnPolylineClickListener { polyline ->
             val resultFrag = supportFragmentManager.findFragmentById(R.id.fragment_container) as ResultFragment
-            resultFrag.highlightRoute(polyline)
+            val idx = resultFrag.findRouteIdxWithPolyline(polyline)
+            resultFrag.highlightRoute(idx)
+            resultFrag.highlightResult(idx)
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
         enableMyLocation()

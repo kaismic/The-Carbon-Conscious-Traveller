@@ -13,8 +13,6 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.flexbox.FlexboxLayout
-import com.google.android.gms.maps.model.Polyline
-import com.google.maps.model.DirectionsRoute
 import com.google.maps.model.TravelMode
 import com.google.maps.model.VehicleType
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -50,12 +48,16 @@ class PublicTransportResultFragment: ResultFragment() {
         super.update()
     }
 
-    override fun insertRouteResult(route: DirectionsRoute, polylines: Array<Polyline?>) {
-        super.insertRouteResult(route, polylines)
-        val resultLayout = layoutInflater.inflate(
+    override fun insertRouteResult(idx: Int) {
+        resultLayouts[idx] = layoutInflater.inflate(
             R.layout.public_transport_result_item,
             mainLayout,
             false) as LinearLayout
+
+        super.insertRouteResult(idx)
+
+        val resultLayout = resultLayouts[idx]!!
+        val route = currRoutes[idx]
 
         val emissionText: TextView = resultLayout.findViewById(R.id.emission_text)
         val distText: TextView = resultLayout.findViewById(R.id.distance_text)
@@ -155,7 +157,5 @@ class PublicTransportResultFragment: ResultFragment() {
         }
         stepsIconContainer.removeViewAt(stepsIconContainer.childCount - 1)
         emissionText.text = CalculationUtils.formatEmission(totalEmissionInGram)
-
-        mainLayout.addView(resultLayout)
     }
 }

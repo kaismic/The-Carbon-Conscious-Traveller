@@ -21,7 +21,7 @@
     <string name="tag_airplane_query">AIRPLANE_QUERY</string>
     <string name="tag_airplane_result">AIRPLANE_RESULT</string>
 
-    <string name="error_zero_results">"Routes were not found with the current travel mode.\nPlease try again with different locations"</string>
+    <string name="error_zero_results">"Routes were not found with current travel mode.\nPlease try again with different locations"</string>
     <string name="error_daily_limit_exceeded">T"he requesting account has exceeded its daily quota.\nPlease try again tomorrow."</string>
     <string name="error_query_limit_exceeded">"The requesting account has exceeded its short-term quota.\nPlease try again a few minutes later."</string>
     <string name="error_general">"An error has occurred.\nPlease try again a few minutes later."</string>

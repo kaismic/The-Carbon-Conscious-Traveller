@@ -21,7 +21,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
 import com.google.maps.DirectionsApi
-import com.google.maps.GeoApiContext
 import com.google.maps.errors.ApiException
 import com.google.maps.errors.OverDailyLimitException
 import com.google.maps.errors.OverQueryLimitException
@@ -39,9 +38,7 @@ abstract class ResultFragment: Fragment() {
     protected lateinit var mainLayout: LinearLayout
 
     private lateinit var mainActivity: MainActivity
-    private lateinit var geoApiContext: GeoApiContext
     protected lateinit var calculationValues: CalculationValues
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
 
     private var currOrigin: Place? = null
     private var currDest: Place? = null
@@ -87,8 +84,6 @@ abstract class ResultFragment: Fragment() {
 
             mainActivity = requireActivity() as MainActivity
             calculationValues = mainActivity.calculationValues
-            geoApiContext = mainActivity.geoApiContext
-            bottomSheetBehavior = mainActivity.bottomSheetBehavior
         }
         return rootScrollView
     }
@@ -179,7 +174,7 @@ abstract class ResultFragment: Fragment() {
             currSelectedResultLayout = resultLayouts[idx]
             highlightRoute(idx)
             highlightResult(idx)
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            mainActivity.bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
     }
 
@@ -203,7 +198,7 @@ abstract class ResultFragment: Fragment() {
         val progressBar = ProgressBar(context)
         mainLayout.addView(progressBar)
 
-        val request = DirectionsApi.getDirections(geoApiContext, mainActivity.origin?.address, mainActivity.dest?.address)
+        val request = DirectionsApi.getDirections(mainActivity.geoApiContext, mainActivity.origin?.address, mainActivity.dest?.address)
             .mode(travelMode)
             .alternatives(true)
         CoroutineScope(Dispatchers.IO).launch {

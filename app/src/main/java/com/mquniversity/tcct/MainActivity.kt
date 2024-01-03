@@ -258,18 +258,18 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         }
 
         val resultFrag: ResultFragment?
-        var queryFrag: QueryFragment? = null
+        var privateVehicleQueryFrag: PrivateVehicleQueryFragment? = null
         when (transportSelection.currMode) {
             TransportMode.CAR -> {
                 resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_car_result)) as ResultFragment?
                 if (resultFrag == null) {
-                    queryFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_car_query)) as QueryFragment?
+                    privateVehicleQueryFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_car_query)) as PrivateVehicleQueryFragment?
                 }
             }
             TransportMode.MOTORCYCLE -> {
                 resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_result)) as ResultFragment?
                 if (resultFrag == null) {
-                    queryFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_query)) as QueryFragment?
+                    privateVehicleQueryFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_query)) as PrivateVehicleQueryFragment?
                 }
             }
             TransportMode.PUBLIC_TRANSPORT -> {
@@ -303,13 +303,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             return
         }
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        if (queryFrag == null) {
+        if (privateVehicleQueryFrag == null) {
             createQueryFragment()
             return
         }
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragment_container, queryFrag, queryFrag.tag)
+            .replace(R.id.fragment_container, privateVehicleQueryFrag, privateVehicleQueryFrag.tag)
             .commit()
     }
 

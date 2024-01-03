@@ -10,7 +10,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 
-class MotorcycleQueryFragment(bottomSheetBehavior: BottomSheetBehavior<LinearLayout>): QueryFragment(bottomSheetBehavior) {
+class MotorcycleQueryFragment(bottomSheetBehavior: BottomSheetBehavior<LinearLayout>): PrivateVehicleQueryFragment(bottomSheetBehavior) {
     private lateinit var sizeInput: TextInputLayout
     private lateinit var sizeInputDropdown: MaterialAutoCompleteTextView
     private lateinit var sizeOptions: Array<String>

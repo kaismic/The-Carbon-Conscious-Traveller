@@ -16,7 +16,7 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.textview.MaterialTextView
 
-abstract class QueryFragment(protected val bottomSheetBehavior: BottomSheetBehavior<LinearLayout>): Fragment() {
+abstract class PrivateVehicleQueryFragment(protected val bottomSheetBehavior: BottomSheetBehavior<LinearLayout>): Fragment() {
     protected var isInitialized = false
 
     protected lateinit var mainLayout: LinearLayout

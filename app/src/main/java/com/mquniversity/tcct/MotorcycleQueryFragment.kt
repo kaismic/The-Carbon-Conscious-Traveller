@@ -5,12 +5,11 @@ import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 
-class MotorcycleQueryFragment(bottomSheetBehavior: BottomSheetBehavior<LinearLayout>): PrivateVehicleQueryFragment(bottomSheetBehavior) {
+class MotorcycleQueryFragment: PrivateVehicleQueryFragment() {
     private lateinit var sizeInput: TextInputLayout
     private lateinit var sizeInputDropdown: MaterialAutoCompleteTextView
     private lateinit var sizeOptions: Array<String>
@@ -27,8 +26,6 @@ class MotorcycleQueryFragment(bottomSheetBehavior: BottomSheetBehavior<LinearLay
 
             headerText.text = getString(R.string.motorcycle)
 
-            val args = requireArguments()
-
             sizeInput = TextInputLayout(
                 ContextThemeWrapper(
                     context,
@@ -36,7 +33,7 @@ class MotorcycleQueryFragment(bottomSheetBehavior: BottomSheetBehavior<LinearLay
                         .R.style.Widget_Material3_TextInputLayout_OutlinedBox_ExposedDropdownMenu
                 )
             )
-            sizeOptions = args.getStringArray("motorcycleSizes")!!
+            sizeOptions = mainActivity.calculationValues.motorcycleSizes.toTypedArray()
             insertQuery(sizeInput, "Size", sizeOptions)
             sizeInputDropdown = (sizeInput.editText as MaterialAutoCompleteTextView)
             sizeInputDropdown.setOnItemClickListener { _, _, idx, _ ->
@@ -45,7 +42,7 @@ class MotorcycleQueryFragment(bottomSheetBehavior: BottomSheetBehavior<LinearLay
             }
 
             calBtn.setOnClickListener {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                mainActivity.bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                 calBtn.isEnabled = false
                 val motorcycleResultFragment = MotorcycleResultFragment(sizeOptions[currSizeIdx])
                 parentFragmentManager

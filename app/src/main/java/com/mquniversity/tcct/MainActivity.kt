@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.CurrentLocationRequest
@@ -98,6 +99,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     private var originMarker: Marker? = null
     private var destMarker: Marker? = null
 
+    private lateinit var swapBtn: MaterialButton
+
     private lateinit var bottomSheet: LinearLayout
     lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
 
@@ -105,6 +108,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     private lateinit var backPressedHandler: OnBackPressedCallback
 
     lateinit var calculationValues: CalculationValues
+
+    private var helperText: TextView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -218,7 +223,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             }
         })
 
-        val swapBtn = findViewById<MaterialButton>(R.id.location_swap_button)
+        swapBtn = findViewById(R.id.location_swap_button)
         swapBtn.setOnClickListener {
             if (origin == null && dest == null) {
                 return@setOnClickListener
@@ -234,6 +239,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             swapBtn.isEnabled = true
         }
 
+        helperText = findViewById(R.id.helper_text)
+
         bottomSheet = findViewById(R.id.bottom_sheet)
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
         bottomSheetBehavior.peekHeight = resources.displayMetrics.heightPixels / 8
@@ -243,10 +250,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         if (origin == null || dest == null) {
             return
         }
-        // remove help text at the first calculation
-        val helperText: TextView? = findViewById(R.id.helper_text)
+        // remove help text at the first call
         if (helperText != null) {
             bottomSheet.removeView(helperText)
+            helperText = null
         }
 
         moveMarkers()
@@ -257,24 +264,41 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             currFrag.hidePolylines()
         }
 
-        val resultFrag: ResultFragment?
-        var privateVehicleQueryFrag: PrivateVehicleQueryFragment? = null
+        var frag: Fragment?
         when (transportSelection.currMode) {
             TransportMode.CAR -> {
-                resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_car_result)) as ResultFragment?
-                if (resultFrag == null) {
-                    privateVehicleQueryFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_car_query)) as PrivateVehicleQueryFragment?
+                frag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_car_result))
+                if (frag == null) {
+                    frag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_car_query))
+                    if (frag == null) {
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                        supportFragmentManager
+                            .beginTransaction()
+                            .replace(R.id.fragment_container, CarQueryFragment(), getString(R.string.tag_car_query))
+                            .addToBackStack(getString(R.string.tag_car_query))
+                            .commit()
+                        return
+                    }
                 }
             }
             TransportMode.MOTORCYCLE -> {
-                resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_result)) as ResultFragment?
-                if (resultFrag == null) {
-                    privateVehicleQueryFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_query)) as PrivateVehicleQueryFragment?
+                frag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_result))
+                if (frag == null) {
+                    frag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_query))
+                    if (frag == null) {
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                        supportFragmentManager
+                            .beginTransaction()
+                            .replace(R.id.fragment_container, MotorcycleQueryFragment(), getString(R.string.tag_motorcycle_query))
+                            .addToBackStack(getString(R.string.tag_motorcycle_query))
+                            .commit()
+                        return
+                    }
                 }
             }
             TransportMode.PUBLIC_TRANSPORT -> {
-                resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_public_transport_result)) as ResultFragment?
-                if (resultFrag == null) {
+                frag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_public_transport_result))
+                if (frag == null) {
                     bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     supportFragmentManager
                         .beginTransaction()
@@ -284,32 +308,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                     return
                 }
             }
-            TransportMode.AIRPLANE -> {
-                // TODO
-                resultFrag = supportFragmentManager.findFragmentByTag(getString(R.string.tag_airplane_result)) as ResultFragment?
-                if (resultFrag == null) {
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                    return
-                }
-            }
+            else -> throw IllegalArgumentException("TransportSelection.currMode is in wrong state")
         }
-        if (resultFrag != null) {
+        if (frag is ResultFragment) {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            resultFrag.update()
-            supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, resultFrag, resultFrag.tag)
-                .commit()
-            return
-        }
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        if (privateVehicleQueryFrag == null) {
-            createQueryFragment()
-            return
+            frag.update()
+        } else {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragment_container, privateVehicleQueryFrag, privateVehicleQueryFrag.tag)
+            .replace(R.id.fragment_container, frag, frag.tag)
             .commit()
     }
 
@@ -360,38 +369,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             CameraUpdateFactory.newLatLngBounds(bounds, 64)
         )
     }
-
-    private fun createQueryFragment() {
-        val tag = when (transportSelection.currMode) {
-            TransportMode.CAR -> getString(R.string.tag_car_query)
-            TransportMode.MOTORCYCLE -> getString(R.string.tag_motorcycle_query)
-            else -> return
-        }
-        val frag = when (transportSelection.currMode) {
-            TransportMode.CAR -> CarQueryFragment(bottomSheetBehavior)
-            TransportMode.MOTORCYCLE -> MotorcycleQueryFragment(bottomSheetBehavior)
-            else -> return
-        }
-        val bundle = Bundle()
-        when (transportSelection.currMode) {
-            TransportMode.CAR -> {
-                bundle.putStringArray("carSizes", calculationValues.carSizes.toTypedArray())
-                bundle.putStringArray("carFuelTypes", calculationValues.carFuelTypes)
-                bundle.putSerializable("carValues", calculationValues.carValuesMatrix.toTypedArray())
-            }
-            TransportMode.MOTORCYCLE -> {
-                bundle.putStringArray("motorcycleSizes", calculationValues.motorcycleSizes.toTypedArray())
-            }
-            else -> return
-        }
-        frag.arguments = bundle
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.fragment_container, frag, tag)
-            .addToBackStack(tag)
-            .commit()
-    }
-
 
     /**
      * Manipulates the map once available.

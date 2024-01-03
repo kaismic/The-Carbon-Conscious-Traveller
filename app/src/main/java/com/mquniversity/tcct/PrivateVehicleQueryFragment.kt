@@ -4,7 +4,6 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.text.InputType
 import android.view.ContextThemeWrapper
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,17 +35,7 @@ abstract class PrivateVehicleQueryFragment(protected val bottomSheetBehavior: Bo
             mainLayout.showDividers = LinearLayout.SHOW_DIVIDER_MIDDLE
 
             headerText = mainLayout.findViewById(R.id.header_text)
-
-            calBtn = MaterialButton(ContextThemeWrapper(context, com.google.android.material.R.style.Widget_Material3_Button))
-            calBtn.text = getString(R.string.calculate)
-            calBtn.isEnabled = false
-            calBtn.layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                gravity = Gravity.CENTER_HORIZONTAL
-            }
-            mainLayout.addView(calBtn)
+            calBtn = mainLayout.findViewById(R.id.calculate_button)
         }
 
         return mainLayout

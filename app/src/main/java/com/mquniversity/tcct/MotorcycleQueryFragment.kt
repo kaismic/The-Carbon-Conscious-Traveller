@@ -44,20 +44,22 @@ class MotorcycleQueryFragment: PrivateVehicleQueryFragment() {
             calBtn.setOnClickListener {
                 mainActivity.bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                 calBtn.isEnabled = false
-                val motorcycleResultFragment = MotorcycleResultFragment(sizeOptions[currSizeIdx])
-                parentFragmentManager
-                    .beginTransaction()
-                    .replace(
-                        R.id.fragment_container,
-                        motorcycleResultFragment,
-                        getString(
-                            R.string.tag_motorcycle_result)
-                    )
-                    .addToBackStack(getString(R.string.tag_motorcycle_result))
-                    .commit()
+                var motorcycleResultFrag = parentFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_result)) as MotorcycleResultFragment?
+                if (motorcycleResultFrag == null) {
+                    motorcycleResultFrag = MotorcycleResultFragment(sizeOptions[currSizeIdx])
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, motorcycleResultFrag, getString(R.string.tag_motorcycle_result))
+                        .addToBackStack(getString(R.string.tag_motorcycle_result))
+                        .commit()
+                } else {
+                    motorcycleResultFrag.updateFactor(sizeOptions[currSizeIdx])
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, motorcycleResultFrag, getString(R.string.tag_motorcycle_result))
+                        .commit()
+                }
+                calBtn.isEnabled = true
             }
         }
-
         return mainLayout
     }
 }

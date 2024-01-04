@@ -63,15 +63,22 @@ class CarQueryFragment : PrivateVehicleQueryFragment() {
             calBtn.setOnClickListener {
                 mainActivity.bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                 calBtn.isEnabled = false
-                val carResultFragment = CarResultFragment(sizeOptions[currSizeIdx], fuelTypeOptions[currFuelTypeIdx])
-                parentFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.fragment_container, carResultFragment, getString(R.string.tag_car_result))
-                    .addToBackStack(getString(R.string.tag_car_result))
-                    .commit()
+                var carResultFrag = parentFragmentManager.findFragmentByTag(getString(R.string.tag_car_result)) as CarResultFragment?
+                if (carResultFrag == null) {
+                    carResultFrag = CarResultFragment(sizeOptions[currSizeIdx], fuelTypeOptions[currFuelTypeIdx])
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, carResultFrag, getString(R.string.tag_car_result))
+                        .addToBackStack(getString(R.string.tag_car_result))
+                        .commit()
+                } else {
+                    carResultFrag.updateFactor(sizeOptions[currSizeIdx], fuelTypeOptions[currFuelTypeIdx])
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, carResultFrag, getString(R.string.tag_car_result))
+                        .commit()
+                }
+                calBtn.isEnabled = true
             }
         }
-
         return mainLayout
     }
 

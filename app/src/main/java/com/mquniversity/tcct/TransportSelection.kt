@@ -89,4 +89,9 @@ class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityC
             mainActivity.calculate()
         }
     }
+
+    fun updateIcons(emissions: FloatArray) {
+        val rangeText = String.format("%.2fkg-%.2fkg", emissions.min() / 1000, emissions.max() / 1000)
+        radioBtns[currMode.ordinal].text = rangeText
+    }
 }

@@ -104,7 +104,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     private lateinit var bottomSheet: LinearLayout
     lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
 
-    private lateinit var transportSelection: TransportSelection
+    lateinit var transportSelection: TransportSelection
     private lateinit var backPressedHandler: OnBackPressedCallback
 
     lateinit var calculationValues: CalculationValues

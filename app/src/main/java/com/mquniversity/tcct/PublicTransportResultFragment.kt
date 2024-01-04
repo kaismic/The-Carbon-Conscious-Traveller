@@ -50,7 +50,7 @@ class PublicTransportResultFragment: ResultFragment() {
         super.update()
     }
 
-    override fun insertRouteResult(idx: Int) {
+    override fun insertRouteResult(idx: Int): Float {
         resultLayouts[idx] = layoutInflater.inflate(
             R.layout.public_transport_result_item,
             mainLayout,
@@ -159,5 +159,6 @@ class PublicTransportResultFragment: ResultFragment() {
         }
         stepsIconContainer.removeViewAt(stepsIconContainer.childCount - 1)
         emissionText.text = CalculationUtils.formatEmission(totalEmissionInGram)
+        return totalEmissionInGram
     }
 }

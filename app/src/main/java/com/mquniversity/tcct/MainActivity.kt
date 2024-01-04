@@ -126,11 +126,30 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
 
         backPressedHandler = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_COLLAPSED) {
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                val currFrag = supportFragmentManager.findFragmentById(R.id.fragment_container)
+                if (currFrag == null) {
+                    finish()
                     return
                 }
-                finish()
+                when (currFrag) {
+                    is CarResultFragment -> {
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                        supportFragmentManager.beginTransaction()
+                            .replace(
+                                R.id.fragment_container,
+                                supportFragmentManager.findFragmentByTag(getString(R.string.tag_car_query))!!)
+                            .commit()
+                    }
+                    is MotorcycleResultFragment -> {
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                        supportFragmentManager.beginTransaction()
+                            .replace(
+                                R.id.fragment_container,
+                                supportFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_query))!!)
+                            .commit()
+                    }
+                    else -> finish()
+                }
             }
         }
 
@@ -241,6 +260,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
 
         helperText = findViewById(R.id.helper_text)
 
+
+        // TODO CoordinatorLayout for nested scrolling
         bottomSheet = findViewById(R.id.bottom_sheet)
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
         bottomSheetBehavior.peekHeight = resources.displayMetrics.heightPixels / 8

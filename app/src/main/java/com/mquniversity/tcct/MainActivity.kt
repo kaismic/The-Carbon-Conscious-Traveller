@@ -183,8 +183,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         // initialize Places if not initialized
         if (!Places.isInitialized()) {
             Places.initialize(applicationContext, apiKey.toString(), resources.configuration.locales[0])
-            placesClient = Places.createClient(this)
         }
+        placesClient = Places.createClient(this)
 
         originInput = supportFragmentManager.findFragmentById(R.id.input_origin) as AutocompleteSupportFragment
         originInput.setHint(getString(R.string.hint_input_origin))
@@ -274,15 +274,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
 
         locationBtn = findViewById(R.id.current_location_button)
         locationBtn.setOnClickListener {
-            // https://developers.google.com/maps/documentation/android-sdk/current-place-tutorial
+            locationBtn.isEnabled = false
+            // https:/developers.google.com/maps//documentation/android-sdk/current-place-tutorial
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED
                 ||
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED
             ) {
-                locationBtn.isEnabled = false
-
                 val placeFields = listOf(Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG)
                 val request = FindCurrentPlaceRequest.newInstance(placeFields)
                 val placeResult = placesClient.findCurrentPlace(request)
@@ -294,8 +293,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                         originInput.setText(curPlace.address)
                     }
                 }
-                locationBtn.isEnabled = true
             }
+            locationBtn.isEnabled = true
         }
 
         helperText = findViewById(R.id.helper_text)
@@ -468,10 +467,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED
         ) {
-            // create a periodic locationRequest
+            // Priority.PRIORITY_HIGH_ACCURACY is needed let the SettingsClient to know
+            // that it needs to notify the user to enable location
             val locationRequest = LocationRequest.create()
-            locationRequest.interval = 10 * 1000
-            locationRequest.fastestInterval = 5 * 1000
             locationRequest.priority = Priority.PRIORITY_HIGH_ACCURACY
             // Check if location is turned on
             val lsrBuilder = LocationSettingsRequest.Builder()

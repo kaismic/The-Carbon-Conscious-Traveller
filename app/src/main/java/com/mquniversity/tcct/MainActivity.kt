@@ -44,6 +44,8 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
+import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -93,6 +95,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     lateinit var apiKey: String
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var placesClient: PlacesClient
 
     var origin: Place? = null
     var dest: Place? = null
@@ -102,6 +105,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     private var destMarker: Marker? = null
 
     private lateinit var swapBtn: MaterialButton
+    private lateinit var locationBtn: MaterialButton
+    private lateinit var reloadBtn: MaterialButton
 
     private lateinit var bottomSheet: LinearLayout
     lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
@@ -182,6 +187,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         if (!Places.isInitialized()) {
             Places.initialize(applicationContext, apiKey, resources.configuration.locales[0])
         }
+        placesClient = Places.createClient(this)
 
         originInput = supportFragmentManager.findFragmentById(R.id.input_origin) as AutocompleteSupportFragment
         originInput.setHint(getString(R.string.hint_input_origin))
@@ -259,6 +265,39 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             destInput.setText(prevOrigin?.name)
             calculate()
             swapBtn.isEnabled = true
+        }
+
+        reloadBtn = findViewById(R.id.reload_button)
+        reloadBtn.setOnClickListener {
+            reloadBtn.isEnabled = false
+            Snackbar.make(binding.root, "Reloading.", Snackbar.LENGTH_SHORT).show()
+            calculate()
+            reloadBtn.isEnabled = true
+        }
+
+        locationBtn = findViewById(R.id.current_location_button)
+        locationBtn.setOnClickListener {
+            locationBtn.isEnabled = false
+            // https:/developers.google.com/maps//documentation/android-sdk/current-place-tutorial
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED
+                ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                val placeFields = listOf(Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG)
+                val request = FindCurrentPlaceRequest.newInstance(placeFields)
+                val placeResult = placesClient.findCurrentPlace(request)
+
+                placeResult.addOnCompleteListener { task ->
+                    if (task.isSuccessful && task.result != null) {
+                        val curPlace = task.result.placeLikelihoods[0].place
+                        origin = curPlace
+                        originInput.setText(curPlace.address)
+                    }
+                }
+            }
+            locationBtn.isEnabled = true
         }
 
         helperText = findViewById(R.id.helper_text)
@@ -431,10 +470,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED
         ) {
-            // create a periodic locationRequest
+            // Priority.PRIORITY_HIGH_ACCURACY is needed let the SettingsClient to know
+            // that it needs to notify the user to enable location
             val locationRequest = LocationRequest.create()
-            locationRequest.interval = 10 * 1000
-            locationRequest.fastestInterval = 5 * 1000
             locationRequest.priority = Priority.PRIORITY_HIGH_ACCURACY
             // Check if location is turned on
             val lsrBuilder = LocationSettingsRequest.Builder()

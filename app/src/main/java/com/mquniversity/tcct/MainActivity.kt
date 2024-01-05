@@ -44,6 +44,8 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
+import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -91,6 +93,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     lateinit var geoApiContext: GeoApiContext
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var placesClient: PlacesClient
 
     var origin: Place? = null
     var dest: Place? = null
@@ -180,6 +183,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         // initialize Places if not initialized
         if (!Places.isInitialized()) {
             Places.initialize(applicationContext, apiKey.toString(), resources.configuration.locales[0])
+            placesClient = Places.createClient(this)
         }
 
         originInput = supportFragmentManager.findFragmentById(R.id.input_origin) as AutocompleteSupportFragment
@@ -266,6 +270,32 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             Snackbar.make(binding.root, "Reloading.", Snackbar.LENGTH_SHORT).show()
             calculate()
             reloadBtn.isEnabled = true
+        }
+
+        locationBtn = findViewById(R.id.current_location_button)
+        locationBtn.setOnClickListener {
+            // https://developers.google.com/maps/documentation/android-sdk/current-place-tutorial
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED
+                ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                locationBtn.isEnabled = false
+
+                val placeFields = listOf(Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG)
+                val request = FindCurrentPlaceRequest.newInstance(placeFields)
+                val placeResult = placesClient.findCurrentPlace(request)
+
+                placeResult.addOnCompleteListener { task ->
+                    if (task.isSuccessful && task.result != null) {
+                        val curPlace = task.result.placeLikelihoods[0].place
+                        origin = curPlace
+                        originInput.setText(curPlace.address)
+                    }
+                }
+                locationBtn.isEnabled = true
+            }
         }
 
         helperText = findViewById(R.id.helper_text)

@@ -24,7 +24,7 @@ open class PrivateVehicleResultFragment: ResultFragment() {
         super.update()
     }
 
-    override fun insertRouteResult(idx: Int) {
+    override fun insertRouteResult(idx: Int): Float {
         resultLayouts[idx] = layoutInflater.inflate(
             R.layout.private_vehicle_result_item,
             mainLayout,
@@ -56,5 +56,6 @@ open class PrivateVehicleResultFragment: ResultFragment() {
         emissionTexts.add(emissionText)
         distTexts.add(distText)
         durationTexts.add(durationText)
+        return route.legs[0].distance.inMeters * factor
     }
 }

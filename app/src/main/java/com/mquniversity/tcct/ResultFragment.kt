@@ -128,7 +128,7 @@ abstract class ResultFragment: Fragment() {
         return idx!!
     }
 
-    protected open fun insertRouteResult(idx: Int) {
+    protected open fun insertRouteResult(idx: Int): Float {
         // initialise polylines with unselected style
         for (i in currPolylines[idx]!!.indices) {
             currPolylines[idx]!![i] = mainActivity.insertPolyline(
@@ -176,6 +176,7 @@ abstract class ResultFragment: Fragment() {
             highlightResult(idx)
             mainActivity.bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
+        return 0f
     }
 
     fun highlightResult(idx: Int) {
@@ -218,9 +219,12 @@ abstract class ResultFragment: Fragment() {
                 resultLayouts = arrayOfNulls(currRoutes.size)
                 selectionIndicators = arrayOfNulls(currRoutes.size)
                 mainLayout.post {
+                    val routeEmissions = FloatArray(currRoutes.size)
                     for (i in currRoutes.indices) {
-                        insertRouteResult(i)
+                        routeEmissions[i] = insertRouteResult(i)
                     }
+                    mainActivity.transportSelection.updateIcons(routeEmissions)
+
                     highlightRoute(0)
                     highlightResult(0)
                 }

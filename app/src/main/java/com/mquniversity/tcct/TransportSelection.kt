@@ -79,7 +79,7 @@ class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityC
         airplaneBtn.setOnClickListener {
             mainActivity.supportFragmentManager.beginTransaction()
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .add(android.R.id.content, AirplaneQueryFragment())
+                .add(android.R.id.content, AirplaneFragment())
                 .addToBackStack(null)
                 .commit()
         }

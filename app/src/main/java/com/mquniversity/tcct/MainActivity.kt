@@ -100,6 +100,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     private var destMarker: Marker? = null
 
     private lateinit var swapBtn: MaterialButton
+    private lateinit var locationBtn: MaterialButton
+    private lateinit var reloadBtn: MaterialButton
 
     private lateinit var bottomSheet: LinearLayout
     lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
@@ -256,6 +258,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             destInput.setText(prevOrigin?.name)
             calculate()
             swapBtn.isEnabled = true
+        }
+
+        reloadBtn = findViewById(R.id.reload_button)
+        reloadBtn.setOnClickListener {
+            reloadBtn.isEnabled = false
+            Snackbar.make(binding.root, "Reloading.", Snackbar.LENGTH_SHORT).show()
+            calculate()
+            reloadBtn.isEnabled = true
         }
 
         helperText = findViewById(R.id.helper_text)

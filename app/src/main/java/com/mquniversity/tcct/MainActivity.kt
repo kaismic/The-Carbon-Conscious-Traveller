@@ -90,6 +90,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
 
     lateinit var geoApiContext: GeoApiContext
 
+    lateinit var apiKey: String
+
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     var origin: Place? = null
@@ -165,10 +167,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        val apiKey = packageManager
+        apiKey = packageManager
             .getApplicationInfo(packageName, PackageManager.GET_META_DATA)
             .metaData
             .getString("com.google.android.geo.API_KEY")
+            .toString()
 
         geoApiContext = GeoApiContext
             .Builder()
@@ -177,7 +180,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
 
         // initialize Places if not initialized
         if (!Places.isInitialized()) {
-            Places.initialize(applicationContext, apiKey.toString(), resources.configuration.locales[0])
+            Places.initialize(applicationContext, apiKey, resources.configuration.locales[0])
         }
 
         originInput = supportFragmentManager.findFragmentById(R.id.input_origin) as AutocompleteSupportFragment

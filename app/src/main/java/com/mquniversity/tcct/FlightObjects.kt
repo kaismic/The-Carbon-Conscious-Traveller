@@ -11,7 +11,7 @@ data class ResponseBody(
 
 data class FlightWithEmissions(
     val flight: Flight,
-    val emissionsGramsPerPax: EmissionsGramsPerPax
+    val emissionsGramsPerPax: EmissionsGramsPerPax?
 )
 
 data class Flight(

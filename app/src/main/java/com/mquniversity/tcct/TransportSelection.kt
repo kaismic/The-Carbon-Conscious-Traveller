@@ -86,7 +86,7 @@ class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityC
 
         radioBtns[currMode.ordinal].isChecked = true
         this.setOnCheckedChangeListener { _, _ ->
-            mainActivity.calculate()
+            mainActivity.calculate(false)
         }
     }
 

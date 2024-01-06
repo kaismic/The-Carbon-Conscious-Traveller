@@ -23,31 +23,29 @@ import java.io.IOException
 import java.net.URL
 import java.time.format.DateTimeFormatter
 
-private const val TIME_PATTERN = "h:mm a"
-
 class PublicTransportResultFragment: ResultFragment() {
+    private val timePattern = "h:mm a"
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        travelMode = TravelMode.TRANSIT
+        update(false)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        super.onCreateView(inflater, container, savedInstanceState)
-        if (!isInitialized) {
-            isInitialized = true
-            travelMode = TravelMode.TRANSIT
-            update()
-        }
         return rootScrollView
     }
 
-    override fun update() {
+    override fun update(reload: Boolean) {
         // return if the current start and end location is same as before
-        if (areLocationsSameAsBefore()) {
+        if (!reload && areLocationsSameAsBefore()) {
             showPolylines()
             return
         }
-        super.update()
+        super.update(reload)
     }
 
     override fun insertRouteResult(idx: Int): Float {
@@ -70,8 +68,8 @@ class PublicTransportResultFragment: ResultFragment() {
         val timeTextView: TextView = resultLayout.findViewById(R.id.departure_arrival_time)
         val departureTime = route.legs[0].departureTime
         val arrivalTime = route.legs[0].arrivalTime
-        val departureTimeText = departureTime.format(DateTimeFormatter.ofPattern(TIME_PATTERN))
-        val arrivalTimeText = arrivalTime.format(DateTimeFormatter.ofPattern(TIME_PATTERN))
+        val departureTimeText = departureTime.format(DateTimeFormatter.ofPattern(timePattern))
+        val arrivalTimeText = arrivalTime.format(DateTimeFormatter.ofPattern(timePattern))
         timeTextView.text = getString(R.string.departure_arrival_time, departureTimeText, arrivalTimeText)
 
         val stepsIconContainer: FlexboxLayout = resultLayout.findViewById(R.id.steps_icon_container)

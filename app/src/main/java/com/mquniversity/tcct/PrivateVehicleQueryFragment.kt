@@ -15,32 +15,31 @@ import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.textview.MaterialTextView
 
 abstract class PrivateVehicleQueryFragment : Fragment() {
-    protected var isInitialized = false
-
     protected lateinit var mainLayout: LinearLayout
     protected lateinit var headerText: MaterialTextView
     protected lateinit var calBtn: MaterialButton
 
     protected lateinit var mainActivity: MainActivity
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        mainActivity = requireActivity() as MainActivity
+
+        mainLayout = layoutInflater.inflate(R.layout.query_container, null, false) as LinearLayout
+        val shapeDivider = GradientDrawable()
+        shapeDivider.setSize(0, 32)
+        mainLayout.dividerDrawable = shapeDivider
+        mainLayout.showDividers = LinearLayout.SHOW_DIVIDER_MIDDLE
+
+        headerText = mainLayout.findViewById(R.id.header_text)
+        calBtn = mainLayout.findViewById(R.id.calculate_button)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        if (!isInitialized) {
-            mainActivity = requireActivity() as MainActivity
-
-            mainLayout = inflater.inflate(R.layout.query_container, container, false) as LinearLayout
-            val shapeDivider = GradientDrawable()
-            shapeDivider.setSize(0, 32)
-            mainLayout.dividerDrawable = shapeDivider
-            mainLayout.showDividers = LinearLayout.SHOW_DIVIDER_MIDDLE
-
-            headerText = mainLayout.findViewById(R.id.header_text)
-            calBtn = mainLayout.findViewById(R.id.calculate_button)
-        }
-
         return mainLayout
     }
 

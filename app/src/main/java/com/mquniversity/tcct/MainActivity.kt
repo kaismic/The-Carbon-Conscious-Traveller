@@ -221,7 +221,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                     return
                 }
                 origin = place
-                calculate()
+                calculate(false)
             }
             override fun onError(status: Status) {
                 Log.i("Origin Input", "$status")
@@ -244,7 +244,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                     return
                 }
                 dest = place
-                calculate()
+                calculate(false)
             }
             override fun onError(status: Status) {
                 Log.i("Destination Input", "$status")
@@ -263,7 +263,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             dest = prevOrigin
             originInput.setText(prevDest?.name)
             destInput.setText(prevOrigin?.name)
-            calculate()
+            calculate(false)
             swapBtn.isEnabled = true
         }
 
@@ -271,7 +271,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         reloadBtn.setOnClickListener {
             reloadBtn.isEnabled = false
             Snackbar.make(binding.root, "Reloading.", Snackbar.LENGTH_SHORT).show()
-            calculate()
+            calculate(true)
             reloadBtn.isEnabled = true
         }
 
@@ -309,7 +309,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         bottomSheetBehavior.peekHeight = resources.displayMetrics.heightPixels / 8
     }
 
-    fun calculate() {
+    fun calculate(reload: Boolean) {
         if (origin == null || dest == null) {
             return
         }
@@ -375,7 +375,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         }
         if (frag is ResultFragment) {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            frag.update()
+            frag.update(reload)
         } else {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }

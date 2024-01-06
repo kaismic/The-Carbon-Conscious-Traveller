@@ -13,15 +13,15 @@ open class PrivateVehicleResultFragment: ResultFragment() {
     protected val distTexts: MutableList<TextView> = mutableListOf()
     protected val durationTexts: MutableList<TextView> = mutableListOf()
 
-    override fun update() {
-        if (areLocationsSameAsBefore()) {
+    override fun update(reload: Boolean) {
+        if (!reload && areLocationsSameAsBefore()) {
             showPolylines()
             return
         }
         emissionTexts.clear()
         distTexts.clear()
         durationTexts.clear()
-        super.update()
+        super.update(reload)
     }
 
     override fun insertRouteResult(idx: Int): Float {

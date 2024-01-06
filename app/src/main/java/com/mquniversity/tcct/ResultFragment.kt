@@ -32,8 +32,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 abstract class ResultFragment: Fragment() {
-    protected var isInitialized = false
-
     protected lateinit var rootScrollView: ScrollView
     protected lateinit var mainLayout: LinearLayout
 
@@ -56,35 +54,37 @@ abstract class ResultFragment: Fragment() {
 
     protected var travelMode = TravelMode.DRIVING
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        rootScrollView = ScrollView(context)
+        rootScrollView.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.MATCH_PARENT
+        )
+        mainLayout = LinearLayout(context)
+        mainLayout.orientation = LinearLayout.VERTICAL
+        mainLayout.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
+
+        // TODO? gray line divider
+        val shapeDivider = GradientDrawable()
+        shapeDivider.setSize(0, 32)
+        mainLayout.dividerDrawable = shapeDivider
+        mainLayout.showDividers = LinearLayout.SHOW_DIVIDER_MIDDLE
+
+        rootScrollView.addView(mainLayout)
+
+        mainActivity = requireActivity() as MainActivity
+        calculationValues = mainActivity.calculationValues
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        if (!isInitialized) {
-            rootScrollView = ScrollView(context)
-            rootScrollView.layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT
-            )
-            mainLayout = LinearLayout(context)
-            mainLayout.orientation = LinearLayout.VERTICAL
-            mainLayout.layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-
-            // TODO? gray line divider
-            val shapeDivider = GradientDrawable()
-            shapeDivider.setSize(0, 32)
-            mainLayout.dividerDrawable = shapeDivider
-            mainLayout.showDividers = LinearLayout.SHOW_DIVIDER_MIDDLE
-
-            rootScrollView.addView(mainLayout)
-
-            mainActivity = requireActivity() as MainActivity
-            calculationValues = mainActivity.calculationValues
-        }
         return rootScrollView
     }
 
@@ -193,7 +193,7 @@ abstract class ResultFragment: Fragment() {
                 && mainActivity.dest?.address == currDest?.address)
     }
 
-    open fun update() {
+    open fun update(reload: Boolean) {
         mainLayout.removeAllViews()
 
         val progressBar = ProgressBar(context)
@@ -245,7 +245,7 @@ abstract class ResultFragment: Fragment() {
                 }
                 retryBtn.text = getString(R.string.try_again)
                 retryBtn.setOnClickListener {
-                    update()
+                    update(true)
                 }
                 mainLayout.post {
                     mainLayout.removeAllViews()

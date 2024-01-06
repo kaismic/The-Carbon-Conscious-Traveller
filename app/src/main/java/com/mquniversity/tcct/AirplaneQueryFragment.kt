@@ -71,8 +71,8 @@ class AirplaneQueryFragment : DialogFragment() {
             inputLayouts.map { it.isEnabled = false }
             parentFragmentManager.beginTransaction()
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .replace(android.R.id.content, AirplaneResultFragment(getRequestBody()), getString(R.string.tag_airplane_result))
-                .addToBackStack(getString(R.string.tag_airplane_result))
+                .replace(android.R.id.content, AirplaneResultFragment(getRequestBody()))
+                .addToBackStack(null)
                 .commit()
             inputLayouts.map { it.isEnabled = true }
             calBtn.isEnabled = true

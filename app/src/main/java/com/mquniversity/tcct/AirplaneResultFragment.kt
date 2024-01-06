@@ -7,8 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ProgressBar
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.children
+import androidx.core.view.get
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
@@ -26,7 +25,8 @@ import java.net.URL
 class AirplaneResultFragment(private val requestBody: RequestBody) : DialogFragment()  {
     private lateinit var root: LinearLayout
     private lateinit var resultLayout: LinearLayout
-    private lateinit var resultTable: ConstraintLayout
+    private lateinit var resultDescLayout: LinearLayout
+    private lateinit var resultValueLayout: LinearLayout
     private lateinit var progressBar: ProgressBar
 
     private val requestURL = "https://travelimpactmodel.googleapis.com/v1/flights:computeFlightEmissions?key="
@@ -41,16 +41,27 @@ class AirplaneResultFragment(private val requestBody: RequestBody) : DialogFragm
         ) as LinearLayout
 
         resultLayout = root.findViewById(R.id.airplane_result_layout)
-        resultTable = root.findViewById(R.id.airplane_result_table)
-        for (textView in resultTable.children) {
-            (textView as MaterialTextView).textSize = 24f
+        resultDescLayout = resultLayout.findViewById(R.id.airplane_result_desc_layout)
+        resultValueLayout = resultLayout.findViewById(R.id.airplane_result_value_layout)
+        for (i in 0 until 4) {
+            val textView = MaterialTextView(requireContext())
+            textView.textSize = 24f
+            resultDescLayout.addView(textView)
         }
+        for (i in 0 until 4) {
+            val textView = MaterialTextView(requireContext())
+            textView.textSize = 24f
+            resultValueLayout.addView(textView)
+        }
+        (resultDescLayout[0] as MaterialTextView).text = "First"
+        (resultDescLayout[1] as MaterialTextView).text = "Business"
+        (resultDescLayout[2] as MaterialTextView).text = "Premium Economy"
+        (resultDescLayout[3] as MaterialTextView).text = "Economy"
 
         val calAgainBtn: MaterialButton = root.findViewById(R.id.calculate_again_button)
         calAgainBtn.setOnClickListener {
             showResult()
         }
-
         progressBar = root.findViewById(R.id.airplane_progress_bar)
     }
 
@@ -94,19 +105,17 @@ class AirplaneResultFragment(private val requestBody: RequestBody) : DialogFragm
 
             root.post {
                 if (response != null) {
-                    val first: MaterialTextView = resultTable.findViewById(R.id.airplane_r1c2)
-                    val business: MaterialTextView = resultTable.findViewById(R.id.airplane_r2c2)
-                    val premiumEconomy: MaterialTextView = resultTable.findViewById(R.id.airplane_r3c2)
-                    val economy: MaterialTextView = resultTable.findViewById(R.id.airplane_r4c2)
-                    first.text = response.flightEmissions[0].emissionsGramsPerPax.first.toString()
-                    business.text = response.flightEmissions[0].emissionsGramsPerPax.business.toString()
-                    premiumEconomy.text = response.flightEmissions[0].emissionsGramsPerPax.premiumEconomy.toString()
-                    economy.text = response.flightEmissions[0].emissionsGramsPerPax.economy.toString()
+                    if (response.flightEmissions[0].emissionsGramsPerPax != null) {
+                        (resultValueLayout[0] as MaterialTextView).text = response.flightEmissions[0].emissionsGramsPerPax?.first.toString()
+                        (resultValueLayout[1] as MaterialTextView).text = response.flightEmissions[0].emissionsGramsPerPax?.business.toString()
+                        (resultValueLayout[2] as MaterialTextView).text = response.flightEmissions[0].emissionsGramsPerPax?.premiumEconomy.toString()
+                        (resultValueLayout[3] as MaterialTextView).text = response.flightEmissions[0].emissionsGramsPerPax?.economy.toString()
+                    }
                 } else {
 
                 }
 
-                // TODO
+                // TODO error and no result handling
                 progressBar.visibility = View.GONE
                 resultLayout.visibility = View.VISIBLE
             }

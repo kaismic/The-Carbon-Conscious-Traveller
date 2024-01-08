@@ -156,7 +156,7 @@ class PublicTransportResultFragment: ResultFragment() {
             stepsIconContainer.addView(nextIcon)
         }
         stepsIconContainer.removeViewAt(stepsIconContainer.childCount - 1)
-        emissionText.text = CalculationUtils.formatEmission(totalEmissionInGram)
+        emissionText.text = CalculationUtils.formatEmission(totalEmissionInGram, true)
         return totalEmissionInGram
     }
 }

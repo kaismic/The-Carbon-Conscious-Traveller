@@ -76,4 +76,9 @@ class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityC
                     CalculationUtils.formatEmission(emissions.max(), true)
         radioBtns[currMode.ordinal].text = rangeText
     }
+
+    fun enableButtons(enable: Boolean) {
+        radioBtns.map { it.isEnabled = enable }
+        airplaneBtn.isEnabled = enable
+    }
 }

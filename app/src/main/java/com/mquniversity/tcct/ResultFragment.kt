@@ -261,6 +261,8 @@ abstract class ResultFragment: Fragment() {
                     }
                 }
             }
+        }.invokeOnCompletion {
+            mainActivity.enableButtons(true)
         }
     }
 

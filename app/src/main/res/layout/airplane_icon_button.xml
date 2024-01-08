@@ -5,5 +5,5 @@
     android:layout_height="wrap_content"
     style="@style/Widget.Material3.Button.IconButton.Outlined"
     app:icon="@drawable/outline_flight_24"
-    android:layout_margin="16dp">
+    >
 </com.google.android.material.button.MaterialButton>

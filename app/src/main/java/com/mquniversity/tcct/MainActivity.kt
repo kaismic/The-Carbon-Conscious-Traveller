@@ -221,6 +221,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                     return
                 }
                 origin = place
+                Timer().schedule(100) {
+                    originInput.setText(place.address)
+                }
                 calculate(false)
             }
             override fun onError(status: Status) {
@@ -244,6 +247,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                     return
                 }
                 dest = place
+                Timer().schedule(100) {
+                    destInput.setText(place.address)
+                }
                 calculate(false)
             }
             override fun onError(status: Status) {
@@ -256,28 +262,25 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             if (origin == null && dest == null) {
                 return@setOnClickListener
             }
-            swapBtn.isEnabled = false
+            enableButtons(false)
             val prevOrigin = origin
             val prevDest = dest
             origin = prevDest
             dest = prevOrigin
-            originInput.setText(prevDest?.name)
-            destInput.setText(prevOrigin?.name)
+            originInput.setText(prevDest?.address)
+            destInput.setText(prevOrigin?.address)
             calculate(false)
-            swapBtn.isEnabled = true
         }
 
         reloadBtn = findViewById(R.id.reload_button)
         reloadBtn.setOnClickListener {
-            reloadBtn.isEnabled = false
-            Snackbar.make(binding.root, "Reloading.", Snackbar.LENGTH_SHORT).show()
+            enableButtons(false)
             calculate(true)
-            reloadBtn.isEnabled = true
         }
 
         locationBtn = findViewById(R.id.current_location_button)
         locationBtn.setOnClickListener {
-            locationBtn.isEnabled = false
+            enableButtons(false)
             // https:/developers.google.com/maps//documentation/android-sdk/current-place-tutorial
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED
@@ -285,24 +288,31 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED
             ) {
-                val placeFields = listOf(Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG)
-                val request = FindCurrentPlaceRequest.newInstance(placeFields)
+                val request = FindCurrentPlaceRequest.newInstance(
+                    listOf(Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG)
+                )
+                Snackbar.make(
+                    binding.root,
+                    "Fetching current location...",
+                    Snackbar.LENGTH_SHORT
+                ).show()
                 val placeResult = placesClient.findCurrentPlace(request)
-
                 placeResult.addOnCompleteListener { task ->
                     if (task.isSuccessful && task.result != null) {
                         val curPlace = task.result.placeLikelihoods[0].place
                         origin = curPlace
                         originInput.setText(curPlace.address)
+                        calculate(false)
+                    } else {
+                        enableButtons(true)
                     }
                 }
+            } else {
+                enableButtons(true)
             }
-            locationBtn.isEnabled = true
         }
 
         helperText = findViewById(R.id.helper_text)
-
-
         // TODO CoordinatorLayout for nested scrolling
         bottomSheet = findViewById(R.id.bottom_sheet)
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
@@ -311,8 +321,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
 
     fun calculate(reload: Boolean) {
         if (origin == null || dest == null) {
+            enableButtons(true)
             return
         }
+        enableButtons(false)
         // remove help text at the first call
         if (helperText != null) {
             bottomSheet.removeView(helperText)
@@ -340,6 +352,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                             .replace(R.id.fragment_container, CarQueryFragment(), getString(R.string.tag_car_query))
                             .addToBackStack(getString(R.string.tag_car_query))
                             .commit()
+                        enableButtons(true)
                         return
                     }
                 }
@@ -355,6 +368,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                             .replace(R.id.fragment_container, MotorcycleQueryFragment(), getString(R.string.tag_motorcycle_query))
                             .addToBackStack(getString(R.string.tag_motorcycle_query))
                             .commit()
+                        enableButtons(true)
                         return
                     }
                 }
@@ -368,6 +382,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                         .replace(R.id.fragment_container, PublicTransportResultFragment(), getString(R.string.tag_public_transport_result))
                         .addToBackStack(getString(R.string.tag_public_transport_result))
                         .commit()
+                    enableButtons(true)
                     return
                 }
             }
@@ -378,6 +393,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             frag.update(reload)
         } else {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            enableButtons(true)
         }
         supportFragmentManager
             .beginTransaction()
@@ -431,6 +447,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         googleMap.animateCamera(
             CameraUpdateFactory.newLatLngBounds(bounds, 64)
         )
+    }
+
+    fun enableButtons(enable: Boolean) {
+        binding.root.post {
+            swapBtn.isEnabled = enable
+            reloadBtn.isEnabled = enable
+            locationBtn.isEnabled = enable
+            transportSelection.enableButtons(enable)
+        }
     }
 
     /**

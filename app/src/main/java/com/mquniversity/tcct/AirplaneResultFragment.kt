@@ -25,9 +25,8 @@ import java.net.URL
 class AirplaneResultFragment(private val requestBody: RequestBody) : DialogFragment()  {
     private lateinit var root: LinearLayout
     private lateinit var resultLayout: LinearLayout
-    private lateinit var resultDescLayout: LinearLayout
-    private lateinit var resultValueLayout: LinearLayout
     private lateinit var progressBar: ProgressBar
+    private lateinit var calAgainBtn: MaterialButton
 
     private val requestURL = "https://travelimpactmodel.googleapis.com/v1/flights:computeFlightEmissions?key="
     private val gson = Gson()
@@ -41,24 +40,21 @@ class AirplaneResultFragment(private val requestBody: RequestBody) : DialogFragm
         ) as LinearLayout
 
         resultLayout = root.findViewById(R.id.airplane_result_layout)
-        resultDescLayout = resultLayout.findViewById(R.id.airplane_result_desc_layout)
-        resultValueLayout = resultLayout.findViewById(R.id.airplane_result_value_layout)
-        for (i in 0 until 4) {
+        for (i in 0 until 8) {
             val textView = MaterialTextView(requireContext())
-            textView.textSize = 24f
-            resultDescLayout.addView(textView)
+            if (i % 2 == 0) {
+                textView.textSize = 24f
+            } else {
+                textView.textSize = 18f
+            }
+            resultLayout.addView(textView)
         }
-        for (i in 0 until 4) {
-            val textView = MaterialTextView(requireContext())
-            textView.textSize = 24f
-            resultValueLayout.addView(textView)
-        }
-        (resultDescLayout[0] as MaterialTextView).text = "First"
-        (resultDescLayout[1] as MaterialTextView).text = "Business"
-        (resultDescLayout[2] as MaterialTextView).text = "Premium Economy"
-        (resultDescLayout[3] as MaterialTextView).text = "Economy"
+        (resultLayout[0] as MaterialTextView).text = "First"
+        (resultLayout[2] as MaterialTextView).text = "Business"
+        (resultLayout[4] as MaterialTextView).text = "Premium Economy"
+        (resultLayout[6] as MaterialTextView).text = "Economy"
 
-        val calAgainBtn: MaterialButton = root.findViewById(R.id.calculate_again_button)
+        calAgainBtn = root.findViewById(R.id.calculate_again_button)
         calAgainBtn.setOnClickListener {
             showResult()
         }
@@ -77,6 +73,7 @@ class AirplaneResultFragment(private val requestBody: RequestBody) : DialogFragm
     private fun showResult() {
         CoroutineScope(Dispatchers.IO).launch {
             root.post {
+                calAgainBtn.isEnabled = false
                 resultLayout.visibility = View.GONE
                 progressBar.visibility = View.VISIBLE
             }
@@ -106,10 +103,14 @@ class AirplaneResultFragment(private val requestBody: RequestBody) : DialogFragm
             root.post {
                 if (response != null) {
                     if (response.flightEmissions[0].emissionsGramsPerPax != null) {
-                        (resultValueLayout[0] as MaterialTextView).text = response.flightEmissions[0].emissionsGramsPerPax?.first.toString()
-                        (resultValueLayout[1] as MaterialTextView).text = response.flightEmissions[0].emissionsGramsPerPax?.business.toString()
-                        (resultValueLayout[2] as MaterialTextView).text = response.flightEmissions[0].emissionsGramsPerPax?.premiumEconomy.toString()
-                        (resultValueLayout[3] as MaterialTextView).text = response.flightEmissions[0].emissionsGramsPerPax?.economy.toString()
+                        (resultLayout[1] as MaterialTextView).text =
+                            CalculationUtils.formatEmission(response.flightEmissions[0].emissionsGramsPerPax?.first!!.toFloat(), false)
+                        (resultLayout[3] as MaterialTextView).text =
+                            CalculationUtils.formatEmission(response.flightEmissions[0].emissionsGramsPerPax?.business!!.toFloat(), false)
+                        (resultLayout[5] as MaterialTextView).text =
+                            CalculationUtils.formatEmission(response.flightEmissions[0].emissionsGramsPerPax?.premiumEconomy!!.toFloat(), false)
+                        (resultLayout[7] as MaterialTextView).text =
+                            CalculationUtils.formatEmission(response.flightEmissions[0].emissionsGramsPerPax?.economy!!.toFloat(), false)
                     }
                 } else {
 
@@ -118,6 +119,7 @@ class AirplaneResultFragment(private val requestBody: RequestBody) : DialogFragm
                 // TODO error and no result handling
                 progressBar.visibility = View.GONE
                 resultLayout.visibility = View.VISIBLE
+                calAgainBtn.isEnabled = true
             }
         }
     }

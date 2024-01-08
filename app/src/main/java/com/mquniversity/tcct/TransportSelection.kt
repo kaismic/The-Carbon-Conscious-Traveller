@@ -1,31 +1,19 @@
 package com.mquniversity.tcct
 
 import android.content.Context
-import android.view.ContextThemeWrapper
 import android.view.ViewGroup
-import android.widget.RadioButton
 import android.widget.RadioGroup
-import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.radiobutton.MaterialRadioButton
 
 class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityContext) {
     private val mainActivity: MainActivity = mainActivityContext as MainActivity
     var currMode: TransportMode = TransportMode.CAR
 
-    private val radioBtns: Array<RadioButton> = Array(TransportMode.entries.size - 1) {
-        RadioButton(ContextThemeWrapper(
-            context,
-            com.google.android.material.R.style.Widget_Material3_Button_IconButton_Outlined
-        ))
-    }
-    private val airplaneBtn = MaterialButton(
-        ContextThemeWrapper(
-            context,
-            com.google.android.material.R.style.Widget_Material3_Button_IconButton_Outlined
-        )
-    )
+    private val radioBtns: Array<MaterialRadioButton>
+    private val airplaneBtn: MaterialButton
 
     private val icons: IntArray = intArrayOf(
         R.drawable.outline_directions_car_24,
@@ -40,22 +28,20 @@ class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityC
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
 
+        radioBtns = Array(TransportMode.entries.size - 1) {
+            mainActivity.layoutInflater.inflate(
+                R.layout.transport_selection_radio_button,
+                this,
+                false
+            ) as MaterialRadioButton
+        }
         for (i in radioBtns.indices) {
             this.addView(radioBtns[i])
-            radioBtns[i].layoutParams = LayoutParams(
-                LayoutParams.WRAP_CONTENT,
-                LayoutParams.WRAP_CONTENT
-            ).apply {
-                setMargins(16, 16, 16, 16)
-            }
             radioBtns[i].buttonDrawable = ResourcesCompat.getDrawable(
                 resources,
                 icons[i],
                 context.theme
             )
-            radioBtns[i].setTextColor(ContextCompat.getColorStateList(context, R.color.transport_foreground_color))
-            radioBtns[i].backgroundTintList = ContextCompat.getColorStateList(context, R.color.transport_background_color)?.withAlpha(97)
-            radioBtns[i].setBackgroundResource(R.drawable.transport_background_shape)
             radioBtns[i].setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
                     currMode = TransportMode.entries[i]
@@ -64,18 +50,12 @@ class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityC
         }
 
         // special case for airplane
+        airplaneBtn = mainActivity.layoutInflater.inflate(
+            R.layout.airplane_icon_button,
+            this,
+            false
+        ) as MaterialButton
         this.addView(airplaneBtn)
-        airplaneBtn.layoutParams = LayoutParams(
-            LayoutParams.WRAP_CONTENT,
-            LayoutParams.WRAP_CONTENT
-        ).apply {
-            setMargins(16, 16, 16, 16)
-        }
-        airplaneBtn.icon = ResourcesCompat.getDrawable(
-            resources,
-            icons[TransportMode.AIRPLANE.ordinal],
-            context.theme
-        )
         airplaneBtn.setOnClickListener {
             mainActivity.supportFragmentManager.beginTransaction()
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -83,7 +63,7 @@ class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityC
                 .addToBackStack(null)
                 .commit()
         }
-
+        // set initial selection
         radioBtns[currMode.ordinal].isChecked = true
         this.setOnCheckedChangeListener { _, _ ->
             mainActivity.calculate(false)
@@ -91,7 +71,9 @@ class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityC
     }
 
     fun updateIcons(emissions: FloatArray) {
-        val rangeText = String.format("%.2fkg-%.2fkg", emissions.min() / 1000, emissions.max() / 1000)
+        val rangeText = CalculationUtils.formatEmission(emissions.min(), true) +
+                    " - " +
+                    CalculationUtils.formatEmission(emissions.max(), true)
         radioBtns[currMode.ordinal].text = rangeText
     }
 }

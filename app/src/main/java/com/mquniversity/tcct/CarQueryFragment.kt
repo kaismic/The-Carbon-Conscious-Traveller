@@ -23,62 +23,61 @@ class CarQueryFragment : PrivateVehicleQueryFragment() {
     private lateinit var fuelTypes: Array<String>
     private lateinit var carValues: Array<FloatArray>
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        headerText.text = getString(R.string.car)
+
+        fuelTypes = mainActivity.calculationValues.carFuelTypes
+        carValues = mainActivity.calculationValues.carValuesMatrix.toTypedArray()
+
+        sizeInput = TextInputLayout(ContextThemeWrapper(context, com.google.android.material.R.style.Widget_Material3_TextInputLayout_OutlinedBox_ExposedDropdownMenu))
+        sizeOptions = mainActivity.calculationValues.carSizes.toTypedArray()
+        insertQuery(sizeInput, "Size", sizeOptions)
+        sizeInputDropdown = sizeInput.editText as MaterialAutoCompleteTextView
+
+        fuelTypeInput = TextInputLayout(ContextThemeWrapper(context, com.google.android.material.R.style.Widget_Material3_TextInputLayout_OutlinedBox_ExposedDropdownMenu))
+        insertQuery(fuelTypeInput, "Fuel Type", emptyArray())
+        fuelTypeInputDropdown = fuelTypeInput.editText as MaterialAutoCompleteTextView
+
+        fuelTypeInput.isEnabled = false
+
+        sizeInputDropdown.setOnItemClickListener { _, _, idx, _ ->
+            fuelTypeInput.isEnabled = false
+            if (currSizeIdx != idx) {
+                setFuelTypeItems(idx)
+            }
+            fuelTypeInput.isEnabled = true
+        }
+        fuelTypeInputDropdown.setOnItemClickListener { _, _, idx, _ ->
+            currFuelTypeIdx = idx
+            calBtn.isEnabled = true
+        }
+
+        calBtn.setOnClickListener {
+            mainActivity.bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            calBtn.isEnabled = false
+            var carResultFrag = parentFragmentManager.findFragmentByTag(getString(R.string.tag_car_result)) as CarResultFragment?
+            if (carResultFrag == null) {
+                carResultFrag = CarResultFragment(sizeOptions[currSizeIdx], fuelTypeOptions[currFuelTypeIdx])
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, carResultFrag, getString(R.string.tag_car_result))
+                    .addToBackStack(getString(R.string.tag_car_result))
+                    .commit()
+            } else {
+                carResultFrag.updateFactor(sizeOptions[currSizeIdx], fuelTypeOptions[currFuelTypeIdx])
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, carResultFrag, getString(R.string.tag_car_result))
+                    .commit()
+            }
+            calBtn.isEnabled = true
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        super.onCreateView(inflater, container, savedInstanceState)
-        if (!isInitialized) {
-            isInitialized = true
-
-            headerText.text = getString(R.string.car)
-
-            fuelTypes = mainActivity.calculationValues.carFuelTypes
-            carValues = mainActivity.calculationValues.carValuesMatrix.toTypedArray()
-
-            sizeInput = TextInputLayout(ContextThemeWrapper(context, com.google.android.material.R.style.Widget_Material3_TextInputLayout_OutlinedBox_ExposedDropdownMenu))
-            sizeOptions = mainActivity.calculationValues.carSizes.toTypedArray()
-            insertQuery(sizeInput, "Size", sizeOptions)
-            sizeInputDropdown = sizeInput.editText as MaterialAutoCompleteTextView
-
-            fuelTypeInput = TextInputLayout(ContextThemeWrapper(context, com.google.android.material.R.style.Widget_Material3_TextInputLayout_OutlinedBox_ExposedDropdownMenu))
-            insertQuery(fuelTypeInput, "Fuel Type", emptyArray())
-            fuelTypeInputDropdown = fuelTypeInput.editText as MaterialAutoCompleteTextView
-
-            fuelTypeInput.isEnabled = false
-
-            sizeInputDropdown.setOnItemClickListener { _, _, idx, _ ->
-                fuelTypeInput.isEnabled = false
-                if (currSizeIdx != idx) {
-                    setFuelTypeItems(idx)
-                }
-                fuelTypeInput.isEnabled = true
-            }
-            fuelTypeInputDropdown.setOnItemClickListener { _, _, idx, _ ->
-                currFuelTypeIdx = idx
-                calBtn.isEnabled = true
-            }
-
-            calBtn.setOnClickListener {
-                mainActivity.bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                calBtn.isEnabled = false
-                var carResultFrag = parentFragmentManager.findFragmentByTag(getString(R.string.tag_car_result)) as CarResultFragment?
-                if (carResultFrag == null) {
-                    carResultFrag = CarResultFragment(sizeOptions[currSizeIdx], fuelTypeOptions[currFuelTypeIdx])
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, carResultFrag, getString(R.string.tag_car_result))
-                        .addToBackStack(getString(R.string.tag_car_result))
-                        .commit()
-                } else {
-                    carResultFrag.updateFactor(sizeOptions[currSizeIdx], fuelTypeOptions[currFuelTypeIdx])
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, carResultFrag, getString(R.string.tag_car_result))
-                        .commit()
-                }
-                calBtn.isEnabled = true
-            }
-        }
         return mainLayout
     }
 

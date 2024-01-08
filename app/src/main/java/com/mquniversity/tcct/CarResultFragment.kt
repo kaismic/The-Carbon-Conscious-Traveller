@@ -10,19 +10,19 @@ class CarResultFragment(
     private val carSize: String,
     private val carFuelType: String
 ): PrivateVehicleResultFragment() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        travelMode = TravelMode.DRIVING
+        iconResId = R.drawable.outline_directions_car_24
+        factor = calculationValues.carValuesMatrix[calculationValues.carSizes.indexOf(carSize)][calculationValues.carFuelTypes.indexOf(carFuelType)]
+        update(false)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        super.onCreateView(inflater, container, savedInstanceState)
-        if (!isInitialized) {
-            isInitialized = true
-            travelMode = TravelMode.DRIVING
-            iconResId = R.drawable.outline_directions_car_24
-            factor = calculationValues.carValuesMatrix[calculationValues.carSizes.indexOf(carSize)][calculationValues.carFuelTypes.indexOf(carFuelType)]
-            update()
-        }
         return rootScrollView
     }
 

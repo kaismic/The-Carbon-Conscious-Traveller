@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:fitsSystemWindows="true"
     android:background="?android:colorBackground"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:clickable="true">
     <com.google.android.material.textview.MaterialTextView
         android:text="@string/airplane"
         android:layout_width="match_parent"
@@ -20,115 +20,9 @@
     <LinearLayout
         android:id="@+id/airplane_result_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/airplane_result_table"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/airplane_r1c1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="First"
-                app:layout_constraintHorizontal_chainStyle="spread"
-                app:layout_constraintHorizontal_weight="2"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toTopOf="@+id/airplane_r2c1"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toLeftOf="@+id/airplane_r1c2"
-                />
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/airplane_r2c1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="Business"
-                app:layout_constraintHorizontal_chainStyle="spread"
-                app:layout_constraintHorizontal_weight="2"
-                app:layout_constraintTop_toBottomOf="@+id/airplane_r1c1"
-                app:layout_constraintBottom_toTopOf="@+id/airplane_r3c1"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toLeftOf="@+id/airplane_r2c2"
-                />
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/airplane_r3c1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="Premium Economy"
-                app:layout_constraintHorizontal_chainStyle="spread"
-                app:layout_constraintHorizontal_weight="2"
-                app:layout_constraintTop_toBottomOf="@+id/airplane_r2c1"
-                app:layout_constraintBottom_toTopOf="@+id/airplane_r4c1"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toLeftOf="@+id/airplane_r3c2"
-                />
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/airplane_r4c1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="Economy"
-                app:layout_constraintHorizontal_chainStyle="spread"
-                app:layout_constraintHorizontal_weight="2"
-                app:layout_constraintTop_toBottomOf="@+id/airplane_r3c1"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toLeftOf="@+id/airplane_r4c2"
-                />
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/airplane_r1c2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintHorizontal_chainStyle="spread"
-                app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintBottom_toTopOf="@+id/airplane_r2c2"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintLeft_toRightOf="@+id/airplane_r1c1"
-                />
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/airplane_r2c2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintHorizontal_chainStyle="spread"
-                app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintTop_toBottomOf="@+id/airplane_r1c1"
-                app:layout_constraintBottom_toTopOf="@+id/airplane_r3c2"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintLeft_toRightOf="@+id/airplane_r2c1"
-                />
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/airplane_r3c2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintHorizontal_chainStyle="spread"
-                app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintTop_toBottomOf="@+id/airplane_r2c1"
-                app:layout_constraintBottom_toTopOf="@+id/airplane_r4c2"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintLeft_toRightOf="@+id/airplane_r3c1"
-                />
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/airplane_r4c2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintHorizontal_chainStyle="spread"
-                app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintTop_toBottomOf="@+id/airplane_r3c2"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintLeft_toRightOf="@+id/airplane_r4c1"
-                />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="16dp">
-        </Space>
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/calculate_again_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/calculate_again"
-            android:enabled="true"
-            android:layout_gravity="center_horizontal"
-            />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
     </LinearLayout>
     <ProgressBar
         android:id="@+id/airplane_progress_bar"
@@ -136,4 +30,15 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
     />
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="16dp">
+    </Space>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/calculate_again_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/calculate_again"
+        android:layout_gravity="center_horizontal"
+        />
 </LinearLayout>

@@ -8,8 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ProgressBar
-import android.widget.ScrollView
 import androidx.appcompat.view.ContextThemeWrapper
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import com.google.android.gms.maps.model.Dot
 import com.google.android.gms.maps.model.Gap
@@ -30,7 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 abstract class ResultFragment: Fragment() {
-    protected lateinit var rootScrollView: ScrollView
+    protected lateinit var rootScrollView: NestedScrollView
     protected lateinit var mainLayout: LinearLayout
 
     private lateinit var mainActivity: MainActivity
@@ -54,7 +54,7 @@ abstract class ResultFragment: Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        rootScrollView = ScrollView(context)
+        rootScrollView = NestedScrollView(requireContext())
         rootScrollView.layoutParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.MATCH_PARENT

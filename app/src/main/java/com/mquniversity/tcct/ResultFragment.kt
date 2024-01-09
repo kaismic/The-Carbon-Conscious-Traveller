@@ -68,7 +68,6 @@ abstract class ResultFragment: Fragment() {
             ViewGroup.LayoutParams.MATCH_PARENT
         )
 
-        // TODO? gray line divider
         val shapeDivider = GradientDrawable()
         shapeDivider.setSize(0, 32)
         mainLayout.dividerDrawable = shapeDivider

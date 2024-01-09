@@ -4,6 +4,7 @@ import android.content.res.ColorStateList
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -76,9 +77,6 @@ class PublicTransportResultFragment: ResultFragment() {
         val steps = route.legs[0].steps
         var totalEmissionInGram = 0f
         for (step in steps) {
-            val nextIcon = ImageView(context).apply {
-                setImageResource(R.drawable.outline_navigate_next_24)
-            }
             when (step.travelMode) {
                 TravelMode.TRANSIT -> {
                     val factor: Float = when (step.transitDetails.line.vehicle.type) {
@@ -107,6 +105,7 @@ class PublicTransportResultFragment: ResultFragment() {
                     ) as ConstraintLayout
                     try {
                         var iconURL = step.transitDetails.line.vehicle.localIcon
+                        Log.i("testing", "local icon = $iconURL")
                         if (iconURL.isNullOrEmpty()) {
                             iconURL = step.transitDetails.line.vehicle.icon
                         }
@@ -146,14 +145,33 @@ class PublicTransportResultFragment: ResultFragment() {
                     stepsIconContainer.addView(transitIconsContainer)
                 }
                 TravelMode.WALKING -> {
-                    val walkingIcon = ImageView(context).apply {
-                        setImageResource(R.drawable.outline_directions_walk_24)
-                    }
-                    stepsIconContainer.addView(walkingIcon)
+                    // walking icon
+                    stepsIconContainer.addView(
+                        ImageView(context).apply {
+                            setImageResource(R.drawable.outline_directions_walk_24)
+                            setColorFilter(
+                                resources.getColor(
+                                    R.color.text_color,
+                                    context?.theme
+                                )
+                            )
+                        }
+                    )
                 }
                 else -> {}
             }
-            stepsIconContainer.addView(nextIcon)
+            // next icon
+            stepsIconContainer.addView(
+                ImageView(context).apply {
+                    setImageResource(R.drawable.outline_navigate_next_24)
+                    setColorFilter(
+                        resources.getColor(
+                            R.color.text_color,
+                            context?.theme
+                        )
+                    )
+                }
+            )
         }
         stepsIconContainer.removeViewAt(stepsIconContainer.childCount - 1)
         emissionText.text = CalculationUtils.formatEmission(totalEmissionInGram, true)

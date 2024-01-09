@@ -35,13 +35,22 @@ open class PrivateVehicleResultFragment: ResultFragment() {
         val resultLayout = resultLayouts[idx]!!
         val route = currRoutes[idx]
 
-        val icon: ImageView = resultLayout.findViewById(R.id.private_vehicle_icon)
-        icon.setImageDrawable(
-            ResourcesCompat.getDrawable(
-                resources,
-                iconResId!!,
-                context?.theme
-            ))
+        resultLayout.findViewById<ImageView>(R.id.private_vehicle_icon)
+            .apply {
+                setImageDrawable(
+                    ResourcesCompat.getDrawable(
+                        resources,
+                        iconResId!!,
+                        context?.theme
+                    )
+                )
+                setColorFilter(
+                    resources.getColor(
+                        R.color.text_color,
+                        context?.theme
+                    )
+                )
+            }
 
         val summaryText: TextView = resultLayout.findViewById(R.id.summary_text)
         summaryText.text = getString(R.string.summary_text, route.summary)

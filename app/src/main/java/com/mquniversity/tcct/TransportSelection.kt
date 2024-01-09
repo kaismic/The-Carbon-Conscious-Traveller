@@ -71,9 +71,10 @@ class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityC
     }
 
     fun updateIcons(emissions: FloatArray) {
-        val rangeText = CalculationUtils.formatEmission(emissions.min(), true) +
-                    " - " +
-                    CalculationUtils.formatEmission(emissions.max(), true)
+        val rangeText = CalculationUtils.formatEmission(emissions.min()) +
+                " - " +
+                CalculationUtils.formatEmission(emissions.max()) +
+                " CO2"
         radioBtns[currMode.ordinal].text = rangeText
     }
 

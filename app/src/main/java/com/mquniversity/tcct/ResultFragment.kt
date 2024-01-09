@@ -236,21 +236,21 @@ abstract class ResultFragment: Fragment() {
                 ).apply {
                     gravity = Gravity.CENTER
                 }
-                val retryBtn = MaterialButton(ContextThemeWrapper(context, com.google.android.material.R.style.Widget_Material3_Button))
-                retryBtn.layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    gravity = Gravity.CENTER
-                }
-                retryBtn.text = getString(R.string.try_again)
-                retryBtn.setOnClickListener {
-                    update(true)
-                }
                 mainLayout.post {
                     mainLayout.removeAllViews()
                     mainLayout.addView(errorText)
                     if (e !is ZeroResultsException) {
+                        val retryBtn = MaterialButton(ContextThemeWrapper(context, com.google.android.material.R.style.Widget_Material3_Button))
+                        retryBtn.layoutParams = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        ).apply {
+                            gravity = Gravity.CENTER
+                        }
+                        retryBtn.text = getString(R.string.try_again)
+                        retryBtn.setOnClickListener {
+                            mainActivity.calculate(true)
+                        }
                         mainLayout.addView(retryBtn)
                     }
                     when (e) {

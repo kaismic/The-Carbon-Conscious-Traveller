@@ -77,6 +77,10 @@ class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityC
         radioBtns[currMode.ordinal].text = rangeText
     }
 
+    fun resetIconTexts() {
+        radioBtns.map { it.text = null }
+    }
+
     fun enableButtons(enable: Boolean) {
         radioBtns.map { it.isEnabled = enable }
         airplaneBtn.isEnabled = enable

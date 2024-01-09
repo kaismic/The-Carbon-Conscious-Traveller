@@ -103,6 +103,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     private lateinit var destInput: AutocompleteSupportFragment
     private var originMarker: Marker? = null
     private var destMarker: Marker? = null
+    var lastOrigin: Place? = null
+    var lastDest: Place? = null
 
     private lateinit var swapBtn: MaterialButton
     private lateinit var locationBtn: MaterialButton
@@ -324,6 +326,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             enableButtons(true)
             return
         }
+        if (origin != lastOrigin || dest != lastDest) {
+            transportSelection.resetIconTexts()
+        }
+        lastOrigin = origin
+        lastDest = dest
         enableButtons(false)
         // remove help text at the first call
         if (helperText != null) {

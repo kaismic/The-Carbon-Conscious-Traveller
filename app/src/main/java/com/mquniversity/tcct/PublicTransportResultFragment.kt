@@ -4,7 +4,6 @@ import android.content.res.ColorStateList
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -105,7 +104,6 @@ class PublicTransportResultFragment: ResultFragment() {
                     ) as ConstraintLayout
                     try {
                         var iconURL = step.transitDetails.line.vehicle.localIcon
-                        Log.i("testing", "local icon = $iconURL")
                         if (iconURL.isNullOrEmpty()) {
                             iconURL = step.transitDetails.line.vehicle.icon
                         }

@@ -6,6 +6,7 @@ import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.HorizontalScrollView
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -204,10 +205,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         // Set up a PlaceSelectionListener to handle the response.
         originInput.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
+                // don't show clear button i.e. disable it
                 val clearBtn = originInput.view?.findViewById(com.google.android.libraries.places.R.id.places_autocomplete_clear_button) as ImageButton
-                clearBtn.setOnClickListener {
-                    originInput.setText(null)
-                    origin = null
+                Timer().schedule(200) {
+                    clearBtn.post {
+                        clearBtn.visibility = View.GONE
+                    }
                 }
                 if (dest != null && place.address == dest?.address) {
                     // delay is needed probably because after fetching the Place
@@ -234,10 +237,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         })
         destInput.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
+                // don't show clear button i.e. disable it
                 val clearBtn = destInput.view?.findViewById(com.google.android.libraries.places.R.id.places_autocomplete_clear_button) as ImageButton
-                clearBtn.setOnClickListener {
-                    destInput.setText(null)
-                    dest = null
+                Timer().schedule(200) {
+                    clearBtn.post {
+                        clearBtn.visibility = View.GONE
+                    }
                 }
                 if (origin != null && place.address == origin?.address) {
                     Timer().schedule(100) {
@@ -258,6 +263,20 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                 Log.i("Destination Input", "$status")
             }
         })
+
+        // 2 seconds should be enough to originInput and destInput to initialise
+        Timer().schedule(2000) {
+            for (i in 0 until 2) {
+                val input = if (i == 0) originInput else destInput
+                val clearBtn = input.view?.findViewById(com.google.android.libraries.places.R.id.places_autocomplete_clear_button) as ImageButton
+                clearBtn.post {
+                    // disable clear button just in case the user quickly
+                    // enters location and clicks on clear button before changing the visibility.
+                    // should not happen though
+                    clearBtn.isEnabled = false
+                }
+            }
+        }
 
         swapBtn = findViewById(R.id.location_swap_button)
         swapBtn.setOnClickListener {
@@ -399,6 +418,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             frag.update(reload)
         } else {
+            // frag is query fragment
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             enableButtons(true)
         }

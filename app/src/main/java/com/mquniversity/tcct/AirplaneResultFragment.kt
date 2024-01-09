@@ -104,13 +104,13 @@ class AirplaneResultFragment(private val requestBody: RequestBody) : DialogFragm
                 if (response != null) {
                     if (response.flightEmissions[0].emissionsGramsPerPax != null) {
                         (resultLayout[1] as MaterialTextView).text =
-                            CalculationUtils.formatEmission(response.flightEmissions[0].emissionsGramsPerPax?.first!!.toFloat(), false)
+                            CalculationUtils.formatEmissionWithCO2(response.flightEmissions[0].emissionsGramsPerPax?.first!!.toFloat(), false)
                         (resultLayout[3] as MaterialTextView).text =
-                            CalculationUtils.formatEmission(response.flightEmissions[0].emissionsGramsPerPax?.business!!.toFloat(), false)
+                            CalculationUtils.formatEmissionWithCO2(response.flightEmissions[0].emissionsGramsPerPax?.business!!.toFloat(), false)
                         (resultLayout[5] as MaterialTextView).text =
-                            CalculationUtils.formatEmission(response.flightEmissions[0].emissionsGramsPerPax?.premiumEconomy!!.toFloat(), false)
+                            CalculationUtils.formatEmissionWithCO2(response.flightEmissions[0].emissionsGramsPerPax?.premiumEconomy!!.toFloat(), false)
                         (resultLayout[7] as MaterialTextView).text =
-                            CalculationUtils.formatEmission(response.flightEmissions[0].emissionsGramsPerPax?.economy!!.toFloat(), false)
+                            CalculationUtils.formatEmissionWithCO2(response.flightEmissions[0].emissionsGramsPerPax?.economy!!.toFloat(), false)
                     }
                 } else {
 

@@ -172,7 +172,7 @@ class PublicTransportResultFragment: ResultFragment() {
             )
         }
         stepsIconContainer.removeViewAt(stepsIconContainer.childCount - 1)
-        emissionText.text = CalculationUtils.formatEmission(totalEmissionInGram, true)
+        emissionText.text = CalculationUtils.formatEmissionWithCO2(totalEmissionInGram, true)
         return totalEmissionInGram
     }
 }

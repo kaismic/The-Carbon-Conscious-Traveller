@@ -1,9 +1,7 @@
 package com.mquniversity.tcct
 
 import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -61,17 +59,11 @@ abstract class ResultFragment: Fragment() {
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.MATCH_PARENT
         )
-        mainLayout = LinearLayout(context)
-        mainLayout.orientation = LinearLayout.VERTICAL
-        mainLayout.layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
-        )
-
-        val shapeDivider = GradientDrawable()
-        shapeDivider.setSize(0, 32)
-        mainLayout.dividerDrawable = shapeDivider
-        mainLayout.showDividers = LinearLayout.SHOW_DIVIDER_MIDDLE
+        mainLayout = layoutInflater.inflate(
+            R.layout.results_container,
+            null,
+            false
+        ) as LinearLayout
 
         rootScrollView.addView(mainLayout)
 
@@ -139,17 +131,7 @@ abstract class ResultFragment: Fragment() {
 
         mainLayout.addView(resultLayouts[idx])
 
-        resultLayouts[idx]?.isClickable = true
-        val typedValue = TypedValue()
-        context?.theme?.resolveAttribute(
-            android.R.attr.selectableItemBackground,
-            typedValue,
-            true
-        )
-        resultLayouts[idx]?.setBackgroundResource(typedValue.resourceId)
-
         // insert selection indicator
-
         val selectionIndicator = View(context)
         selectionIndicators[idx] = selectionIndicator
         selectionIndicator.layoutParams = LinearLayout.LayoutParams(
@@ -223,7 +205,6 @@ abstract class ResultFragment: Fragment() {
                         routeEmissions[i] = insertRouteResult(i)
                     }
                     mainActivity.transportSelection.updateIcons(routeEmissions)
-
                     highlightRoute(0)
                     highlightResult(0)
                 }

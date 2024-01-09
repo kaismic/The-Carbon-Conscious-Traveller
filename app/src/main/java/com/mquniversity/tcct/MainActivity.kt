@@ -104,8 +104,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     private lateinit var destInput: AutocompleteSupportFragment
     private var originMarker: Marker? = null
     private var destMarker: Marker? = null
-    var lastOrigin: Place? = null
-    var lastDest: Place? = null
+    private var lastOrigin: Place? = null
+    private var lastDest: Place? = null
 
     private lateinit var swapBtn: MaterialButton
     private lateinit var locationBtn: MaterialButton
@@ -477,6 +477,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
 
     fun enableButtons(enable: Boolean) {
         binding.root.post {
+            originInput.view?.isEnabled = enable
+            destInput.view?.isEnabled = enable
             swapBtn.isEnabled = enable
             reloadBtn.isEnabled = enable
             locationBtn.isEnabled = enable

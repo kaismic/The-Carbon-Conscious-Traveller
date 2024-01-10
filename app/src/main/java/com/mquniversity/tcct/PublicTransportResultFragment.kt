@@ -43,6 +43,7 @@ class PublicTransportResultFragment: ResultFragment() {
         // return if the current start and end location is same as before
         if (!reload && areLocationsSameAsBefore()) {
             showPolylines()
+            mainActivity.enableButtons(true)
             return
         }
         super.update(reload)

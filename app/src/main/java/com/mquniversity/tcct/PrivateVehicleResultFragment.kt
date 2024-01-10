@@ -16,6 +16,7 @@ open class PrivateVehicleResultFragment: ResultFragment() {
     override fun update(reload: Boolean) {
         if (!reload && areLocationsSameAsBefore()) {
             showPolylines()
+            mainActivity.enableButtons(true)
             return
         }
         emissionTexts.clear()

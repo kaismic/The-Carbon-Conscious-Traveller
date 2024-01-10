@@ -33,7 +33,7 @@ abstract class ResultFragment: Fragment() {
     protected lateinit var rootScrollView: NestedScrollView
     protected lateinit var mainLayout: LinearLayout
 
-    private lateinit var mainActivity: MainActivity
+    protected lateinit var mainActivity: MainActivity
     protected lateinit var calculationValues: CalculationValues
 
     private var currOrigin: Place? = null

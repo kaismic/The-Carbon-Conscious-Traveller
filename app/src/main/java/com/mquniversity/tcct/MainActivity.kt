@@ -1,9 +1,12 @@
 package com.mquniversity.tcct
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -421,6 +424,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             else -> throw IllegalArgumentException("TransportSelection.currMode is in wrong state")
         }
         if (frag is ResultFragment) {
+            if (!isOnline(this)) {
+                Snackbar.make(
+                    binding.root,
+                    "Calculating requires network connection",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+                enableButtons(true)
+                return
+            }
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             frag.update(reload)
         } else {
@@ -491,6 +503,25 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             locationBtn.isEnabled = enable
             transportSelection.enableButtons(enable)
         }
+    }
+
+    private fun isOnline(context: Context): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
+        if (connectivityManager != null) {
+            val capabilities =
+                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+            if (capabilities != null) {
+                if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                    return true
+                } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                    return true
+                } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     override fun onMapReady(googleMap: GoogleMap) {

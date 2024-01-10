@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ProgressBar
-import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import com.google.android.gms.maps.model.Dot
@@ -28,6 +27,7 @@ import com.google.maps.model.TravelMode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.net.UnknownHostException
 
 abstract class ResultFragment: Fragment() {
     protected lateinit var rootScrollView: NestedScrollView
@@ -188,6 +188,7 @@ abstract class ResultFragment: Fragment() {
                 val response = request.await()
                 mainLayout.post {
                     mainLayout.removeAllViews()
+                    mainLayout.showDividers = LinearLayout.SHOW_DIVIDER_MIDDLE
                 }
                 currRoutes = response.routes
                 removePolylines()
@@ -208,36 +209,51 @@ abstract class ResultFragment: Fragment() {
                     highlightRoute(0)
                     highlightResult(0)
                 }
-            } catch (e: ApiException) {
+            } catch (e: Exception) {
+                if (e !is ApiException && e !is UnknownHostException) {
+                    throw e
+                }
                 val errorText = MaterialTextView(requireContext())
                 errorText.layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 ).apply {
+                    setMargins(0, 32, 0, 32)
                     gravity = Gravity.CENTER
                 }
+                val retryBtn = MaterialButton(requireContext())
+                retryBtn.layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    gravity = Gravity.CENTER
+                }
+                retryBtn.text = getString(R.string.try_again)
+                retryBtn.setOnClickListener {
+                    mainActivity.calculate(true)
+                }
                 mainLayout.post {
+                    mainLayout.showDividers = LinearLayout.SHOW_DIVIDER_NONE
                     mainLayout.removeAllViews()
                     mainLayout.addView(errorText)
-                    if (e !is ZeroResultsException) {
-                        val retryBtn = MaterialButton(ContextThemeWrapper(context, com.google.android.material.R.style.Widget_Material3_Button))
-                        retryBtn.layoutParams = LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.WRAP_CONTENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT
-                        ).apply {
-                            gravity = Gravity.CENTER
-                        }
-                        retryBtn.text = getString(R.string.try_again)
-                        retryBtn.setOnClickListener {
-                            mainActivity.calculate(true)
-                        }
-                        mainLayout.addView(retryBtn)
-                    }
                     when (e) {
-                        is ZeroResultsException -> errorText.text = getString(R.string.error_zero_results)
-                        is OverDailyLimitException -> errorText.text = getString(R.string.error_daily_limit_exceeded)
-                        is OverQueryLimitException -> errorText.text = getString(R.string.error_query_limit_exceeded)
-                        else -> errorText.text = getString(R.string.error_general)
+                        is ApiException -> {
+                            if (e !is ZeroResultsException) {
+                                mainLayout.addView(retryBtn)
+                            }
+                            when (e) {
+                                is ZeroResultsException -> errorText.text = getString(R.string.error_zero_results)
+                                is OverDailyLimitException -> errorText.text = getString(R.string.error_daily_limit_exceeded)
+                                is OverQueryLimitException -> errorText.text = getString(R.string.error_query_limit_exceeded)
+                                else -> errorText.text = getString(R.string.error_general)
+                            }
+                        }
+                        is UnknownHostException -> {
+                            errorText.text =
+                                "Could not calculate results due to network error.\n" +
+                                "Make sure you have a stable network connection."
+                            mainLayout.addView(retryBtn)
+                        }
                     }
                 }
             }

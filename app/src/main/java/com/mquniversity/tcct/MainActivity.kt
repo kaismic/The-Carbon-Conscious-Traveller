@@ -205,7 +205,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         // Set up a PlaceSelectionListener to handle the response.
         originInput.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
-                // don't show clear button i.e. disable it
+                // hide clear button i.e. disable it
                 val clearBtn = originInput.view?.findViewById(com.google.android.libraries.places.R.id.places_autocomplete_clear_button) as ImageButton
                 Timer().schedule(200) {
                     clearBtn.post {
@@ -237,7 +237,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         })
         destInput.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
-                // don't show clear button i.e. disable it
+                // hide clear button i.e. disable it
                 val clearBtn = destInput.view?.findViewById(com.google.android.libraries.places.R.id.places_autocomplete_clear_button) as ImageButton
                 Timer().schedule(200) {
                     clearBtn.post {
@@ -323,6 +323,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                         val curPlace = task.result.placeLikelihoods[0].place
                         origin = curPlace
                         originInput.setText(curPlace.address)
+                        // hide clear button i.e. disable it
+                        val clearBtn = originInput.view?.findViewById(com.google.android.libraries.places.R.id.places_autocomplete_clear_button) as ImageButton
+                        Timer().schedule(200) {
+                            clearBtn.post {
+                                clearBtn.visibility = View.GONE
+                            }
+                        }
                         calculate(false)
                     } else {
                         enableButtons(true)
@@ -486,15 +493,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         }
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     override fun onMapReady(googleMap: GoogleMap) {
         this.googleMap = googleMap
 

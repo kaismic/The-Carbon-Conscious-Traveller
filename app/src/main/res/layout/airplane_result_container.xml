@@ -24,6 +24,12 @@
         android:orientation="vertical"
         android:visibility="gone">
     </LinearLayout>
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/airplane_error_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textSize="24sp"/>
     <ProgressBar
         android:id="@+id/airplane_progress_bar"
         android:layout_width="wrap_content"

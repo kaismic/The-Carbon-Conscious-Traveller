@@ -25,6 +25,7 @@ import java.net.URL
 class AirplaneResultFragment(private val requestBody: RequestBody) : DialogFragment()  {
     private lateinit var root: LinearLayout
     private lateinit var resultLayout: LinearLayout
+    private lateinit var errorTextView: MaterialTextView
     private lateinit var progressBar: ProgressBar
     private lateinit var calAgainBtn: MaterialButton
 
@@ -54,6 +55,8 @@ class AirplaneResultFragment(private val requestBody: RequestBody) : DialogFragm
         (resultLayout[4] as MaterialTextView).text = "Premium Economy"
         (resultLayout[6] as MaterialTextView).text = "Economy"
 
+        errorTextView = root.findViewById(R.id.airplane_error_text)
+
         calAgainBtn = root.findViewById(R.id.calculate_again_button)
         calAgainBtn.setOnClickListener {
             showResult()
@@ -75,6 +78,7 @@ class AirplaneResultFragment(private val requestBody: RequestBody) : DialogFragm
             root.post {
                 calAgainBtn.isEnabled = false
                 resultLayout.visibility = View.GONE
+                errorTextView.visibility = View.GONE
                 progressBar.visibility = View.VISIBLE
             }
             var response: ResponseBody? = null
@@ -111,14 +115,22 @@ class AirplaneResultFragment(private val requestBody: RequestBody) : DialogFragm
                             CalculationUtils.formatEmissionWithCO2(response.flightEmissions[0].emissionsGramsPerPax?.premiumEconomy!!.toFloat(), false)
                         (resultLayout[7] as MaterialTextView).text =
                             CalculationUtils.formatEmissionWithCO2(response.flightEmissions[0].emissionsGramsPerPax?.economy!!.toFloat(), false)
+                        resultLayout.visibility = View.VISIBLE
+                    } else {
+                        errorTextView.text =
+                            "Could not retrieve CO2 emission information with the given flight details.\n" +
+                            "Possible reasons:\n" +
+                            "    - flight is unknown to the server\n" +
+                            "    - flight details are incorrectly entered"
+                        errorTextView.visibility = View.VISIBLE
                     }
                 } else {
-
+                    errorTextView.text =
+                        "There was an error whilst retrieving the information.\n" +
+                        "Please try again after a few seconds."
+                    errorTextView.visibility = View.VISIBLE
                 }
-
-                // TODO error and no result handling
                 progressBar.visibility = View.GONE
-                resultLayout.visibility = View.VISIBLE
                 calAgainBtn.isEnabled = true
             }
         }

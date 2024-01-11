@@ -64,6 +64,12 @@
                 android:layout_height="wrap_content"
                 app:icon="@android:drawable/ic_popup_sync"
                 app:iconSize="24dp" />
+            <TextView
+                android:id="@+id/privacy_link"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="bottom|center"
+                android:text="@string/privacy_link"/>
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
     <HorizontalScrollView android:id="@+id/transport_mode_selection"

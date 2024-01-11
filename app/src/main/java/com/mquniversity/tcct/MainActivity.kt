@@ -8,6 +8,7 @@ import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.View
 import android.widget.HorizontalScrollView
@@ -359,6 +360,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         bottomSheet = findViewById(R.id.bottom_sheet)
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
         bottomSheetBehavior.peekHeight = resources.displayMetrics.heightPixels / 8
+
+        val privacyLink: TextView = findViewById(R.id.privacy_link)
+        privacyLink.movementMethod = LinkMovementMethod.getInstance()
     }
 
     fun calculate(reload: Boolean) {

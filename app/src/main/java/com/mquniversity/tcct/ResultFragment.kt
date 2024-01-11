@@ -186,12 +186,11 @@ abstract class ResultFragment: Fragment() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = request.await()
-                mainLayout.post {
-                    mainLayout.removeAllViews()
-                    mainLayout.showDividers = LinearLayout.SHOW_DIVIDER_MIDDLE
-                }
-                currRoutes = response.routes
                 removePolylines()
+                currRoutes = response.routes
+                if (this@ResultFragment is PublicTransportResultFragment) {
+                    this@ResultFragment.fetchTransitIcons()
+                }
                 currPolylines = arrayOfNulls(currRoutes.size)
                 for (i in currRoutes.indices) {
                     currPolylines[i] = arrayOfNulls(currRoutes[i].legs[0].steps.size)
@@ -201,6 +200,7 @@ abstract class ResultFragment: Fragment() {
                 resultLayouts = arrayOfNulls(currRoutes.size)
                 selectionIndicators = arrayOfNulls(currRoutes.size)
                 mainLayout.post {
+                    mainLayout.removeAllViews()
                     val routeEmissions = FloatArray(currRoutes.size)
                     for (i in currRoutes.indices) {
                         routeEmissions[i] = insertRouteResult(i)
@@ -208,6 +208,7 @@ abstract class ResultFragment: Fragment() {
                     mainActivity.transportSelection.updateIcons(routeEmissions)
                     highlightRoute(0)
                     highlightResult(0)
+                    mainLayout.showDividers = LinearLayout.SHOW_DIVIDER_MIDDLE
                 }
             } catch (e: Exception) {
                 if (e !is ApiException && e !is UnknownHostException) {

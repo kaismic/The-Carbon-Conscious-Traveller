@@ -1,6 +1,7 @@
 package com.mquniversity.tcct
 
 import android.content.res.ColorStateList
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
@@ -14,16 +15,13 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.flexbox.FlexboxLayout
 import com.google.maps.model.TravelMode
 import com.google.maps.model.VehicleType
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.io.IOException
 import java.net.URL
 import java.time.format.DateTimeFormatter
 
 class PublicTransportResultFragment: ResultFragment() {
     private val timePattern = "h:mm a"
+    private val iconsMap: MutableMap<String, Bitmap> = mutableMapOf()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         travelMode = TravelMode.TRANSIT
@@ -36,6 +34,34 @@ class PublicTransportResultFragment: ResultFragment() {
         savedInstanceState: Bundle?
     ): View {
         return rootScrollView
+    }
+
+    fun fetchTransitIcons() {
+        for (route in currRoutes) {
+            val steps = route.legs[0].steps
+            for (step in steps) {
+                if (step.travelMode == TravelMode.TRANSIT) {
+                    for (i in 0 until 2) {
+                        val iconURL = if (i == 0) {
+                            step.transitDetails.line.vehicle.localIcon
+                        } else {
+                            step.transitDetails.line.vehicle.icon
+                        }
+                        if (!iconURL.isNullOrEmpty() && !iconsMap.containsKey(iconURL)) {
+                            val completeURL = "https:$iconURL"
+                            try {
+                                val bitmap = BitmapFactory.decodeStream(
+                                    URL(completeURL).openStream()
+                                )
+                                if (bitmap != null) {
+                                    iconsMap[iconURL] = bitmap
+                                }
+                            } catch (_: IOException) {}
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun update(reload: Boolean) {
@@ -113,19 +139,11 @@ class PublicTransportResultFragment: ResultFragment() {
                             iconURL = step.transitDetails.line.vehicle.icon
                         }
                         if (!iconURL.isNullOrEmpty()) {
-                            val completeURL = "https:$iconURL"
-                            val icon: ImageView = transitIconsContainer.findViewById(R.id.transit_icon)
-                            val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-                                throwable.printStackTrace()
+                            val bitmap = iconsMap[iconURL]
+                            if (bitmap != null) {
+                                transitIconsContainer.findViewById<ImageView>(R.id.transit_icon).setImageBitmap(bitmap)
                             }
-                            CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
-                                val bitmap = BitmapFactory.decodeStream(
-                                    URL(completeURL).openStream()
-                                )
-                                icon.post {
-                                    icon.setImageBitmap(bitmap)
-                                }
-                            }
+
                         }
                     } catch (e: IOException) {
                         e.printStackTrace()

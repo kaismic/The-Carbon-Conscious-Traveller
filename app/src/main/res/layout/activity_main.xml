@@ -1,119 +1,145 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.drawerlayout.widget.DrawerLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="?android:colorBackground">
-    <androidx.constraintlayout.widget.ConstraintLayout
+    tools:openDrawer="start">
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/input_origin"
-            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
-            android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@+id/input_dest"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintRight_toLeftOf="@+id/input_buttons" />
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/input_dest"
-            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/input_origin"
-            app:layout_constraintRight_toLeftOf="@+id/input_buttons"/>
-        <androidx.constraintlayout.widget.Barrier
-            android:id="@+id/input_barrier"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:barrierDirection="right"
-            app:constraint_referenced_ids="input_origin,input_dest" />
-        <LinearLayout
-            android:id="@+id/input_buttons"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/input_barrier"
-            app:layout_constraintTop_toTopOf="parent">
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/current_location_button"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:icon="@android:drawable/ic_menu_mylocation"
-                app:iconSize="24dp" />
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/location_swap_button"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:icon="@drawable/outline_swap_vert_24"
-                app:iconSize="24dp" />
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/reload_button"
-                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:icon="@android:drawable/ic_popup_sync"
-                app:iconSize="24dp" />
-            <TextView
-                android:id="@+id/privacy_link"
+            android:fitsSystemWindows="true">
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/activity_toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="bottom|center"
-                android:text="@string/privacy_link"/>
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-    <HorizontalScrollView android:id="@+id/transport_mode_selection"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"/>
-    <RelativeLayout android:id="@+id/map_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <androidx.fragment.app.FragmentContainerView android:id="@+id/map"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_height="wrap_content"
+                android:minHeight="?attr/actionBarSize"
+                app:title="@string/app_name"
+                app:navigationIcon="@drawable/outline_menu_24"
+                />
+        </com.google.android.material.appbar.AppBarLayout>
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context=".MainActivity" />
-        <androidx.coordinatorlayout.widget.CoordinatorLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <LinearLayout android:id="@+id/bottom_sheet"
+            android:orientation="vertical"
+            android:background="?android:colorBackground"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                style="@style/Widget.Material3.BottomSheet"
-                app:layout_behavior="@string/bottom_sheet_behavior"
-                app:behavior_hideable="false">
-                <com.google.android.material.bottomsheet.BottomSheetDragHandleView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content">
                 <androidx.fragment.app.FragmentContainerView
-                    android:id="@+id/fragment_container"
-                    android:layout_width="match_parent"
+                    android:id="@+id/input_origin"
+                    android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="16dp">
-                </androidx.fragment.app.FragmentContainerView>
-                <TextView
-                    android:id="@+id/helper_text"
+                    app:layout_constraintBottom_toTopOf="@+id/input_dest"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toLeftOf="@+id/input_buttons" />
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/input_dest"
+                    android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/input_origin"
+                    app:layout_constraintRight_toLeftOf="@+id/input_buttons"/>
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/input_barrier"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/helper_text"
-                    android:textSize="18sp"
-                    android:alpha="0.5"/>
-            </LinearLayout>
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
-    </RelativeLayout>
-</LinearLayout>
+                    app:barrierDirection="right"
+                    app:constraint_referenced_ids="input_origin,input_dest" />
+                <LinearLayout
+                    android:id="@+id/input_buttons"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/input_barrier"
+                    app:layout_constraintTop_toTopOf="parent">
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/current_location_button"
+                        style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:icon="@android:drawable/ic_menu_mylocation"
+                        app:iconSize="24dp" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/location_swap_button"
+                        style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:icon="@drawable/outline_swap_vert_24"
+                        app:iconSize="24dp" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/reload_button"
+                        style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:icon="@android:drawable/ic_popup_sync"
+                        app:iconSize="24dp" />
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+            <HorizontalScrollView android:id="@+id/transport_mode_selection"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"/>
+            <RelativeLayout android:id="@+id/map_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <androidx.fragment.app.FragmentContainerView android:id="@+id/map"
+                    android:name="com.google.android.gms.maps.SupportMapFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    />
+                <androidx.coordinatorlayout.widget.CoordinatorLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <LinearLayout android:id="@+id/bottom_sheet"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        style="@style/Widget.Material3.BottomSheet"
+                        app:layout_behavior="@string/bottom_sheet_behavior"
+                        app:behavior_hideable="false">
+                        <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+                        <androidx.fragment.app.FragmentContainerView
+                            android:id="@+id/fragment_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingLeft="16dp"
+                            android:paddingRight="16dp">
+                        </androidx.fragment.app.FragmentContainerView>
+                        <TextView
+                            android:id="@+id/helper_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/helper_text"
+                            android:textSize="18sp"
+                            android:alpha="0.5"/>
+                    </LinearLayout>
+                </androidx.coordinatorlayout.widget.CoordinatorLayout>
+            </RelativeLayout>
+        </LinearLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/sidebar_navigation_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:menu="@menu/navigation_drawer"
+        >
+    </com.google.android.material.navigation.NavigationView>
+</androidx.drawerlayout.widget.DrawerLayout>
 

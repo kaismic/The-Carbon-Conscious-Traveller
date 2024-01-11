@@ -2,19 +2,18 @@ package com.mquniversity.tcct
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.Uri
 import android.os.Bundle
-import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.View
-import android.widget.HorizontalScrollView
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -55,7 +54,6 @@ import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.maps.GeoApiContext
 import com.google.maps.model.EncodedPolyline
@@ -113,11 +111,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     private var lastOrigin: Place? = null
     private var lastDest: Place? = null
 
-    private lateinit var swapBtn: MaterialButton
-    private lateinit var locationBtn: MaterialButton
-    private lateinit var reloadBtn: MaterialButton
-
-    private lateinit var bottomSheet: LinearLayout
     lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
 
     lateinit var transportSelection: TransportSelection
@@ -125,24 +118,36 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
 
     lateinit var calculationValues: CalculationValues
 
-    private var helperText: TextView? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setSupportActionBar(binding.activityToolbar)
+        binding.activityToolbar.setNavigationOnClickListener {
+            binding.root.open()
+        }
+        binding.sidebarNavigationView.setNavigationItemSelectedListener {
+            when (it.itemId) {
+                R.id.item_privacy -> startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.privacy_link))))
+                else -> {}
+            }
+            return@setNavigationItemSelectedListener false
+        }
 
         calculationValues = CalculationValues(this)
 
         // add TransportSelectionLayout to the transport_mode_selection view (HorizontalScrollView)
-        val transportSelectionView: HorizontalScrollView = findViewById(R.id.transport_mode_selection)
         transportSelection = TransportSelection(this)
-        transportSelectionView.addView(transportSelection)
+        binding.transportModeSelection.addView(transportSelection)
 
         backPressedHandler = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 val currFrag = supportFragmentManager.findFragmentById(R.id.fragment_container)
+                if (binding.root.isOpen) {
+                    binding.root.close()
+                    return
+                }
                 if (currFrag == null) {
                     finish()
                     return
@@ -164,7 +169,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                                 supportFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_query))!!)
                             .commit()
                     }
-                    else -> finish()
+                    else -> {
+                        if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_COLLAPSED) {
+                            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                        } else {
+                            finish()
+                        }
+                    }
                 }
             }
         }
@@ -204,7 +215,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         destInput.setHint(getString(R.string.hint_input_dest))
 
         // Specify the types of place data to return.
-        val fields = listOf(Place.Field.ADDRESS, Place.Field.NAME, Place.Field.LAT_LNG)
+        val fields = listOf(Place.Field.NAME, Place.Field.LAT_LNG)
         originInput.setPlaceFields(fields)
         destInput.setPlaceFields(fields)
 
@@ -218,7 +229,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                         clearBtn.visibility = View.GONE
                     }
                 }
-                if (dest != null && place.address == dest?.address) {
+                if (dest != null && place.latLng == dest?.latLng) {
                     // delay is needed probably because after fetching the Place
                     // with the API, the AutocompleteSupportFragment sets the text to the place name.
                     // and since this API request is asynchronous and takes time,
@@ -232,9 +243,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                     return
                 }
                 origin = place
-                Timer().schedule(100) {
-                    originInput.setText(place.address)
-                }
                 calculate(false)
             }
             override fun onError(status: Status) {
@@ -250,7 +258,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                         clearBtn.visibility = View.GONE
                     }
                 }
-                if (origin != null && place.address == origin?.address) {
+                if (origin != null && place.latLng == origin?.latLng) {
                     Timer().schedule(100) {
                         destInput.setText(null)
                     }
@@ -260,9 +268,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                     return
                 }
                 dest = place
-                Timer().schedule(100) {
-                    destInput.setText(place.address)
-                }
                 calculate(false)
             }
             override fun onError(status: Status) {
@@ -284,8 +289,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             }
         }
 
-        swapBtn = findViewById(R.id.location_swap_button)
-        swapBtn.setOnClickListener {
+        binding.locationSwapButton.setOnClickListener {
             if (origin == null && dest == null) {
                 return@setOnClickListener
             }
@@ -294,19 +298,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             val prevDest = dest
             origin = prevDest
             dest = prevOrigin
-            originInput.setText(prevDest?.address)
-            destInput.setText(prevOrigin?.address)
+            originInput.setText(prevDest?.name)
+            destInput.setText(prevOrigin?.name)
             calculate(false)
         }
 
-        reloadBtn = findViewById(R.id.reload_button)
-        reloadBtn.setOnClickListener {
+        binding.reloadButton.setOnClickListener {
             enableButtons(false)
             calculate(true)
         }
 
-        locationBtn = findViewById(R.id.current_location_button)
-        locationBtn.setOnClickListener {
+        binding.currentLocationButton.setOnClickListener {
             enableButtons(false)
             // https:/developers.google.com/maps//documentation/android-sdk/current-place-tutorial
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
@@ -325,9 +327,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                     ).show()
                     return@setOnClickListener
                 }
-                val request = FindCurrentPlaceRequest.newInstance(
-                    listOf(Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG)
-                )
+                val request = FindCurrentPlaceRequest.newInstance(fields)
                 Snackbar.make(
                     binding.root,
                     "Retrieving current location...",
@@ -338,7 +338,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                     if (task.isSuccessful && task.result != null) {
                         val curPlace = task.result.placeLikelihoods[0].place
                         origin = curPlace
-                        originInput.setText(curPlace.address)
+                        originInput.setText(curPlace.name)
                         // hide clear button i.e. disable it
                         val clearBtn = originInput.view?.findViewById(com.google.android.libraries.places.R.id.places_autocomplete_clear_button) as ImageButton
                         Timer().schedule(200) {
@@ -356,13 +356,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             }
         }
 
-        helperText = findViewById(R.id.helper_text)
-        bottomSheet = findViewById(R.id.bottom_sheet)
-        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
+        bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         bottomSheetBehavior.peekHeight = resources.displayMetrics.heightPixels / 8
-
-        val privacyLink: TextView = findViewById(R.id.privacy_link)
-        privacyLink.movementMethod = LinkMovementMethod.getInstance()
     }
 
     fun calculate(reload: Boolean) {
@@ -377,9 +372,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         lastDest = dest
         enableButtons(false)
         // remove help text at the first call
-        if (helperText != null) {
-            bottomSheet.removeView(helperText)
-            helperText = null
+        if (binding.helperText.isAttachedToWindow) {
+            binding.bottomSheet.removeView(binding.helperText)
         }
 
         moveMarkers()
@@ -514,9 +508,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         binding.root.post {
             originInput.view?.isEnabled = enable
             destInput.view?.isEnabled = enable
-            swapBtn.isEnabled = enable
-            reloadBtn.isEnabled = enable
-            locationBtn.isEnabled = enable
+            binding.locationSwapButton.isEnabled = enable
+            binding.reloadButton.isEnabled = enable
+            binding.currentLocationButton.isEnabled = enable
             transportSelection.enableButtons(enable)
         }
     }

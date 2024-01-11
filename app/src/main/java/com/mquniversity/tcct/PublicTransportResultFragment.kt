@@ -11,7 +11,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.res.ResourcesCompat
 import com.google.android.flexbox.FlexboxLayout
 import com.google.maps.model.TravelMode
 import com.google.maps.model.VehicleType
@@ -96,13 +95,18 @@ class PublicTransportResultFragment: ResultFragment() {
                         VehicleType.CABLE_CAR -> calculationValues.cableCarValue
                         else -> 0f
                     }
-                    totalEmissionInGram += step.distance.inMeters * factor
+                    val stepEmission = step.distance.inMeters * factor
+                    totalEmissionInGram += stepEmission
 
                     val transitIconsContainer: ConstraintLayout = layoutInflater.inflate(
                         R.layout.transit_icons_container,
                         stepsIconContainer,
                         false
                     ) as ConstraintLayout
+                    transitIconsContainer.layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
                     try {
                         var iconURL = step.transitDetails.line.vehicle.localIcon
                         if (iconURL.isNullOrEmpty()) {
@@ -128,19 +132,15 @@ class PublicTransportResultFragment: ResultFragment() {
                     }
                     val shortNameText = step.transitDetails.line.shortName
                     if (!shortNameText.isNullOrEmpty()) {
-                        val shortName: TextView = transitIconsContainer.findViewById(R.id.short_name)
+                        val shortName: TextView = transitIconsContainer.findViewById(R.id.transit_short_name)
                         shortName.apply {
-                            background = ResourcesCompat.getDrawable(
-                                resources,
-                                R.drawable.transport_short_name_shape,
-                                context.theme
-                            )
-                            setLines(1)
                             text = shortNameText
                             setTextColor(Color.parseColor(step.transitDetails.line.textColor))
                             backgroundTintList = ColorStateList.valueOf(Color.parseColor(step.transitDetails.line.color))
                         }
                     }
+                    val stepEmissionText: TextView = transitIconsContainer.findViewById(R.id.transit_step_emission)
+                    stepEmissionText.text = CalculationUtils.formatEmission(stepEmission)
                     stepsIconContainer.addView(transitIconsContainer)
                 }
                 TravelMode.WALKING -> {

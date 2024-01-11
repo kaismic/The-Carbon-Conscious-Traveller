@@ -171,8 +171,8 @@ abstract class ResultFragment: Fragment() {
 
     protected fun areLocationsSameAsBefore(): Boolean {
         return (currOrigin != null && currDest != null
-                && mainActivity.origin?.address == currOrigin?.address
-                && mainActivity.dest?.address == currDest?.address)
+                && mainActivity.origin?.latLng == currOrigin?.latLng
+                && mainActivity.dest?.latLng == currDest?.latLng)
     }
 
     open fun update(reload: Boolean) {

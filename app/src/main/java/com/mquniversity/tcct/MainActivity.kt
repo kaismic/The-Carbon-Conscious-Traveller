@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.IntentSender
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle
@@ -18,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.core.content.ContextCompat
+import androidx.core.location.LocationManagerCompat
 import androidx.fragment.app.Fragment
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.common.api.Status
@@ -67,6 +69,7 @@ import kotlin.concurrent.schedule
 /**
  * location bias radius for search result suggestion. Value range: [0 - 50000] in meters
  */
+@Suppress("unused")
 private const val BIAS_RADIUS: Double = 5000.0
 private const val DEFAULT_ZOOM = 15f
 
@@ -311,12 +314,22 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED
             ) {
+                val locationManager = this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                if (!LocationManagerCompat.isLocationEnabled(locationManager)) {
+                    enableButtons(true)
+                    Snackbar.make(
+                        binding.root,
+                        "Location needs to be enabled to retrieve current location",
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                    return@setOnClickListener
+                }
                 val request = FindCurrentPlaceRequest.newInstance(
                     listOf(Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG)
                 )
                 Snackbar.make(
                     binding.root,
-                    "Fetching current location...",
+                    "Retrieving current location...",
                     Snackbar.LENGTH_SHORT
                 ).show()
                 val placeResult = placesClient.findCurrentPlace(request)

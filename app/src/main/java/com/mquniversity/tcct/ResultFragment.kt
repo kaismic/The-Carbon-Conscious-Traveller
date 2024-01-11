@@ -23,6 +23,7 @@ import com.google.maps.errors.OverDailyLimitException
 import com.google.maps.errors.OverQueryLimitException
 import com.google.maps.errors.ZeroResultsException
 import com.google.maps.model.DirectionsRoute
+import com.google.maps.model.LatLng
 import com.google.maps.model.TravelMode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -180,9 +181,12 @@ abstract class ResultFragment: Fragment() {
         val progressBar = ProgressBar(context)
         mainLayout.addView(progressBar)
 
-        val request = DirectionsApi.getDirections(mainActivity.geoApiContext, mainActivity.origin?.address, mainActivity.dest?.address)
+        val request = DirectionsApi.newRequest(mainActivity.geoApiContext)
+            .origin(LatLng(mainActivity.origin?.latLng!!.latitude, mainActivity.origin?.latLng!!.longitude))
+            .destination(LatLng(mainActivity.dest?.latLng!!.latitude, mainActivity.dest?.latLng!!.longitude))
             .mode(travelMode)
             .alternatives(true)
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = request.await()

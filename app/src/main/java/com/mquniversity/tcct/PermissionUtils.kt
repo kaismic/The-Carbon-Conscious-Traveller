@@ -61,10 +61,6 @@ object PermissionUtils {
         override fun onDismiss(dialog: DialogInterface) {
             super.onDismiss(dialog)
             if (finishActivity) {
-                Toast.makeText(
-                    activity, R.string.location_permission_required,
-                    Toast.LENGTH_SHORT
-                ).show()
                 activity?.finish()
             }
         }
@@ -87,7 +83,7 @@ object PermissionUtils {
             finishActivity =
                 arguments?.getBoolean(ARGUMENT_FINISH_ACTIVITY) ?: false
             return AlertDialog.Builder(activity)
-                .setMessage(R.string.permission_rationale_location)
+                .setMessage(R.string.location_permission_required)
                 .setPositiveButton(android.R.string.ok) { _, _ -> // After click on Ok, request the permission.
                     ActivityCompat.requestPermissions(
                         requireActivity(),

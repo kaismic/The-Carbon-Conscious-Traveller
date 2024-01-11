@@ -64,6 +64,11 @@ class AirplaneResultFragment(private val requestBody: RequestBody) : DialogFragm
         progressBar = root.findViewById(R.id.airplane_progress_bar)
     }
 
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

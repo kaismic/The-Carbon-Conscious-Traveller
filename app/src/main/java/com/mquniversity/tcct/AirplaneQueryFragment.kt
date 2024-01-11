@@ -9,7 +9,6 @@ import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
@@ -69,11 +68,7 @@ class AirplaneQueryFragment : DialogFragment() {
             calBtn.isEnabled = false
             // disable all inputLayouts to remove focus in case if user was editing text
             inputLayouts.map { it.isEnabled = false }
-            parentFragmentManager.beginTransaction()
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .replace(android.R.id.content, AirplaneResultFragment(getRequestBody()))
-                .addToBackStack(null)
-                .commit()
+            AirplaneResultFragment(getRequestBody()).show(parentFragmentManager, null)
             inputLayouts.map { it.isEnabled = true }
             calBtn.isEnabled = true
         }
@@ -111,6 +106,11 @@ class AirplaneQueryFragment : DialogFragment() {
             departureDate.time = java.util.Date(datePicker.selection!!)
             departureDateEdittext.setText(dateFormat.format(datePicker.selection!!))
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
     }
 
     override fun onCreateView(

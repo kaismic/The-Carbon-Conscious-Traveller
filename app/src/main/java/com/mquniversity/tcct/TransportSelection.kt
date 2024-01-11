@@ -4,7 +4,6 @@ import android.content.Context
 import android.view.ViewGroup
 import android.widget.RadioGroup
 import androidx.core.content.res.ResourcesCompat
-import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.radiobutton.MaterialRadioButton
 
@@ -57,11 +56,7 @@ class TransportSelection(mainActivityContext: Context): RadioGroup(mainActivityC
         ) as MaterialButton
         this.addView(airplaneBtn)
         airplaneBtn.setOnClickListener {
-            mainActivity.supportFragmentManager.beginTransaction()
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .replace(android.R.id.content, AirplaneQueryFragment())
-                .addToBackStack(null)
-                .commit()
+            AirplaneQueryFragment().show(mainActivity.supportFragmentManager, null)
         }
         // set initial selection
         radioBtns[currMode.ordinal].isChecked = true

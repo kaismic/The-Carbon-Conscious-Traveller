@@ -2,7 +2,6 @@ package com.mquniversity.tcct
 
 import android.Manifest
 import android.content.Context
-import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
@@ -552,7 +551,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED
         ) {
-            // Priority.PRIORITY_HIGH_ACCURACY is needed let the SettingsClient to know
+            // Priority.PRIORITY_HIGH_ACCURACY is needed to notify SettingsClient
             // that it needs to notify the user to enable location
             val locationRequest = LocationRequest.create()
             locationRequest.priority = Priority.PRIORITY_HIGH_ACCURACY
@@ -667,22 +666,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             // Permission was denied. Display an error message
             // Display the missing permission error dialog when the fragments resume.
             permissionDenied = true
-        }
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CHECK_SETTINGS) {
-            if (resultCode == RESULT_OK) {
-                enableMyLocation()
-            } else {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.location_required),
-                    Snackbar.LENGTH_SHORT
-                ).show()
-            }
         }
     }
 

@@ -5,10 +5,9 @@
     <string name="hint_input_origin">Choose a start location</string>
     <string name="hint_input_dest">Choose destination</string>
 
-    <string name="permission_rationale_location">Access to the location service is required to show your current location on the map</string>
-    <string name="location_permission_denied">This app requires location permission to use current location as start or end location</string>
-    <string name="location_permission_required">Location permission is required to use current location as start or end location</string>
-    <string name="location_required">Turn on the location to use current location as start or end location</string>
+    <string name="location_permission_denied">This app requires location permission to use current location as start location</string>
+    <string name="location_permission_required">Location permission is required to use current location as start location</string>
+    <string name="location_required">Turn on the location to use current location as start location</string>
 
     <string name="warning_same_location">Cannot use same start location and destination</string>
     <string name="helper_text">Start by entering a start and end location</string>

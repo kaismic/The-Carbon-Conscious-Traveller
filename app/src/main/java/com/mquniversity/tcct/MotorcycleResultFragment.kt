@@ -25,7 +25,7 @@ class MotorcycleResultFragment(private val motorcycleSize: String): PrivateVehic
     fun updateFactor(motorcycleSize: String) {
         factor = calculationValues.motorcycleValueMap[motorcycleSize]!!
         for (i in currRoutes.indices) {
-            emissionTexts[i].text = CalculationUtils.calculateByDistance(currRoutes[i].legs[0].distance.inMeters, factor)
+            emissionTexts[i].text = CalculationUtils.formatEmission(currRoutes[i].legs[0].distance.inMeters * factor)
             distTexts[i].text = currRoutes[i].legs[0].distance.humanReadable
             durationTexts[i].text = currRoutes[i].legs[0].duration.humanReadable
         }

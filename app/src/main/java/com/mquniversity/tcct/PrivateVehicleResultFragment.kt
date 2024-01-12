@@ -45,19 +45,13 @@ open class PrivateVehicleResultFragment: ResultFragment() {
                         context?.theme
                     )
                 )
-                setColorFilter(
-                    resources.getColor(
-                        R.color.text_color,
-                        context?.theme
-                    )
-                )
             }
 
         val summaryText: TextView = resultLayout.findViewById(R.id.summary_text)
         summaryText.text = getString(R.string.summary_text, route.summary)
 
         val emissionText: TextView = resultLayout.findViewById(R.id.emission_text)
-        emissionText.text = CalculationUtils.calculateByDistance(route.legs[0].distance.inMeters, factor)
+        emissionText.text = CalculationUtils.formatEmission(route.legs[0].distance.inMeters * factor)
         val distText: TextView = resultLayout.findViewById(R.id.distance_text)
         distText.text = route.legs[0].distance.humanReadable
         val durationText: TextView = resultLayout.findViewById(R.id.duration_text)

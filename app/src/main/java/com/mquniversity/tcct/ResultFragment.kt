@@ -6,10 +6,12 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
+import com.google.android.flexbox.FlexboxLayout
 import com.google.android.gms.maps.model.Dot
 import com.google.android.gms.maps.model.Gap
 import com.google.android.gms.maps.model.Polyline
@@ -132,22 +134,7 @@ abstract class ResultFragment: Fragment() {
 
         mainLayout.addView(resultLayouts[idx])
 
-        // insert selection indicator
-        val selectionIndicator = View(context)
-        selectionIndicators[idx] = selectionIndicator
-        selectionIndicator.layoutParams = LinearLayout.LayoutParams(
-            0,
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            0.0625f
-        ).apply {
-            setMargins(0, 0, 16, 0)
-        }
-        selectionIndicator.setBackgroundResource(
-            com.google.android.material.R.color.design_default_color_primary
-        )
-        selectionIndicator.visibility = View.INVISIBLE
-
-        resultLayouts[idx]?.addView(selectionIndicator, 0)
+        selectionIndicators[idx] = resultLayouts[idx]?.findViewById(R.id.selection_indicator)
 
         resultLayouts[idx]?.setOnClickListener {
             if (currSelectedResultLayout === resultLayouts[idx]) {
@@ -173,6 +160,29 @@ abstract class ResultFragment: Fragment() {
         return (currOrigin != null && currDest != null
                 && mainActivity.origin?.latLng == currOrigin?.latLng
                 && mainActivity.dest?.latLng == currDest?.latLng)
+    }
+
+    private fun updateTreeIcons(routeEmissions: FloatArray) {
+        val noDupSorted = routeEmissions.distinct().sortedDescending()
+        val treeNumMap = mutableMapOf<Float, Int>()
+        for (i in noDupSorted.indices) {
+            treeNumMap[noDupSorted[i]] = i + 1
+        }
+        for (i in routeEmissions.indices) {
+            val treeNum = treeNumMap[routeEmissions[i]]!!
+            val treeContainer = resultLayouts[i]?.findViewById<FlexboxLayout>(R.id.tree_container)!!
+            repeat(treeNum) {
+                treeContainer.addView(
+                    ImageView(context).apply {
+                        setImageResource(R.drawable.tree2)
+                        layoutParams = FlexboxLayout.LayoutParams(
+                            48,
+                            48
+                        )
+                    }
+                )
+            }
+        }
     }
 
     open fun update(reload: Boolean) {
@@ -209,6 +219,7 @@ abstract class ResultFragment: Fragment() {
                     for (i in currRoutes.indices) {
                         routeEmissions[i] = insertRouteResult(i)
                     }
+                    updateTreeIcons(routeEmissions)
                     mainActivity.transportSelection.updateIcons(routeEmissions)
                     highlightRoute(0)
                     highlightResult(0)

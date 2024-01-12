@@ -327,7 +327,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                     ).show()
                     return@setOnClickListener
                 }
-                val request = FindCurrentPlaceRequest.newInstance(fields)
+                val request = FindCurrentPlaceRequest.newInstance(
+                    listOf(Place.Field.LAT_LNG, Place.Field.ADDRESS, Place.Field.NAME)
+                )
                 Snackbar.make(
                     binding.root,
                     "Retrieving current location...",
@@ -338,7 +340,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                     if (task.isSuccessful && task.result != null) {
                         val curPlace = task.result.placeLikelihoods[0].place
                         origin = curPlace
-                        originInput.setText(curPlace.name)
+                        originInput.setText(curPlace.address)
                         // hide clear button i.e. disable it
                         val clearBtn = originInput.view?.findViewById(com.google.android.libraries.places.R.id.places_autocomplete_clear_button) as ImageButton
                         Timer().schedule(200) {

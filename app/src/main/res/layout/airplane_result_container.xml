@@ -4,12 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:fitsSystemWindows="true"
     android:background="?android:colorBackground"
-    android:padding="16dp"
+    android:padding="24dp"
     android:clickable="true">
     <com.google.android.material.textview.MaterialTextView
-        android:text="@string/airplane"
+        android:text="Estimated CO2 Emissions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="32sp"/>

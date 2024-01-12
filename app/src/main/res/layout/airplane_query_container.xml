@@ -1,112 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:fitsSystemWindows="true"
     android:background="?android:colorBackground"
-    android:padding="16dp"
     android:clickable="true">
-    <com.google.android.material.textview.MaterialTextView
-        android:text="@string/airplane"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="32sp"/>
-    <Space
-        android:layout_width="0dp"
-        android:layout_height="16dp">
-    </Space>
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/origin_airport_input_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:endIconMode="clear_text"
-        app:errorEnabled="true"
-        app:counterEnabled="true"
-        app:counterMaxLength="3"
-        android:hint="Departure airport code, e.g. LHR.">
-        <com.google.android.material.textfield.TextInputEditText
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="24dp"
+        >
+        <com.google.android.material.textview.MaterialTextView
+            android:text="@string/airplane"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textCapCharacters|textNoSuggestions"
-            android:textAllCaps="true"
-            />
-    </com.google.android.material.textfield.TextInputLayout>
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/dest_airport_input_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:endIconMode="clear_text"
-        app:errorEnabled="true"
-        app:counterEnabled="true"
-        app:counterMaxLength="3"
-        android:hint="Destination airport code, e.g. JFK.">
-        <com.google.android.material.textfield.TextInputEditText
+            android:textSize="32sp"/>
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="16dp">
+        </Space>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/origin_airport_input_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textCapCharacters|textNoSuggestions"
-            android:textAllCaps="true"
-            />
-    </com.google.android.material.textfield.TextInputLayout>
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/airline_input_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:endIconMode="clear_text"
-        app:errorEnabled="true"
-        app:counterEnabled="true"
-        app:counterMaxLength="2"
-        android:hint="Airline/carrier code, e.g. 4Y.">
-        <com.google.android.material.textfield.TextInputEditText
+            app:endIconMode="clear_text"
+            app:errorEnabled="true"
+            app:counterEnabled="true"
+            app:counterMaxLength="3"
+            android:hint="Departure airport code, e.g. LHR.">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapCharacters|textNoSuggestions"
+                android:textAllCaps="true"
+                android:imeOptions="actionNext"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/dest_airport_input_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textCapCharacters|textNoSuggestions"
-            android:textAllCaps="true"
-            />
-    </com.google.android.material.textfield.TextInputLayout>
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/flight_number_input_layout"
-
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:endIconMode="clear_text"
-        app:errorEnabled="true"
-        app:counterEnabled="true"
-        app:counterMaxLength="4"
-        android:hint="Flight Number">
-        <com.google.android.material.textfield.TextInputEditText
+            app:endIconMode="clear_text"
+            app:errorEnabled="true"
+            app:counterEnabled="true"
+            app:counterMaxLength="3"
+            android:hint="Destination airport code, e.g. JFK.">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapCharacters|textNoSuggestions"
+                android:textAllCaps="true"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/airline_input_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="number"
-            />
-    </com.google.android.material.textfield.TextInputLayout>
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/departure_date_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Departure Date">
-        <com.google.android.material.textfield.TextInputEditText
+            app:endIconMode="clear_text"
+            app:errorEnabled="true"
+            app:counterEnabled="true"
+            app:counterMaxLength="2"
+            android:hint="Airline/carrier code, e.g. 4Y.">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapCharacters|textNoSuggestions"
+                android:textAllCaps="true"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/flight_number_input_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clickable="false"
-            android:cursorVisible="false"
-            android:focusable="false"
-            android:focusableInTouchMode="false"
+            app:endIconMode="clear_text"
+            app:errorEnabled="true"
+            app:counterEnabled="true"
+            app:counterMaxLength="4"
+            android:hint="Flight Number">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/departure_date_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Departure Date">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="16dp">
+        </Space>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/calculate_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/calculate"
+            android:enabled="false"
+            android:layout_gravity="center_horizontal"
             />
-    </com.google.android.material.textfield.TextInputLayout>
-    <Space
-        android:layout_width="0dp"
-        android:layout_height="16dp">
-    </Space>
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/calculate_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/calculate"
-        android:enabled="false"
-        android:layout_gravity="center_horizontal"
-        />
-
-</LinearLayout>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

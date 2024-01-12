@@ -5,8 +5,8 @@ import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.button.MaterialButton
@@ -19,7 +19,7 @@ import java.util.Calendar
 class AirplaneQueryFragment : DialogFragment() {
     private lateinit var backPressedCallback: OnBackPressedCallback
 
-    private lateinit var root: LinearLayout
+    private lateinit var root: CoordinatorLayout
     private lateinit var inputLayouts: Array<TextInputLayout>
     private val regexes = arrayOf(
         Regex("^[a-zA-Z]{3}$"),
@@ -53,7 +53,7 @@ class AirplaneQueryFragment : DialogFragment() {
             R.layout.airplane_query_container,
             null,
             false
-        ) as LinearLayout
+        ) as CoordinatorLayout
         inputLayouts = arrayOf(
             root.findViewById(R.id.origin_airport_input_layout),
             root.findViewById(R.id.dest_airport_input_layout),
@@ -106,11 +106,6 @@ class AirplaneQueryFragment : DialogFragment() {
             departureDate.time = java.util.Date(datePicker.selection!!)
             departureDateEdittext.setText(dateFormat.format(datePicker.selection!!))
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
     }
 
     override fun onCreateView(

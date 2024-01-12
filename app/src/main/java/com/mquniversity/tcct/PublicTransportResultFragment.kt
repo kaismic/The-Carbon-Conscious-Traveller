@@ -92,9 +92,13 @@ class PublicTransportResultFragment: ResultFragment() {
         durationText.text = route.legs[0].duration.humanReadable
 
         val timeTextView: TextView = resultLayout.findViewById(R.id.departure_arrival_time)
-        val departureTimeText = route.legs[0].departureTime.format(DateTimeFormatter.ofPattern(timePattern))
-        val arrivalTimeText = route.legs[0].arrivalTime.format(DateTimeFormatter.ofPattern(timePattern))
-        timeTextView.text = getString(R.string.departure_arrival_time, departureTimeText, arrivalTimeText)
+        val depTime = route.legs[0].departureTime
+        val arrivalTime = route.legs[0].arrivalTime
+        if (depTime != null && arrivalTime != null) {
+            val departureTimeText = depTime.format(DateTimeFormatter.ofPattern(timePattern))
+            val arrivalTimeText = arrivalTime.format(DateTimeFormatter.ofPattern(timePattern))
+            timeTextView.text = getString(R.string.departure_arrival_time, departureTimeText, arrivalTimeText)
+        }
 
         val stepsIconContainer: FlexboxLayout = resultLayout.findViewById(R.id.steps_icon_container)
         val steps = route.legs[0].steps

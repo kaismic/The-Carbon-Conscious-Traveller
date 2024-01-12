@@ -110,6 +110,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
     private var destMarker: Marker? = null
     private var lastOrigin: Place? = null
     private var lastDest: Place? = null
+    private lateinit var originInputClearBtn: ImageButton
+    private lateinit var destInputClearBtn: ImageButton
 
     lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
 
@@ -223,10 +225,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         originInput.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
                 // hide clear button i.e. disable it
-                val clearBtn = originInput.view?.findViewById(com.google.android.libraries.places.R.id.places_autocomplete_clear_button) as ImageButton
-                Timer().schedule(200) {
-                    clearBtn.post {
-                        clearBtn.visibility = View.GONE
+                Timer().schedule(50) {
+                    originInputClearBtn.post {
+                        originInputClearBtn.visibility = View.GONE
                     }
                 }
                 if (dest != null && place.latLng == dest?.latLng) {
@@ -234,7 +235,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                     // with the API, the AutocompleteSupportFragment sets the text to the place name.
                     // and since this API request is asynchronous and takes time,
                     // originInput.setText(null) is overwritten after the Place is fetched.
-                    Timer().schedule(100) {
+                    Timer().schedule(50) {
                         originInput.setText(null)
                     }
                     Snackbar
@@ -252,14 +253,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         destInput.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
                 // hide clear button i.e. disable it
-                val clearBtn = destInput.view?.findViewById(com.google.android.libraries.places.R.id.places_autocomplete_clear_button) as ImageButton
-                Timer().schedule(200) {
-                    clearBtn.post {
-                        clearBtn.visibility = View.GONE
+                Timer().schedule(50) {
+                    destInputClearBtn.post {
+                        destInputClearBtn.visibility = View.GONE
                     }
                 }
                 if (origin != null && place.latLng == origin?.latLng) {
-                    Timer().schedule(100) {
+                    Timer().schedule(50) {
                         destInput.setText(null)
                     }
                     Snackbar
@@ -276,16 +276,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         })
 
         // 2 seconds should be enough to originInput and destInput to initialise
+        // disable clear button just in case the user quickly
+        // enters location and clicks on clear button before changing the visibility.
+        // should not happen though
         Timer().schedule(2000) {
-            for (i in 0 until 2) {
-                val input = if (i == 0) originInput else destInput
-                val clearBtn = input.view?.findViewById(com.google.android.libraries.places.R.id.places_autocomplete_clear_button) as ImageButton
-                clearBtn.post {
-                    // disable clear button just in case the user quickly
-                    // enters location and clicks on clear button before changing the visibility.
-                    // should not happen though
-                    clearBtn.isEnabled = false
-                }
+            originInputClearBtn = originInput.view?.findViewById(com.google.android.libraries.places.R.id.places_autocomplete_clear_button) as ImageButton
+            originInputClearBtn.post {
+                originInputClearBtn.isEnabled = false
+            }
+            destInputClearBtn = destInput.view?.findViewById(com.google.android.libraries.places.R.id.places_autocomplete_clear_button) as ImageButton
+            destInputClearBtn.post {
+                destInputClearBtn.isEnabled = false
             }
         }
 
@@ -300,6 +301,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
             dest = prevOrigin
             originInput.setText(prevDest?.name)
             destInput.setText(prevOrigin?.name)
+            originInputClearBtn.visibility = View.GONE
+            destInputClearBtn.visibility = View.GONE
+            // hide clear button i.e. disable it
+            Timer().schedule(50) {
+                originInputClearBtn.post {
+                    originInputClearBtn.visibility = View.GONE
+                }
+                destInputClearBtn.post {
+                    destInputClearBtn.visibility = View.GONE
+                }
+            }
             calculate(false)
         }
 
@@ -342,10 +354,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                         origin = curPlace
                         originInput.setText(curPlace.address)
                         // hide clear button i.e. disable it
-                        val clearBtn = originInput.view?.findViewById(com.google.android.libraries.places.R.id.places_autocomplete_clear_button) as ImageButton
-                        Timer().schedule(200) {
-                            clearBtn.post {
-                                clearBtn.visibility = View.GONE
+                        Timer().schedule(50) {
+                            originInputClearBtn.post {
+                                originInputClearBtn.visibility = View.GONE
                             }
                         }
                         calculate(false)

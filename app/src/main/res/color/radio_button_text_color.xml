@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--https://github.com/material-components/material-components-android/blob/master/lib/java/com/google/android/material/radiobutton/res/color/m3_radiobutton_button_tint.xml-->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_enabled="false" android:color="?android:attr/textColorPrimaryInverse"/>
-    <item android:state_checked="true" android:color="?android:attr/colorPrimary"/>
-    <item android:color="?android:textColorPrimary"/>
+    <item android:alpha="@dimen/m3_comp_radio_button_disabled_unselected_icon_opacity"
+        android:color="@macro/m3_comp_radio_button_disabled_unselected_icon_color"
+        android:state_enabled="false"/>
+    <item android:color="@macro/m3_comp_radio_button_selected_icon_color"
+        android:state_checked="true"/>
+    <item android:color="@macro/m3_comp_radio_button_unselected_icon_color"
+        android:state_checked="false"/>
 </selector>

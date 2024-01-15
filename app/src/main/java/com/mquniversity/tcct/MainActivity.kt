@@ -457,7 +457,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
                 enableButtons(true)
                 return
             }
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             frag.update(reload)
         } else {
             // frag is query fragment

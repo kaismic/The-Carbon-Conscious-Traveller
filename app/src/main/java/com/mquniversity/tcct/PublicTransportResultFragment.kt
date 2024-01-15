@@ -13,6 +13,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.flexbox.FlexboxLayout
+import com.google.android.material.color.MaterialColors
 import com.google.maps.model.TravelMode
 import com.google.maps.model.VehicleType
 import java.io.IOException
@@ -169,9 +170,10 @@ class PublicTransportResultFragment: ResultFragment() {
                         ImageView(context).apply {
                             setImageResource(R.drawable.outline_directions_walk_24)
                             setColorFilter(
-                                resources.getColor(
-                                    R.color.text_color,
-                                    context?.theme
+                                MaterialColors.getColor(
+                                    context,
+                                    android.R.attr.textColorSecondary,
+                                    "android.R.attr.textColorSecondary error"
                                 )
                             )
                         }
@@ -179,14 +181,16 @@ class PublicTransportResultFragment: ResultFragment() {
                 }
                 else -> {}
             }
+
             // next icon
             stepsIconContainer.addView(
                 ImageView(context).apply {
                     setImageResource(R.drawable.outline_navigate_next_24)
                     setColorFilter(
-                        resources.getColor(
-                            R.color.text_color,
-                            context?.theme
+                        MaterialColors.getColor(
+                            context,
+                            android.R.attr.textColorSecondary,
+                            "android.R.attr.textColorSecondary error"
                         )
                     )
                 }

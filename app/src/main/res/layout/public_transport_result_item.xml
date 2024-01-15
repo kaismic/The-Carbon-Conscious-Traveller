@@ -57,7 +57,7 @@
             <ImageView
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:src="@drawable/outline_co2_24"
+                android:src="@drawable/co2e"
                 app:tint="@color/text_color" />
         </LinearLayout>
         <com.google.android.material.textview.MaterialTextView

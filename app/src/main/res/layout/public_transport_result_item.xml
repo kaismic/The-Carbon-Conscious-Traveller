@@ -58,7 +58,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:src="@drawable/co2e"
-                app:tint="@color/text_color" />
+                app:tint="?android:textColorSecondary" />
         </LinearLayout>
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/distance_text"

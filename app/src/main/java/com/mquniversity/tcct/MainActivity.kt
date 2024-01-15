@@ -131,6 +131,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, OnRequestPermissio
         }
         binding.sidebarNavigationView.setNavigationItemSelectedListener {
             when (it.itemId) {
+                R.id.item_about -> startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.github_link))))
                 R.id.item_privacy -> startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.privacy_link))))
                 else -> {}
             }

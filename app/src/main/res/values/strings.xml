@@ -35,5 +35,7 @@
 
     <string name="summary_text">via %1$s</string>
     <string name="departure_arrival_time">%1$s - %2$s</string>
+
+    <string name="github_link">https://github.com/kaismic/The-Carbon-Conscious-Traveller</string>
     <string name="privacy_link">https://github.com/kaismic/The-Carbon-Conscious-Traveller/blob/master/privacy.md</string>
 </resources>

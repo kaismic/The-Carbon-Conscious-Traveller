@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 
@@ -26,6 +27,11 @@ class CarQueryFragment : PrivateVehicleQueryFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         headerText.text = getString(R.string.car)
+        sizeDescBtn.setOnClickListener {
+            MaterialAlertDialogBuilder(requireContext())
+                .setMessage(R.string.car_size_desc)
+                .show()
+        }
 
         fuelTypes = mainActivity.calculationValues.carFuelTypes
         carValues = mainActivity.calculationValues.carValuesMatrix.toTypedArray()

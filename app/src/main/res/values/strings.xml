@@ -36,6 +36,29 @@
     <string name="summary_text">via %1$s</string>
     <string name="departure_arrival_time">%1$s - %2$s</string>
 
+    <string name="car_size_desc">
+        <b>Small</b>\n
+        Petrol/LPG/CNG - up to a 1.4-litre engine\n
+        Diesel - up to a 1.7-litre engine\n
+        Others - vehicles models of a similar size (i.e. market segment A or B)\n
+        <b>Medium</b>\n
+        Petrol/LPG/CNG - from 1.4-litre to 2.0-litre engine\n
+        Diesel - from 1.7-litre to 2.0-litre engine\n
+        Others - vehicles models of a similar size (i.e. generally market segment C)\n
+        <b>Large</b>\n
+        Petrol/LPG/CNG - 2.0-litre engine +\n
+        Diesel - 2.0-litre engine +\n
+        Others - vehicles models of a similar size (i.e. generally market segment D and above)
+    </string>
+    <string name="motorcycle_size_desc">
+        <b>Small</b>\n
+        Up to 125cc\n
+        <b>Medium</b>\n
+        From 125cc up to 500cc\n
+        <b>Large</b>\n
+        Over 500cc
+    </string>
+
     <string name="github_link">https://github.com/kaismic/The-Carbon-Conscious-Traveller</string>
     <string name="privacy_link">https://github.com/kaismic/The-Carbon-Conscious-Traveller/blob/master/privacy.md</string>
 </resources>

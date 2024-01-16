@@ -28,10 +28,14 @@ class CarResultFragment(
 
     fun updateFactor(carSize: String, carFuelType: String) {
         factor = calculationValues.carValuesMatrix[calculationValues.carSizes.indexOf(carSize)][calculationValues.carFuelTypes.indexOf(carFuelType)]
+        val emissions = FloatArray(currRoutes.size)
         for (i in currRoutes.indices) {
-            emissionTexts[i].text = CalculationUtils.formatEmission(currRoutes[i].legs[0].distance.inMeters * factor)
+            emissions[i] = currRoutes[i].legs[0].distance.inMeters * factor
+            emissionTexts[i].text = CalculationUtils.formatEmission(emissions[i])
             distTexts[i].text = currRoutes[i].legs[0].distance.humanReadable
             durationTexts[i].text = currRoutes[i].legs[0].duration.humanReadable
         }
+        mainActivity.transportSelection.updateIcons(emissions)
+        updateTreeIcons(emissions)
     }
 }

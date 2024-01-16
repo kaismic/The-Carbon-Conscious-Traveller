@@ -17,7 +17,7 @@ import com.google.android.material.textview.MaterialTextView
 abstract class PrivateVehicleQueryFragment : Fragment() {
     protected lateinit var mainLayout: LinearLayout
     protected lateinit var headerText: MaterialTextView
-    protected lateinit var optionsDescBtn: MaterialButton
+    protected lateinit var sizeDescBtn: MaterialButton
     protected lateinit var calBtn: MaterialButton
 
     protected lateinit var mainActivity: MainActivity
@@ -33,7 +33,7 @@ abstract class PrivateVehicleQueryFragment : Fragment() {
         mainLayout.showDividers = LinearLayout.SHOW_DIVIDER_MIDDLE
 
         headerText = mainLayout.findViewById(R.id.header_text)
-        optionsDescBtn = mainLayout.findViewById(R.id.options_desc_button)
+        sizeDescBtn = mainLayout.findViewById(R.id.options_desc_button)
         calBtn = mainLayout.findViewById(R.id.calculate_button)
     }
 

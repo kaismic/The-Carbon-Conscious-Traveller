@@ -1,6 +1,10 @@
 package com.mquniversity.tcct
 
 object CalculationUtils {
+    const val TREE_CO2_GRAM = 29000f
+    const val TREE_BRANCH_CO2_GRAM = 5000f
+    const val FOUR_LEAVES_CO2_GRAM = 1000f
+    const val ONE_LEAF_CO2_GRAM = 100f
     fun formatEmission(emissionInGram: Float): String {
         if (emissionInGram >= 1000) {
             return String.format("%.2f", emissionInGram / 1000) + " kg"

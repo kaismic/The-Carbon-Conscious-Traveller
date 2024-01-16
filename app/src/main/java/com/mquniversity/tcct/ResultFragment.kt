@@ -186,7 +186,6 @@ abstract class ResultFragment: Fragment() {
                 count = floor(dividend / emissionIconValues[j]).toInt()
                 if (count >= 1) {
                     val imageRes: Int = when (j) {
-                        // TODO change image
                         0 -> R.drawable.tree2
                         1 -> R.drawable.tree_branch3
                         2 -> R.drawable.four_leaves1

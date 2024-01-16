@@ -181,6 +181,18 @@ abstract class ResultFragment: Fragment() {
             if (dividend == 0f) {
                 continue
             }
+            if (dividend < CalculationUtils.ONE_LEAF_CO2_GRAM) {
+                treeContainer.addView(
+                    ImageView(context).apply {
+                        setImageResource(R.drawable.leaf2)
+                        layoutParams = FlexboxLayout.LayoutParams(
+                            48,
+                            48
+                        )
+                    }
+                )
+                continue
+            }
             var count: Int
             for (j in emissionIconValues.indices) {
                 count = floor(dividend / emissionIconValues[j]).toInt()

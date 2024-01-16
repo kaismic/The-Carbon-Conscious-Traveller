@@ -31,6 +31,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.net.UnknownHostException
+import kotlin.math.floor
 
 abstract class ResultFragment: Fragment() {
     protected lateinit var rootScrollView: NestedScrollView
@@ -162,25 +163,49 @@ abstract class ResultFragment: Fragment() {
                 && mainActivity.dest?.latLng == currDest?.latLng)
     }
 
-    private fun updateTreeIcons(routeEmissions: FloatArray) {
-        val noDupSorted = routeEmissions.distinct().sortedDescending()
-        val treeNumMap = mutableMapOf<Float, Int>()
-        for (i in noDupSorted.indices) {
-            treeNumMap[noDupSorted[i]] = i + 1
+    protected fun updateTreeIcons(routeEmissions: FloatArray) {
+        if (routeEmissions.size <= 1) {
+            return
         }
+        val max = routeEmissions.max()
+        val emissionIconValues = arrayOf(
+            CalculationUtils.TREE_CO2_GRAM,
+            CalculationUtils.TREE_BRANCH_CO2_GRAM,
+            CalculationUtils.FOUR_LEAVES_CO2_GRAM,
+            CalculationUtils.ONE_LEAF_CO2_GRAM,
+        )
         for (i in routeEmissions.indices) {
-            val treeNum = treeNumMap[routeEmissions[i]]!!
             val treeContainer = resultLayouts[i]?.findViewById<FlexboxLayout>(R.id.tree_container)!!
-            repeat(treeNum) {
-                treeContainer.addView(
-                    ImageView(context).apply {
-                        setImageResource(R.drawable.tree2)
-                        layoutParams = FlexboxLayout.LayoutParams(
-                            48,
-                            48
+            treeContainer.removeAllViews()
+            var dividend = max - routeEmissions[i]
+            if (dividend == 0f) {
+                continue
+            }
+            var count: Int
+            for (j in emissionIconValues.indices) {
+                count = floor(dividend / emissionIconValues[j]).toInt()
+                if (count >= 1) {
+                    val imageRes: Int = when (j) {
+                        // TODO change image
+                        0 -> R.drawable.tree2
+                        1 -> R.drawable.tree_branch3
+                        2 -> R.drawable.four_leaves1
+                        3 -> R.drawable.leaf2
+                        else -> throw IllegalStateException("emissionIconValues add more checks")
+                    }
+                    repeat(count) {
+                        treeContainer.addView(
+                            ImageView(context).apply {
+                                setImageResource(imageRes)
+                                layoutParams = FlexboxLayout.LayoutParams(
+                                    48,
+                                    48
+                                )
+                            }
                         )
                     }
-                )
+                }
+                dividend %= emissionIconValues[j]
             }
         }
     }
@@ -298,7 +323,16 @@ abstract class ResultFragment: Fragment() {
             selectedPolylinePolylines[i]?.zIndex = 1f
             when (steps[i].travelMode) {
                 TravelMode.TRANSIT -> {
-                    selectedPolylinePolylines[i]?.color = Color.parseColor(steps[i].transitDetails.line.color)
+                    if (steps[i].transitDetails.line.color != null) {
+                        selectedPolylinePolylines[i]?.color = Color.parseColor(
+                            steps[i].transitDetails.line.color
+                        )
+                    } else {
+                        selectedPolylinePolylines[i]?.color = resources.getColor(
+                            R.color.polyline_private_vehicle,
+                            context?.theme
+                        )
+                    }
                     selectedPolylinePolylines[i]?.pattern = null
                 }
                 TravelMode.DRIVING -> {

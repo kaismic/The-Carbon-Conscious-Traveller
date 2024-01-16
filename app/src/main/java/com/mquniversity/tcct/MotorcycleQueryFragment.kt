@@ -45,6 +45,7 @@ class MotorcycleQueryFragment: PrivateVehicleQueryFragment() {
             calBtn.isEnabled = false
             var motorcycleResultFrag = parentFragmentManager.findFragmentByTag(getString(R.string.tag_motorcycle_result)) as MotorcycleResultFragment?
             if (motorcycleResultFrag == null) {
+                mainActivity.enableButtons(false)
                 motorcycleResultFrag = MotorcycleResultFragment(sizeOptions[currSizeIdx])
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, motorcycleResultFrag, getString(R.string.tag_motorcycle_result))

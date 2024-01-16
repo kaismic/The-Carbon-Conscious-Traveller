@@ -64,6 +64,7 @@ class CarQueryFragment : PrivateVehicleQueryFragment() {
             calBtn.isEnabled = false
             var carResultFrag = parentFragmentManager.findFragmentByTag(getString(R.string.tag_car_result)) as CarResultFragment?
             if (carResultFrag == null) {
+                mainActivity.enableButtons(false)
                 carResultFrag = CarResultFragment(sizeOptions[currSizeIdx], fuelTypeOptions[currFuelTypeIdx])
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, carResultFrag, getString(R.string.tag_car_result))

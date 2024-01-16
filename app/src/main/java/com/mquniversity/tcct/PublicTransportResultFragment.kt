@@ -151,13 +151,33 @@ class PublicTransportResultFragment: ResultFragment() {
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
-                    val shortNameText = step.transitDetails.line.shortName
+                    val shortNameText = step.transitDetails.line.shortName ?: step.transitDetails.line.name
                     if (!shortNameText.isNullOrEmpty()) {
                         val shortName: TextView = transitIconsContainer.findViewById(R.id.transit_short_name)
                         shortName.apply {
                             text = shortNameText
-                            setTextColor(Color.parseColor(step.transitDetails.line.textColor))
-                            backgroundTintList = ColorStateList.valueOf(Color.parseColor(step.transitDetails.line.color))
+                            if (step.transitDetails.line.textColor != null) {
+                                setTextColor(Color.parseColor(step.transitDetails.line.textColor))
+                            } else {
+                                setTextColor(
+                                    MaterialColors.getColor(
+                                        requireContext(),
+                                        android.R.attr.textColorPrimary,
+                                        "android.R.attr.textColorPrimary error"
+                                    )
+                                )
+                            }
+                            backgroundTintList = if (step.transitDetails.line.color != null) {
+                                ColorStateList.valueOf(Color.parseColor(step.transitDetails.line.color))
+                            } else {
+                                ColorStateList.valueOf(
+                                    MaterialColors.getColor(
+                                        requireContext(),
+                                        android.R.attr.textColorPrimaryInverse,
+                                        "android.R.attr.textColorPrimaryInverse error"
+                                    )
+                                )
+                            }
                         }
                     }
                     val stepEmissionText: TextView = transitIconsContainer.findViewById(R.id.transit_step_emission)
